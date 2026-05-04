@@ -132,7 +132,7 @@ export default function Home() {
             </section>
 
             <section className="rounded-[32px] bg-[#4a7062] p-8 text-white shadow-sm ring-1 ring-black/5">
-              <h3 className="text-lg font-semibold">Sebaran Kegiatan</h3>
+              <h3 className="text-lg font-semibold">Peta Lokasi Penanaman</h3>
               <div className="mt-6 h-48 rounded-3xl bg-[#3d5f51] p-4 flex items-center justify-center">
                 <p className="text-sm leading-6 text-[#C8DCD1] text-center">
                   Area peta untuk menampilkan wilayah kegiatan pelestarian dan dokumentasi komunitas.
