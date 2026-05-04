@@ -10,6 +10,11 @@ export default function AdminPage() {
   const [deskripsi, setDeskripsi] = useState("")
   const [file, setFile] = useState(null)
 
+  const [wilayah, setWilayah] = useState("")
+  const [latitude, setLatitude] = useState("")
+  const [longitude, setLongitude] = useState("")
+  const [mdpl, setMdpl] = useState("")
+
   const [kegiatan, setKegiatan] = useState([])
   const [editMode, setEditMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState([])
@@ -18,6 +23,11 @@ export default function AdminPage() {
   const [editNama, setEditNama] = useState("")
   const [editDeskripsi, setEditDeskripsi] = useState("")
   const [editFile, setEditFile] = useState(null)
+
+  const [editWilayah, setEditWilayah] = useState("")
+  const [editLatitude, setEditLatitude] = useState("")
+  const [editLongitude, setEditLongitude] = useState("")
+  const [editMdpl, setEditMdpl] = useState("")
 
   const fetchKegiatan = async () => {
     const { data, error } = await supabase
@@ -57,12 +67,16 @@ export default function AdminPage() {
     const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/kegiatan/${fileName}`
 
     const { error } = await supabase.from("kegiatan").insert([
-      {
-        nama,
-        deskripsi,
-        image_url: imageUrl,
-      },
-    ])
+  {
+    nama,
+    deskripsi,
+    image_url: imageUrl,
+    wilayah,
+    latitude: latitude ? Number(latitude) : null,
+    longitude: longitude ? Number(longitude) : null,
+    mdpl: mdpl ? Number(mdpl) : null,
+  },
+])
 
     if (error) {
       alert(error.message)
@@ -74,6 +88,10 @@ export default function AdminPage() {
     setNama("")
     setDeskripsi("")
     setFile(null)
+    setWilayah("")
+    setLatitude("")
+    setLongitude("")
+    setMdpl("")
 
     fetchKegiatan()
   }
@@ -127,6 +145,10 @@ export default function AdminPage() {
     setEditingItem(item)
     setEditNama(item.nama)
     setEditDeskripsi(item.deskripsi)
+    setEditWilayah(item.wilayah || "")
+    setEditLatitude(item.latitude || "")
+    setEditLongitude(item.longitude || "")
+    setEditMdpl(item.mdpl || "")
     setEditFile(null)
   }
 
@@ -156,6 +178,10 @@ export default function AdminPage() {
         nama: editNama,
         deskripsi: editDeskripsi,
         image_url: imageUrl,
+        wilayah: editWilayah,
+        latitude: editLatitude ? Number(editLatitude) : null,
+        longitude: editLongitude ? Number(editLongitude) : null,
+        mdpl: editMdpl ? Number(editMdpl) : null,
       })
       .eq("id", editingItem.id)
 
@@ -172,6 +198,10 @@ export default function AdminPage() {
     setEditNama("")
     setEditDeskripsi("")
     setEditFile(null)
+    setEditWilayah("")
+    setEditLatitude("")
+    setEditLongitude("")
+    setEditMdpl("")
 
     fetchKegiatan()
   }
@@ -225,6 +255,39 @@ export default function AdminPage() {
               placeholder="Deskripsi"
               value={deskripsi}
               onChange={(e) => setDeskripsi(e.target.value)}
+              className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+            />
+
+            <input
+              type="text"
+              placeholder="Wilayah, contoh: Bandung"
+              value={wilayah}
+              onChange={(e) => setWilayah(e.target.value)}
+              className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+            />
+
+            <input
+              type="number"
+              step="any"
+              placeholder="Latitude, contoh: -6.9175"
+              value={latitude}
+              onChange={(e) => setLatitude(e.target.value)}
+              className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+            />
+
+            <input
+              type="number"
+              step="any"
+              placeholder="Longitude, contoh: 107.6191"
+              value={longitude}
+              onChange={(e) => setLongitude(e.target.value)}
+              className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+            />
+            <input
+              type="number"
+              placeholder="MDPL, contoh: 768"
+              value={mdpl}
+              onChange={(e) => setMdpl(e.target.value)}
               className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
             />
 
@@ -309,6 +372,40 @@ export default function AdminPage() {
                 <textarea
                   value={editDeskripsi}
                   onChange={(e) => setEditDeskripsi(e.target.value)}
+                  className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Wilayah, contoh: Bandung"
+                  value={editWilayah}
+                  onChange={(e) => setEditWilayah(e.target.value)}
+                  className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+                />
+
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="Latitude, contoh: -6.9175"
+                  value={editLatitude}
+                  onChange={(e) => setEditLatitude(e.target.value)}
+                  className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+                />
+
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="Longitude, contoh: 107.6191"
+                  value={editLongitude}
+                  onChange={(e) => setEditLongitude(e.target.value)}
+                  className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+                />
+
+                <input
+                  type="number"
+                  placeholder="MDPL, contoh: 768"
+                  value={editMdpl}
+                  onChange={(e) => setEditMdpl(e.target.value)}
                   className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
                 />
 
