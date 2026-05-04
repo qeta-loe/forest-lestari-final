@@ -1,7 +1,7 @@
 export default function ArticlesPage() {
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
-    <div className="w-[1440px] h-[1897px] relative bg-stone-50 overflow-hidden">
+      <div className="w-[1440px] h-[1897px] relative bg-stone-50 overflow-hidden">
   <div className="w-[1440px] h-32 left-0 top-0 absolute bg-stone-50 border border-black/10" />
   <div className="p-2.5 left-[167px] top-[38px] absolute inline-flex justify-center items-center gap-2.5">
     <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Newsreader']">Forest Lestari</div>
@@ -28,44 +28,57 @@ export default function ArticlesPage() {
   <div className="p-2.5 left-[47px] top-[1826px] absolute inline-flex justify-center items-center gap-2.5">
     <div className="text-center justify-center text-emerald-900 text-sm font-normal font-['Inter']">©  Komunitas Forest Lestari - Bogor</div>
   </div>
-  <div className="w-[627px] p-2.5 left-[744px] top-[270px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-[617px] justify-center text-emerald-900 text-4xl font-bold font-['Work_Sans']">Strategi Pemulihan Ekosistem Mangrove di Pesisir Utara</div>
-  </div>
-  <div className="w-[735px] h-11 p-2.5 left-[67px] top-[214px] absolute" />
-  <div className="w-24 h-9 p-5 left-[61px] top-[668px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+  <div className="w-24 h-9 p-5 left-[61px] top-[168px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
     <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Semua</div>
   </div>
-  <div className="w-40 h-9 p-5 left-[399px] top-[668px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+  <div className="w-40 h-9 p-5 left-[398px] top-[168px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
     <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Edukasi dan Tips</div>
   </div>
-  <div className="w-44 h-9 p-5 left-[605px] top-[668px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+  <div className="w-44 h-9 p-5 left-[604px] top-[168px] absolute bg-gray-300 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
     <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Berita Komunitas</div>
   </div>
-  <div className="w-40 h-9 p-5 left-[195px] top-[668px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+  <div className="w-40 h-9 p-5 left-[195px] top-[168px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
     <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Isu Lingkungan</div>
   </div>
-  <div className="w-[631px] h-0 left-[1371px] top-[447px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-[1440px] h-0 left-[1440px] top-[631px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-[1440px] h-0 left-[1443px] top-[743px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-[650px] h-96 left-[61px] top-[188px] absolute bg-gray-400 rounded-3xl" />
+  <div className="w-[1437px] h-0 left-[1437px] top-[131px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
+  <div className="w-[1437px] h-0 left-[1440px] top-[243px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
   <div className="w-[650px] h-96 left-[47px] top-[1288px] absolute bg-gray-400 rounded-3xl" />
   <div className="w-[650px] h-96 left-[742px] top-[1288px] absolute bg-gray-400 rounded-3xl" />
   <div className="w-80 h-[474px] left-[47px] top-[780px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-40 h-7 p-5 left-[748px] top-[227px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Edukasi dan Tips</div>
-  </div>
+  <div className="w-80 h-[474px] left-[47px] top-[274px] absolute bg-gray-400 rounded-3xl" />
+  <div className="w-80 h-[474px] left-[387px] top-[274px] absolute bg-gray-400 rounded-3xl" />
+  <div className="w-80 h-[474px] left-[727px] top-[274px] absolute bg-gray-400 rounded-3xl" />
+  <div className="w-80 h-[474px] left-[1067px] top-[274px] absolute bg-gray-400 rounded-3xl" />
   <div className="w-80 h-52 left-[47px] top-[780px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
+  <div className="w-80 h-52 left-[47px] top-[274px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
+  <div className="w-80 h-52 left-[387px] top-[274px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
+  <div className="w-80 h-52 left-[727px] top-[274px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
+  <div className="w-80 h-52 left-[1067px] top-[274px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
   <div className="w-80 h-96 left-[47px] top-[1288px] absolute bg-zinc-300 rounded-tl-3xl rounded-bl-3xl" />
   <div className="w-80 h-96 left-[742px] top-[1288px] absolute bg-zinc-300 rounded-tl-3xl rounded-bl-3xl" />
-  <div className="w-[633px] p-2.5 left-[741px] top-[380px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-[615.85px] justify-center text-emerald-900 text-base font-normal font-['Inter']">Menelaah keberhasilan kolaborasi antara masyarakat adat dan teknologi pemantauan satelit dalam merevitalisasi 200 hektar hutan bakau yang terdampak abrasi.</div>
-  </div>
-  <div className="w-48 p-2.5 left-[851px] top-[471px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-44 justify-center text-emerald-900 text-base font-normal font-['Inter']">Dr. Aris Setyawan<br/>Dokter Hewan</div>
-  </div>
   <div className="w-56 left-[73px] top-[1033.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">18 April 2025</div>
+  <div className="w-56 left-[73px] top-[527.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">18 April 2025</div>
+  <div className="w-56 left-[413px] top-[527.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">18 April 2025</div>
+  <div className="w-56 left-[753px] top-[527.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">18 April 2025</div>
+  <div className="w-56 left-[1093px] top-[527.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">18 April 2025</div>
   <div className="w-28 left-[73px] top-[1204.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Siti Aminah</div>
+  <div className="w-28 left-[73px] top-[698.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Siti Aminah</div>
+  <div className="w-28 left-[413px] top-[698.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Siti Aminah</div>
+  <div className="w-28 left-[753px] top-[698.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Siti Aminah</div>
+  <div className="w-28 left-[1093px] top-[698.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Siti Aminah</div>
   <div className="w-72 p-2.5 left-[69px] top-[1113px] absolute inline-flex justify-center items-center gap-2.5">
+    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.</div>
+  </div>
+  <div className="w-72 p-2.5 left-[69px] top-[607px] absolute inline-flex justify-center items-center gap-2.5">
+    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.</div>
+  </div>
+  <div className="w-72 p-2.5 left-[409px] top-[607px] absolute inline-flex justify-center items-center gap-2.5">
+    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.</div>
+  </div>
+  <div className="w-72 p-2.5 left-[749px] top-[607px] absolute inline-flex justify-center items-center gap-2.5">
+    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.</div>
+  </div>
+  <div className="w-72 p-2.5 left-[1089px] top-[607px] absolute inline-flex justify-center items-center gap-2.5">
     <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.</div>
   </div>
   <div className="w-24 h-9 p-2.5 left-[548px] top-[1030px] absolute" />
@@ -73,8 +86,38 @@ export default function ArticlesPage() {
   <div className="w-72 p-2.5 left-[66px] top-[1052px] absolute inline-flex justify-center items-center gap-2.5">
     <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">5 Langkah Sederhana Mengurangi Jejak Karbon ..</div>
   </div>
-  <div className="w-28 h-5 p-5 left-[62px] top-[793px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Edukasi dan Tips</div>
+  <div className="w-72 p-2.5 left-[66px] top-[546px] absolute inline-flex justify-center items-center gap-2.5">
+    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">5 Langkah Sederhana Mengurangi Jejak Karbon ..</div>
+  </div>
+  <div className="w-72 p-2.5 left-[406px] top-[546px] absolute inline-flex justify-center items-center gap-2.5">
+    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">5 Langkah Sederhana Mengurangi Jejak Karbon ..</div>
+  </div>
+  <div className="w-72 p-2.5 left-[746px] top-[546px] absolute inline-flex justify-center items-center gap-2.5">
+    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">5 Langkah Sederhana Mengurangi Jejak Karbon ..</div>
+  </div>
+  <div className="w-72 p-2.5 left-[1086px] top-[546px] absolute inline-flex justify-center items-center gap-2.5">
+    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">5 Langkah Sederhana Mengurangi Jejak Karbon ..</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[62px] top-[287px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Isu Lingkungan</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[62px] top-[287px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[62px] top-[794px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[62px] top-[794px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[406px] top-[287px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[746px] top-[287px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[1083px] top-[287px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
   </div>
   <div className="w-80 h-[474px] left-[387px] top-[780px] absolute bg-gray-400 rounded-3xl" />
   <div className="w-80 h-52 left-[387px] top-[780px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
@@ -110,11 +153,20 @@ export default function ArticlesPage() {
   <div className="p-2.5 left-[1080px] top-[1406px] absolute inline-flex justify-center items-center gap-2.5">
     <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut</div>
   </div>
-  <div className="w-28 h-5 p-5 left-[402px] top-[793px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
-  </div>
   <div className="w-80 h-[474px] left-[727px] top-[780px] absolute bg-gray-400 rounded-3xl" />
   <div className="w-80 h-52 left-[727px] top-[780px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
+  <div className="w-28 h-5 p-5 left-[413px] top-[794px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[746px] top-[794px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[761px] top-[1300px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
+  <div className="w-28 h-5 p-5 left-[62px] top-[1300px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
   <div className="w-56 left-[753px] top-[1033.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">19 Januari 2026</div>
   <div className="w-28 left-[753px] top-[1204.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Rina Wijaya</div>
   <div className="w-72 p-2.5 left-[749px] top-[1113px] absolute inline-flex justify-center items-center gap-2.5">
@@ -123,11 +175,11 @@ export default function ArticlesPage() {
   <div className="w-72 p-2.5 left-[750px] top-[1052px] absolute inline-flex justify-center items-center gap-2.5">
     <div className="w-72 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Krisis Biodiversitas: Spesies Endemik yang Terancam ...</div>
   </div>
-  <div className="w-28 h-5 p-5 left-[742px] top-[793px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Edukasi dan Tips</div>
-  </div>
   <div className="w-80 h-[474px] left-[1070px] top-[780px] absolute bg-gray-400 rounded-3xl" />
   <div className="w-80 h-52 left-[1070px] top-[780px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
+  <div className="w-28 h-5 p-5 left-[1083px] top-[794px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
+    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
+  </div>
   <div className="w-56 left-[1081px] top-[1033.08px] absolute text-center justify-center text-white text-xs font-normal font-['Inter']">Kabupaten Bogor  ·  18 April 2025</div>
   <div className="w-28 left-[1096px] top-[1204.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Siti Aminah</div>
   <div className="w-72 p-2.5 left-[1092px] top-[1113px] absolute inline-flex justify-center items-center gap-2.5">
@@ -135,9 +187,6 @@ export default function ArticlesPage() {
   </div>
   <div className="w-72 p-2.5 left-[1089px] top-[1052px] absolute inline-flex justify-center items-center gap-2.5">
     <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">5 Langkah Sederhana Mengurangi Jejak Karbon ..</div>
-  </div>
-  <div className="w-28 h-5 p-5 left-[1085px] top-[793px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Edukasi dan Tips</div>
   </div>
   <div className="w-80 h-11 left-[557px] top-[1706px] absolute">
     <div className="w-11 h-11 p-2.5 left-[138px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
@@ -156,7 +205,7 @@ export default function ArticlesPage() {
       <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">1</div>
     </div>
   </div>
-  <div className="w-24 h-6 left-[1253px] top-[232px] absolute">
+  <div className="w-24 h-6 left-[1253px] top-[174px] absolute">
     <div className="w-24 h-6 left-0 top-0 absolute bg-stone-50 rounded-[29px] border border-black" />
     <div className="w-9 h-3 left-[10px] top-[7px] absolute text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Cari</div>
     <div className="w-2.5 h-2.5 left-[76px] top-[7px] absolute">
@@ -165,7 +214,6 @@ export default function ArticlesPage() {
       <div className="w-[4.92px] h-0 left-[7.48px] top-[7.57px] absolute origin-top-left rotate-[44.23deg] outline outline-1 outline-offset-[-0.50px] outline-emerald-900" />
     </div>
   </div>
-  <div className="w-14 h-14 left-[778px] top-[470px] absolute bg-zinc-300 rounded-full" />
   <div className="w-3.5 h-0 left-[323px] top-[1212px] absolute border-2 border-white" />
   <div className="w-3.5 h-0 left-[668px] top-[1212px] absolute border-2 border-white" />
   <div className="w-3.5 h-0 left-[1004px] top-[1212px] absolute border-2 border-white" />
