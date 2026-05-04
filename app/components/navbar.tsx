@@ -18,27 +18,27 @@ export default function Navbar() {
           {/* Menu Navigasi */}
           <ul className="flex items-center gap-8 text-sm text-[#31513E] font-medium">
             <li>
-              <Link href="/" className="hover:text-[#0F5139] transition">
+              <Link href="/" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
                 Beranda
               </Link>
             </li>
             <li>
-              <Link href="/articles" className="hover:text-[#0F5139] transition">
+              <Link href="/articles" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
                 Artikel
               </Link>
             </li>
             <li>
-              <a href="#kegiatan" className="hover:text-[#0F5139] transition">
+              <Link href="/kegiatan" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
                 Kegiatan
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="#database" className="hover:text-[#0F5139] transition">
+              <a href="#database" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
                 Database
               </a>
             </li>
             <li>
-              <a href="#tentang" className="hover:text-[#0F5139] transition">
+              <a href="#tentang" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
                 Tentang Kami
               </a>
             </li>
