@@ -1,185 +1,223 @@
 export default function ArticlesPage() {
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
-    <div className="w-[1440px] h-[1897px] relative bg-stone-50 overflow-hidden">
-  <div className="w-[1440px] h-32 left-0 top-0 absolute bg-stone-50 border border-black/10" />
-  <div className="p-2.5 left-[167px] top-[38px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Newsreader']">Forest Lestari</div>
-  </div>
-  <div className="w-28 h-12 p-2.5 left-[662px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Beranda</div>
-  </div>
-  <div className="p-2.5 left-[1156px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Tentang Kami</div>
-  </div>
-  <div className="p-2.5 left-[890px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Kegiatan</div>
-  </div>
-  <div className="p-2.5 left-[1018px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Database</div>
-  </div>
-  <div className="p-2.5 left-[786px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Artikel</div>
-  </div>
-  <div className="p-[5px] left-[67px] top-[26px] absolute inline-flex justify-start items-center gap-2.5">
-    <img className="w-16 h-16" src="https://placehold.co/70x70" />
-  </div>
-  <div className="w-[1440px] h-0 left-[1442px] top-[1790px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="p-2.5 left-[47px] top-[1826px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-normal font-['Inter']">©  Komunitas Forest Lestari - Bogor</div>
-  </div>
-  <div className="w-[627px] p-2.5 left-[744px] top-[270px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-[617px] justify-center text-emerald-900 text-4xl font-bold font-['Work_Sans']">Strategi Pemulihan Ekosistem Mangrove di Pesisir Utara</div>
-  </div>
-  <div className="w-[735px] h-11 p-2.5 left-[67px] top-[214px] absolute" />
-  <div className="w-24 h-9 p-5 left-[61px] top-[668px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Semua</div>
-  </div>
-  <div className="w-40 h-9 p-5 left-[399px] top-[668px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Edukasi dan Tips</div>
-  </div>
-  <div className="w-44 h-9 p-5 left-[605px] top-[668px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Berita Komunitas</div>
-  </div>
-  <div className="w-40 h-9 p-5 left-[195px] top-[668px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Isu Lingkungan</div>
-  </div>
-  <div className="w-[631px] h-0 left-[1371px] top-[447px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-[1440px] h-0 left-[1440px] top-[631px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-[1440px] h-0 left-[1443px] top-[743px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-[650px] h-96 left-[61px] top-[188px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-[650px] h-96 left-[47px] top-[1288px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-[650px] h-96 left-[742px] top-[1288px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-80 h-[474px] left-[47px] top-[780px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-40 h-7 p-5 left-[748px] top-[227px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Edukasi dan Tips</div>
-  </div>
-  <div className="w-80 h-52 left-[47px] top-[780px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
-  <div className="w-80 h-96 left-[47px] top-[1288px] absolute bg-zinc-300 rounded-tl-3xl rounded-bl-3xl" />
-  <div className="w-80 h-96 left-[742px] top-[1288px] absolute bg-zinc-300 rounded-tl-3xl rounded-bl-3xl" />
-  <div className="w-[633px] p-2.5 left-[741px] top-[380px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-[615.85px] justify-center text-emerald-900 text-base font-normal font-['Inter']">Menelaah keberhasilan kolaborasi antara masyarakat adat dan teknologi pemantauan satelit dalam merevitalisasi 200 hektar hutan bakau yang terdampak abrasi.</div>
-  </div>
-  <div className="w-48 p-2.5 left-[851px] top-[471px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-44 justify-center text-emerald-900 text-base font-normal font-['Inter']">Dr. Aris Setyawan<br/>Dokter Hewan</div>
-  </div>
-  <div className="w-56 left-[73px] top-[1033.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">18 April 2025</div>
-  <div className="w-28 left-[73px] top-[1204.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Siti Aminah</div>
-  <div className="w-72 p-2.5 left-[69px] top-[1113px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.</div>
-  </div>
-  <div className="w-24 h-9 p-2.5 left-[548px] top-[1030px] absolute" />
-  <div className="w-28 left-[660px] top-[922.04px] absolute text-center justify-center text-white text-xs font-normal font-['Inter']">26 Mei 2025</div>
-  <div className="w-72 p-2.5 left-[66px] top-[1052px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">5 Langkah Sederhana Mengurangi Jejak Karbon ..</div>
-  </div>
-  <div className="w-28 h-5 p-5 left-[62px] top-[793px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Edukasi dan Tips</div>
-  </div>
-  <div className="w-80 h-[474px] left-[387px] top-[780px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-80 h-52 left-[387px] top-[780px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
-  <div className="w-56 left-[413px] top-[1033.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">6 Februari 2026</div>
-  <div className="w-56 left-[396px] top-[1387.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">27 Maret 2026</div>
-  <div className="w-56 left-[1091px] top-[1387.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">1 April 2026</div>
-  <div className="w-28 left-[413px] top-[1204.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Darmawan J.</div>
-  <div className="w-28 left-[394px] top-[1580.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Taufik H. </div>
-  <div className="w-28 left-[1089px] top-[1580.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Taufik H. </div>
-  <div className="p-2.5 left-[513px] top-[1570px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="justify-center text-white text-xs font-normal font-['Inter']">Baca Selengkapnya</div>
-    <div className="w-3.5 h-0 border-2 border-white" />
-  </div>
-  <div className="p-2.5 left-[1208px] top-[1570px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="justify-center text-white text-xs font-normal font-['Inter']">Baca Selengkapnya</div>
-    <div className="w-3.5 h-0 border-2 border-white" />
-  </div>
-  <div className="w-72 p-2.5 left-[409px] top-[1113px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Catatan dari pertemuan relawan Forest Lestari membahas tantangan ekspansi lahan dan solusi ekonomi kreaktif lokal.</div>
-  </div>
-  <div className="w-72 p-2.5 left-[390px] top-[1489px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Bagaimana algoritma kecerdasan buatan memprediksi titik api dengan akurasi 94% sebelum bencana terjadi. </div>
-  </div>
-  <div className="w-72 p-2.5 left-[1085px] top-[1489px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Bagaimana algoritma kecerdasan buatan memprediksi titik api dengan akurasi 94% sebelum bencana terjadi. </div>
-  </div>
-  <div className="w-72 p-2.5 left-[406px] top-[1052px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Rangkuman Temu Wicara: Masa Depan Hutan ....</div>
-  </div>
-  <div className="p-2.5 left-[385px] top-[1406px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut</div>
-  </div>
-  <div className="p-2.5 left-[1080px] top-[1406px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut</div>
-  </div>
-  <div className="w-28 h-5 p-5 left-[402px] top-[793px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Berita Komunitas</div>
-  </div>
-  <div className="w-80 h-[474px] left-[727px] top-[780px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-80 h-52 left-[727px] top-[780px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
-  <div className="w-56 left-[753px] top-[1033.08px] absolute justify-center text-white text-xs font-normal font-['Inter']">19 Januari 2026</div>
-  <div className="w-28 left-[753px] top-[1204.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Rina Wijaya</div>
-  <div className="w-72 p-2.5 left-[749px] top-[1113px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Laporan mendalam mengenai hilangnya habitat fauna langka si wilayah Wallacea dan upaya konservasi mendesak yang diperlukan.</div>
-  </div>
-  <div className="w-72 p-2.5 left-[750px] top-[1052px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Krisis Biodiversitas: Spesies Endemik yang Terancam ...</div>
-  </div>
-  <div className="w-28 h-5 p-5 left-[742px] top-[793px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Edukasi dan Tips</div>
-  </div>
-  <div className="w-80 h-[474px] left-[1070px] top-[780px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-80 h-52 left-[1070px] top-[780px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
-  <div className="w-56 left-[1081px] top-[1033.08px] absolute text-center justify-center text-white text-xs font-normal font-['Inter']">Kabupaten Bogor  ·  18 April 2025</div>
-  <div className="w-28 left-[1096px] top-[1204.04px] absolute justify-center text-white text-xs font-normal font-['Inter']">👤 Siti Aminah</div>
-  <div className="w-72 p-2.5 left-[1092px] top-[1113px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 justify-center text-white text-xs font-normal font-['Inter']">Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.</div>
-  </div>
-  <div className="w-72 p-2.5 left-[1089px] top-[1052px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-64 justify-center text-emerald-900 text-xl font-bold font-['Inter']">5 Langkah Sederhana Mengurangi Jejak Karbon ..</div>
-  </div>
-  <div className="w-28 h-5 p-5 left-[1085px] top-[793px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Edukasi dan Tips</div>
-  </div>
-  <div className="w-80 h-11 left-[557px] top-[1706px] absolute">
-    <div className="w-11 h-11 p-2.5 left-[138px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">3</div>
+      
+      {/* Featured Article - 2 Column Layout */}
+<div className="mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+  <div className="bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-3xl h-64 lg:h-80 overflow-hidden"></div>
+
+  <div>
+    {/* Search Navigation di kanan grid */}
+    <div className="flex justify-end">
+      <div className="flex items-center gap-2 bg-stone-50 rounded-full px-2 py-1 border border-emerald-950">
+        <span className="text-emerald-900 text-xs font-['Work_Sans']">Cari</span>
+        <svg
+          className="w-4 h-4 text-emerald-900"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </div>
     </div>
-    <div className="w-11 h-11 p-2.5 left-[207px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">4</div>
+
+    <div className="inline-block mb-4">
+      <span className="px-3 py-1 bg-stone-50 rounded-full border border-emerald-950 text-xs text-emerald-900 font-['Work_Sans']">
+        Edukasi dan Tips
+      </span>
     </div>
-    <div className="w-11 h-11 p-2.5 left-[276px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="w-3 h-0 border-2 border-stone-50" />
+
+    <h2 className="text-2xl lg:text-3xl font-bold text-emerald-900 font-['Work_Sans'] mb-4">
+      Strategi Pemulihan Ekosistem Mangrove di Pesisir Utara
+    </h2>
+
+    <p className="text-emerald-900 text-sm font-normal mb-6">
+      Menelaah keberhasilan kolaborasi antara masyarakat adat dan teknologi
+      pemantauan satelit dalam merevitalisasi 200 hektar hutan bakau yang
+      terdampak abrasi.
+    </p>
+
+    <div className="flex items-center">
+      <div className="w-12 h-12 bg-zinc-300 rounded-full mr-3"></div>
+      <div className="text-emerald-900">
+        <p className="font-semibold">Dr. Aris Setyawan</p>
+        <p className="text-xs">Dokter Hewan</p>
+      </div>
     </div>
-    <div className="w-11 h-11 p-2.5 left-[69px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">2</div>
-    </div>
-    <div className="w-11 h-11 p-2.5 left-0 top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">1</div>
-    </div>
-  </div>
-  <div className="w-24 h-6 left-[1253px] top-[232px] absolute">
-    <div className="w-24 h-6 left-0 top-0 absolute bg-stone-50 rounded-[29px] border border-black" />
-    <div className="w-9 h-3 left-[10px] top-[7px] absolute text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Cari</div>
-    <div className="w-2.5 h-2.5 left-[76px] top-[7px] absolute">
-      <div className="w-2.5 h-2 left-0 top-0 absolute bg-emerald-900 rounded-full" />
-      <div className="w-2 h-2 left-[0.77px] top-[0.75px] absolute bg-stone-50 rounded-full" />
-      <div className="w-[4.92px] h-0 left-[7.48px] top-[7.57px] absolute origin-top-left rotate-[44.23deg] outline outline-1 outline-offset-[-0.50px] outline-emerald-900" />
-    </div>
-  </div>
-  <div className="w-14 h-14 left-[778px] top-[470px] absolute bg-zinc-300 rounded-full" />
-  <div className="w-3.5 h-0 left-[323px] top-[1212px] absolute border-2 border-white" />
-  <div className="w-3.5 h-0 left-[668px] top-[1212px] absolute border-2 border-white" />
-  <div className="w-3.5 h-0 left-[1004px] top-[1212px] absolute border-2 border-white" />
-  <div className="w-3.5 h-0 left-[1344px] top-[1212px] absolute border-2 border-white" />
-  <div className="p-2.5 left-[1127px] top-[1826px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-bold font-['Inter']">Hubungi Kami</div>
-  </div>
-  <div className="p-2.5 left-[1265px] top-[1826px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-bold font-['Inter']">Login Admin</div>
-  </div>
-  <div className="p-2.5 left-[1015px] top-[1826px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-bold font-['Inter']">Kerjasama </div>
   </div>
 </div>
+
+      {/* Filter Buttons */}
+      <div className="flex flex-wrap  gap-3 mb-10">
+        <button className="px-4 py-2 bg-stone-50 rounded-full border border-emerald-950 text-emerald-900 text-sm font-['Work_Sans'] hover:bg-emerald-50 transition-colors">
+          Semua
+        </button>
+        <button className="px-4 py-2 bg-stone-50 rounded-full border border-emerald-950 text-emerald-900 text-sm font-['Work_Sans'] hover:bg-emerald-50 transition-colors">
+          Isu Lingkungan
+        </button>
+        <button className="px-4 py-2 bg-stone-50 rounded-full border border-emerald-950 text-emerald-900 text-sm font-['Work_Sans'] hover:bg-emerald-50 transition-colors">
+          Edukasi dan Tips
+        </button>
+        <button className="px-4 py-2 bg-stone-50 rounded-full border border-emerald-950 text-emerald-900 text-sm font-['Work_Sans'] hover:bg-emerald-50 transition-colors">
+          Berita Komunitas
+        </button>
+      </div>
+
+      {/* Articles Grid - First 4 Articles (1 Row) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Article Card 1 */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">18 april 2025</span>
+            </div>
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 font-['Inter']">
+              5 Langkah Sederhana Mengurangi Jejak Karbon ..
+            </h3>
+            <p className="text-emerald-900 text-xs mb-3">
+              Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-emerald-900 text-xs">👤 Siti Aminah</span>
+              <span className="text-emerald-900 text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Article Card 2 */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">6 Februari 2026</span>
+            </div>
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 font-['Inter']">
+              Rangkuman Temu Wicara: Masa Depan Hutan ....
+            </h3>
+            <p className="text-emerald-900 text-xs mb-3">
+              Catatan dari pertemuan relawan Forest Lestari membahas tantangan ekspansi lahan dan solusi ekonomi kreaktif lokal.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-emerald-900 text-xs">👤 Darmawan J.</span>
+              <span className="text-emerald-900 text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Article Card 3 */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">19 Januari 2026</span>
+            </div>
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 font-['Inter']">
+              Krisis Biodiversitas: Spesies Endemik yang Terancam ...
+            </h3>
+            <p className="text-emerald-900 text-xs mb-3">
+              Laporan mendalam mengenai hilangnya habitat fauna langka di wilayah Wallacea dan upaya konservasi mendesak yang diperlukan.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-emerald-900 text-xs">👤 Rina Wijaya</span>
+              <span className="text-emerald-900 text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Article Card 4 */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">Kabupaten Bogor · 18 April 2025</span>
+            </div>
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 font-['Inter']">
+              5 Langkah Sederhana Mengurangi Jejak Karbon ..
+            </h3>
+            <p className="text-emerald-900 text-xs mb-3">
+              Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-emerald-900 text-xs">👤 Siti Aminah</span>
+              <span className="text-emerald-900 text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Articles Grid - Last 2 Articles (Wider) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        {/* Article Card 5 */}
+        <div className="bg-gradient-to-br from-emerald-300 to-emerald-400 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">27 Maret 2026</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3 font-['Inter']">
+              Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut
+            </h3>
+            <p className="text-white text-sm mb-4">
+              Bagaimana algoritma kecerdasan buatan memprediksi titik api dengan akurasi 94% sebelum bencana terjadi.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-white text-xs">👤 Taufik H.</span>
+              <span className="text-white text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Article Card 6 */}
+        <div className="bg-gradient-to-br from-emerald-300 to-emerald-400 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">1 April 2026</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3 font-['Inter']">
+              Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut
+            </h3>
+            <p className="text-white text-sm mb-4">
+              Bagaimana algoritma kecerdasan buatan memprediksi titik api dengan akurasi 94% sebelum bencana terjadi.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-white text-xs">👤 Taufik H.</span>
+              <span className="text-white text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mb-12">
+        <div className="flex gap-2">
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white text-sm font-bold hover:bg-emerald-400 transition-colors">1</button>
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white text-sm font-bold hover:bg-emerald-400 transition-colors">2</button>
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white text-sm font-bold hover:bg-emerald-400 transition-colors">3</button>
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white text-sm font-bold hover:bg-emerald-400 transition-colors">4</button>
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white font-bold hover:bg-emerald-400 transition-colors">›</button>
+        </div>
+      </div>
+
+      {/* Footer */}
+      
     </main>
   );
 }
