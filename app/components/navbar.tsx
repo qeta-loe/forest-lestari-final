@@ -33,14 +33,14 @@ export default function Navbar() {
               </Link>
             </li>
             <li>
-              <a href="#database" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
+              <Link href="/database" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
                 Database
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="#tentang" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
+              <Link href="/tentangkami" className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition">
                 Tentang Kami
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
