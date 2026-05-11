@@ -1,190 +1,223 @@
-import Link from "next/link"
-
-const categories = [
-  "Semua",
-  "Isu Lingkungan",
-  "Edukasi dan Tips",
-  "Berita Komunitas",
-]
-
-const featuredArticle = {
-  category: "Edukasi dan Tips",
-  title: "Strategi Pemulihan Ekosistem Mangrove di Pesisir Utara",
-  description:
-    "Menelaah keberhasilan kolaborasi antara masyarakat adat dan teknologi pemantauan satelit dalam merevitalisasi 200 hektar hutan bakau yang terdampak abrasi.",
-  author: "Dr. Aris Setyawan",
-  role: "Dokter Hewan",
-}
-
-const articleCards = [
-  {
-    category: "Edukasi dan Tips",
-    date: "18 April 2025",
-    title: "5 Langkah Sederhana Mengurangi Jejak Karbon ...",
-    author: "Siti Aminah",
-  },
-  {
-    category: "Berita Komunitas",
-    date: "6 Februari 2026",
-    title: "Rangkuman Temu Wicara: Masa Depan Hutan ...",
-    author: "Darwawan J.",
-  },
-  {
-    category: "Edukasi dan Tips",
-    date: "18 Januari 2026",
-    title: "Krisis Biodiversitas: Spesies Endemik yang Terancam ...",
-    author: "Rina Wijaya",
-  },
-  {
-    category: "Edukasi dan Tips",
-    date: "23 Maret 2026",
-    title: "Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut",
-    author: "Taufik H.",
-  },
-  {
-    category: "Edukasi dan Tips",
-    date: "1 April 2026",
-    title: "Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut",
-    author: "Taufik H.",
-  },
-]
-
 export default function ArticlesPage() {
   return (
-    <main className="min-h-screen bg-[#F7F6EF] text-[#113522]">
-      <div className="mx-auto max-w-[1280px] px-4 py-10">
+    <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
+      
+      {/* Featured Article - 2 Column Layout */}
+<div className="mb-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+  <div className="bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-3xl h-64 lg:h-80 overflow-hidden"></div>
 
-        {/* ===== FEATURED SECTION ===== */}
-        <div className="grid gap-8 xl:grid-cols-[1.6fr_1fr]">
-
-          {/* LEFT */}
-          <div className="rounded-[32px] bg-white p-6 shadow-sm">
-            <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
-
-              {/* IMAGE */}
-              <div className="rounded-3xl bg-[#d8e3db] p-4">
-                <div className="aspect-[16/10] w-full rounded-2xl bg-[#b0c4b4]" />
-              </div>
-
-              {/* TEXT */}
-              <div className="flex flex-col justify-between">
-
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-[#EEF6EE] px-3 py-1 text-xs font-semibold text-[#0F5139]">
-                    {featuredArticle.category}
-                  </span>
-
-                  <button className="flex items-center gap-1 rounded-full border px-6 py-1 text-xs">
-                    Cari 🔍
-                  </button>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  <h1 className="text-2xl font-semibold leading-snug text-[#0F3926]">
-                    {featuredArticle.title}
-                  </h1>
-
-                  <p className="text-sm text-[#4D6B57]">
-                    {featuredArticle.description}
-                  </p>
-                </div>
-
-                <div className="mt-4 flex items-center gap-3 bg-[#F3F7F2] p-3 rounded-2xl">
-                  <div className="h-10 w-10 rounded-full flex items-center justify-center bg-[#d4e1d7]">
-                    👤
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold">
-                      {featuredArticle.author}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {featuredArticle.role}
-                    </p>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT SIDEBAR */}
-          <div className="rounded-[32px] bg-white p-6 shadow-sm">
-
-            {/* CATEGORY */}
-            <div className="flex flex-wrap gap-2">
-              {categories.map((label) => (
-                <button
-                  key={label}
-                  className="rounded-full border px-6 py-1 text-sm hover:bg-[#eef7f1]"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* MINI ARTICLES */}
-            <div className="mt-0.25 space-y-2">
-              {articleCards.slice(0, 3).map((item, index) => (
-                <Link
-                  key={index}
-                  href="#"
-                  className="block rounded-2xl bg-[#d9e2da] p-4 hover:shadow-md transition"
-                >
-                  <p className="text-xs text-[#0F5139]">{item.date}</p>
-                  <h3 className="mt-1 text-sm font-semibold line-clamp-2">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-xs text-gray-600">
-                    {item.author}
-                  </p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* ===== GRID ARTICLES ===== */}
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {articleCards.map((item, index) => (
-            <Link
-              key={index}
-              href="#"
-              className="group overflow-hidden rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md active:scale-[0.98]"
-            >
-              <span className="inline-flex rounded-full border border-[#0F5139]/20 bg-[#EEF6EE] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0F5139]">
-                {item.category}
-              </span>
-
-              <p className="mt-4 text-xs text-[#0F5139]/80">{item.date}</p>
-
-              <h3 className="mt-3 min-h-[5rem] text-lg font-semibold text-[#0F3926] line-clamp-3">
-                {item.title}
-              </h3>
-
-              <div className="mt-6 flex items-center justify-between text-sm font-semibold text-[#0F5139]">
-                <span>{item.author}</span>
-                <span className="text-xl transition group-hover:translate-x-1">→</span>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* ===== PAGINATION ===== */}
-        <div className="mt-10 flex justify-center gap-2">
-          {[1, 2, 3, 4].map((page) => (
-            <button
-              key={page}
-              className="h-10 w-10 rounded-full border text-sm hover:bg-[#eef7f1]"
-            >
-              {page}
-            </button>
-          ))}
-          <button className="px-4 rounded-full border hover:bg-[#eef7f1]">
-            ›
-          </button>
-        </div>
-
+  <div>
+    {/* Search Navigation di kanan grid */}
+    <div className="flex justify-end">
+      <div className="flex items-center gap-2 bg-stone-50 rounded-full px-2 py-1 border border-emerald-950">
+        <span className="text-emerald-900 text-xs font-['Work_Sans']">Cari</span>
+        <svg
+          className="w-4 h-4 text-emerald-900"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
       </div>
+    </div>
+
+    <div className="inline-block mb-4">
+      <span className="px-3 py-1 bg-stone-50 rounded-full border border-emerald-950 text-xs text-emerald-900 font-['Work_Sans']">
+        Edukasi dan Tips
+      </span>
+    </div>
+
+    <h2 className="text-2xl lg:text-3xl font-bold text-emerald-900 font-['Work_Sans'] mb-4">
+      Strategi Pemulihan Ekosistem Mangrove di Pesisir Utara
+    </h2>
+
+    <p className="text-emerald-900 text-sm font-normal mb-6">
+      Menelaah keberhasilan kolaborasi antara masyarakat adat dan teknologi
+      pemantauan satelit dalam merevitalisasi 200 hektar hutan bakau yang
+      terdampak abrasi.
+    </p>
+
+    <div className="flex items-center">
+      <div className="w-12 h-12 bg-zinc-300 rounded-full mr-3"></div>
+      <div className="text-emerald-900">
+        <p className="font-semibold">Dr. Aris Setyawan</p>
+        <p className="text-xs">Dokter Hewan</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+      {/* Filter Buttons */}
+      <div className="flex flex-wrap  gap-3 mb-10">
+        <button className="px-4 py-2 bg-stone-50 rounded-full border border-emerald-950 text-emerald-900 text-sm font-['Work_Sans'] hover:bg-emerald-50 transition-colors">
+          Semua
+        </button>
+        <button className="px-4 py-2 bg-stone-50 rounded-full border border-emerald-950 text-emerald-900 text-sm font-['Work_Sans'] hover:bg-emerald-50 transition-colors">
+          Isu Lingkungan
+        </button>
+        <button className="px-4 py-2 bg-stone-50 rounded-full border border-emerald-950 text-emerald-900 text-sm font-['Work_Sans'] hover:bg-emerald-50 transition-colors">
+          Edukasi dan Tips
+        </button>
+        <button className="px-4 py-2 bg-stone-50 rounded-full border border-emerald-950 text-emerald-900 text-sm font-['Work_Sans'] hover:bg-emerald-50 transition-colors">
+          Berita Komunitas
+        </button>
+      </div>
+
+      {/* Articles Grid - First 4 Articles (1 Row) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Article Card 1 */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">18 april 2025</span>
+            </div>
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 font-['Inter']">
+              5 Langkah Sederhana Mengurangi Jejak Karbon ..
+            </h3>
+            <p className="text-emerald-900 text-xs mb-3">
+              Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-emerald-900 text-xs">👤 Siti Aminah</span>
+              <span className="text-emerald-900 text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Article Card 2 */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">6 Februari 2026</span>
+            </div>
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 font-['Inter']">
+              Rangkuman Temu Wicara: Masa Depan Hutan ....
+            </h3>
+            <p className="text-emerald-900 text-xs mb-3">
+              Catatan dari pertemuan relawan Forest Lestari membahas tantangan ekspansi lahan dan solusi ekonomi kreaktif lokal.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-emerald-900 text-xs">👤 Darmawan J.</span>
+              <span className="text-emerald-900 text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Article Card 3 */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">19 Januari 2026</span>
+            </div>
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 font-['Inter']">
+              Krisis Biodiversitas: Spesies Endemik yang Terancam ...
+            </h3>
+            <p className="text-emerald-900 text-xs mb-3">
+              Laporan mendalam mengenai hilangnya habitat fauna langka di wilayah Wallacea dan upaya konservasi mendesak yang diperlukan.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-emerald-900 text-xs">👤 Rina Wijaya</span>
+              <span className="text-emerald-900 text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Article Card 4 */}
+        <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div className="h-40 bg-gradient-to-br from-emerald-100 to-emerald-200"></div>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">Kabupaten Bogor · 18 April 2025</span>
+            </div>
+            <h3 className="text-lg font-bold text-emerald-900 mb-2 font-['Inter']">
+              5 Langkah Sederhana Mengurangi Jejak Karbon ..
+            </h3>
+            <p className="text-emerald-900 text-xs mb-3">
+              Panduan praktis bagi warga perkotaan untuk memulai gaya hidup berkelanjutan melalui pengolahan limbah organik dan efisiensi energi.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-emerald-900 text-xs">👤 Siti Aminah</span>
+              <span className="text-emerald-900 text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Articles Grid - Last 2 Articles (Wider) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        {/* Article Card 5 */}
+        <div className="bg-gradient-to-br from-emerald-300 to-emerald-400 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">27 Maret 2026</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3 font-['Inter']">
+              Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut
+            </h3>
+            <p className="text-white text-sm mb-4">
+              Bagaimana algoritma kecerdasan buatan memprediksi titik api dengan akurasi 94% sebelum bencana terjadi.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-white text-xs">👤 Taufik H.</span>
+              <span className="text-white text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Article Card 6 */}
+        <div className="bg-gradient-to-br from-emerald-300 to-emerald-400 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <span className="px-2 py-1 bg-stone-50 rounded-full text-xs text-emerald-900 font-['Work_Sans']">1 April 2026</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3 font-['Inter']">
+              Pemanfaatan AI dalam Deteksi Dini Kebakaran Hutan di Lahan Gambut
+            </h3>
+            <p className="text-white text-sm mb-4">
+              Bagaimana algoritma kecerdasan buatan memprediksi titik api dengan akurasi 94% sebelum bencana terjadi.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-white text-xs">👤 Taufik H.</span>
+              <span className="text-white text-xs flex items-center gap-2">
+                Read More <span>→</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mb-12">
+        <div className="flex gap-2">
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white text-sm font-bold hover:bg-emerald-400 transition-colors">1</button>
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white text-sm font-bold hover:bg-emerald-400 transition-colors">2</button>
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white text-sm font-bold hover:bg-emerald-400 transition-colors">3</button>
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white text-sm font-bold hover:bg-emerald-400 transition-colors">4</button>
+          <button className="w-9 h-9 bg-emerald-300 rounded-full flex items-center justify-center text-white font-bold hover:bg-emerald-400 transition-colors">›</button>
+        </div>
+      </div>
+
+      {/* Footer */}
+      
     </main>
-  )
+  );
 }
