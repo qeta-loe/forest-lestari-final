@@ -5,11 +5,18 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 
+interface Kegiatan {
+  id: string;
+  nama: string;
+  deskripsi: string;
+  image_url?: string;
+}
+
 export default function DetailKegiatanPage() {
   const params = useParams()
-  const id = params.id
+  const id = params.id as string
 
-  const [kegiatan, setKegiatan] = useState(null)
+  const [kegiatan, setKegiatan] = useState<Kegiatan | null>(null)
   const [loading, setLoading] = useState(true)
 
   const fetchDetailKegiatan = async () => {
