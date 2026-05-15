@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
 type MenuKey =
@@ -39,7 +40,28 @@ type Artikel = {
   image_url: string
 }
 
+type PolygonInputPoint = {
+  lat: string
+  lng: string
+}
+
+type PolygonCoordinate = {
+  lat: number
+  lng: number
+}
+
+type LokasiPenanaman = {
+  id: number
+  nama_lokasi: string
+  latitude: number
+  longitude: number
+  deskripsi: string | null
+  polygon_coordinates: PolygonCoordinate[] | null
+}
+
 export default function AdminPage() {
+  const router = useRouter()
+  const [checkingAuth, setCheckingAuth] = useState(true)
   const [menu, setMenu] = useState<MenuKey>("upload")
   const [isKegiatanOpen, setIsKegiatanOpen] = useState(true)
   const [isDokumenOpen, setIsDokumenOpen] = useState(false)
@@ -61,6 +83,15 @@ export default function AdminPage() {
   const [paragrafArtikel, setParagrafArtikel] = useState("")
   const [gambarArtikel, setGambarArtikel] = useState<File | null>(null)
   const [artikel, setArtikel] = useState<Artikel[]>([])
+
+  const [namaLokasi, setNamaLokasi] = useState("")
+  const [deskripsiLokasi, setDeskripsiLokasi] = useState("")
+  const [polygonPoints, setPolygonPoints] = useState<PolygonInputPoint[]>([
+    { lat: "", lng: "" },
+    { lat: "", lng: "" },
+    { lat: "", lng: "" },
+  ])
+  const [lokasiPenanaman, setLokasiPenanaman] = useState<LokasiPenanaman[]>([])
 
   const [informasiKomunitas, setInformasiKomunitas] = useState("")
   const [visiMisi, setVisiMisi] = useState("")
@@ -155,11 +186,39 @@ export default function AdminPage() {
     setArtikel((data || []) as Artikel[])
   }
 
+  const fetchLokasiPenanaman = async () => {
+    const { data, error } = await supabase
+      .from("lokasi_penanaman")
+      .select("*")
+      .order("id", { ascending: false })
+
+    if (error) {
+      alert(error.message)
+      return
+    }
+
+    setLokasiPenanaman((data || []) as LokasiPenanaman[])
+  }
+
   useEffect(() => {
-    fetchKegiatan()
-    fetchDokumen()
-    fetchArtikel()
-  }, [])
+    const checkAuthAndLoadData = async () => {
+      const { data } = await supabase.auth.getSession()
+
+      if (!data.session) {
+        router.push("/login")
+        return
+      }
+
+      setCheckingAuth(false)
+
+      fetchKegiatan()
+      fetchDokumen()
+      fetchArtikel()
+      fetchLokasiPenanaman()
+    }
+
+    checkAuthAndLoadData()
+  }, [router])
 
   const uploadKegiatan = async () => {
     if (!nama || !deskripsi) return alert("Nama dan deskripsi wajib diisi")
@@ -287,6 +346,93 @@ export default function AdminPage() {
     fetchArtikel()
   }
 
+  const updatePolygonPoint = (
+    index: number,
+    field: "lat" | "lng",
+    value: string
+  ) => {
+    setPolygonPoints((prev) =>
+      prev.map((point, i) =>
+        i === index ? { ...point, [field]: value } : point
+      )
+    )
+  }
+
+  const addPolygonPoint = () => {
+    setPolygonPoints((prev) => [...prev, { lat: "", lng: "" }])
+  }
+
+  const removePolygonPoint = (index: number) => {
+    if (polygonPoints.length <= 3) {
+      alert("Polygon minimal harus memiliki 3 titik")
+      return
+    }
+
+    setPolygonPoints((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const uploadLokasiPenanaman = async () => {
+    if (!namaLokasi) {
+      alert("Semua tabel harus diisi")
+      return
+    }
+
+    if (polygonPoints.length < 3) {
+      alert("Polygon minimal harus memiliki 3 titik")
+      return
+    }
+
+    const hasEmptyPoint = polygonPoints.some(
+      (point) => !point.lat || !point.lng
+    )
+
+    if (hasEmptyPoint) {
+      alert("Semua titik polygon harus diisi")
+      return
+    }
+
+    const parsedPoints = polygonPoints.map((point) => ({
+      lat: Number(point.lat),
+      lng: Number(point.lng),
+    }))
+
+    const hasInvalidPoint = parsedPoints.some(
+      (point) => Number.isNaN(point.lat) || Number.isNaN(point.lng)
+    )
+
+    if (hasInvalidPoint) {
+      alert("Latitude dan longitude harus berupa angka")
+      return
+    }
+
+    const { error } = await supabase.from("lokasi_penanaman").insert([
+      {
+        nama_lokasi: namaLokasi,
+        latitude: parsedPoints[0].lat,
+        longitude: parsedPoints[0].lng,
+        deskripsi: deskripsiLokasi || null,
+        polygon_coordinates: parsedPoints,
+      },
+    ])
+
+    if (error) {
+      alert(error.message)
+      return
+    }
+
+    alert("Lokasi penanaman berhasil ditambahkan")
+
+    setNamaLokasi("")
+    setDeskripsiLokasi("")
+    setPolygonPoints([
+      { lat: "", lng: "" },
+      { lat: "", lng: "" },
+      { lat: "", lng: "" },
+    ])
+
+    fetchLokasiPenanaman()
+  }
+
   const updateProfilKomunitas = async () => {
     if (!informasiKomunitas || !visiMisi || !sejarah || !strukturOrganisasi) {
       alert("Semua tabel harus diisi")
@@ -408,6 +554,19 @@ export default function AdminPage() {
     setEditFile(null)
 
     fetchKegiatan()
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push("/login")
+  }
+
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F7F6EF] text-[#0F5139]">
+        Memeriksa akses admin...
+      </div>
+    )
   }
 
   return (
@@ -625,6 +784,13 @@ export default function AdminPage() {
             {item.label}
           </button>
         ))}
+
+        <button
+          onClick={handleLogout}
+          className="mt-6 w-full rounded-md bg-red-600 px-4 py-2 text-left text-white transition hover:bg-red-700 active:scale-95"
+        >
+          Logout
+        </button>
       </div>
 
       {/* Konten kanan */}
@@ -965,8 +1131,143 @@ export default function AdminPage() {
         )}
 
         {menu === "database" && <div />}
-        {menu === "lokasiPenanaman" && <div />}
-        {menu === "daftarLokasiPenanaman" && <div />}
+
+        {menu === "lokasiPenanaman" && (
+          <div>
+            <h1 className="text-xl text-[#0F5139] font-semibold mb-4">
+              Lokasi Penanaman
+            </h1>
+
+            <input
+              type="text"
+              placeholder="Nama lokasi"
+              value={namaLokasi}
+              onChange={(e) => setNamaLokasi(e.target.value)}
+              className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
+            />
+
+            <div className="mb-4 rounded-xl border border-[#0F5139]/30 bg-white p-4">
+              <h2 className="mb-3 font-semibold text-[#0F5139]">
+                Titik Polygon
+              </h2>
+
+              <div className="space-y-3">
+                {polygonPoints.map((point, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 gap-3 rounded-lg border border-gray-200 p-3 md:grid-cols-[1fr_1fr_auto]"
+                  >
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder={`Latitude titik ${index + 1}`}
+                      value={point.lat}
+                      onChange={(e) =>
+                        updatePolygonPoint(index, "lat", e.target.value)
+                      }
+                      className="text-[#0F5139] block w-full rounded border border-[#0F5139] p-2"
+                    />
+
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder={`Longitude titik ${index + 1}`}
+                      value={point.lng}
+                      onChange={(e) =>
+                        updatePolygonPoint(index, "lng", e.target.value)
+                      }
+                      className="text-[#0F5139] block w-full rounded border border-[#0F5139] p-2"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => removePolygonPoint(index)}
+                      className="rounded bg-red-600 px-3 py-2 text-sm text-white transition hover:bg-red-700 active:scale-95"
+                    >
+                      Hapus
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={addPolygonPoint}
+                className="mt-3 rounded bg-[#0F5139] px-4 py-2 text-sm text-white transition hover:bg-[#0A3D2A] active:scale-95"
+              >
+                Tambah Titik
+              </button>
+
+              <p className="mt-2 text-xs text-gray-500">
+                Minimal 3 titik. Urutan titik menentukan bentuk polygon.
+              </p>
+            </div>
+
+            <textarea
+              placeholder="Deskripsi lokasi"
+              value={deskripsiLokasi}
+              onChange={(e) => setDeskripsiLokasi(e.target.value)}
+              className="text-[#0F5139] block min-h-32 w-full mb-4 p-2 border rounded border-[#0F5139]"
+            />
+
+            <button
+              onClick={uploadLokasiPenanaman}
+              className="bg-emerald-900 hover:bg-emerald-950 active:bg-black active:scale-95 transition-all duration-150 text-white px-4 py-2 rounded cursor-pointer"
+            >
+              Simpan Lokasi
+            </button>
+          </div>
+        )}
+
+        {menu === "daftarLokasiPenanaman" && (
+          <div>
+            <h1 className="text-xl text-[#0F5139] font-semibold mb-6">
+              Daftar Lokasi Penanaman
+            </h1>
+
+            {lokasiPenanaman.length === 0 ? (
+              <p className="text-gray-500">Belum ada lokasi penanaman yang ditambahkan.</p>
+            ) : (
+              <div className="space-y-3">
+                {lokasiPenanaman.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-xl border bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <h2 className="font-semibold text-[#0F5139]">
+                          {item.nama_lokasi}
+                        </h2>
+                        <p className="mt-1 text-sm text-gray-600">
+                          Titik utama: {item.latitude}, {item.longitude}
+                        </p>
+                        <p className="mt-1 text-sm text-gray-600">
+                          Jumlah titik polygon: {item.polygon_coordinates?.length || 0}
+                        </p>
+                        {item.deskripsi && (
+                          <p className="mt-2 text-sm text-gray-600">
+                            {item.deskripsi}
+                          </p>
+                        )}
+                      </div>
+
+                      <a
+                        href={`https://www.google.com/maps?q=${item.latitude},${item.longitude}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-fit rounded-md bg-[#0F5139] px-4 py-2 text-sm text-white transition hover:bg-[#0A3D2A] active:scale-95"
+                      >
+                        Buka Maps
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {menu === "das" && <div />}
         {menu === "daftarDas" && <div />}
         {menu === "pohon" && <div />}

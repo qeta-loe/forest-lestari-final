@@ -48,13 +48,14 @@ export default function Navbar() {
               </Link>
             </li>
 
+
             <li>
-              <a
-                href="#database"
+              <Link
+                href="/database"
                 className="rounded-md px-3 py-3 transition hover:bg-[#0F5139] hover:text-white"
               >
                 Database
-              </a>
+              </Link>
             </li>
 
             <li>
