@@ -1,217 +1,200 @@
 
+const categories = ["Semua", "Penanaman", "Survei", "Bersih Lingkungan", "Edukasi"];
+
+const locations = ["Semua Wilayah", "Kota Bogor", "Kabupaten Bogor", "Jakarta", "Depok"];
+
+const sortOptions = ["Terbaru", "Terlama", "Peserta Terbanyak"];
+
+const featuredActivity = {
+  category: "Penanaman",
+  title: "Penanaman Pohon DAS Cisadane",
+  description:
+    "Kegiatan penanaman 200 bibit pohon endemik di tepi DAS Cisadane wilayah Bogor bagian barat bersama komunitas dan instansi terkait.",
+  location: "Bogor Barat",
+  participants: "42 Peserta",
+  seed: "200 bibit",
+  date: "26 Mei 2025",
+};
+
+const activities = [
+  {
+    category: "Survei",
+    title: "Survei Habitat Elang Jawa",
+    meta: "Kabupaten Bogor · 18 Peserta · 18 April 2025",
+  },
+  {
+    category: "Edukasi",
+    title: "Workshop Ecoprint",
+    meta: "Kota Sukabumi · 30 Peserta · 7 Januari 2025",
+  },
+  {
+    category: "Survei",
+    title: "Survei Habitat Elang Jawa",
+    meta: "Kabupaten Bogor · 18 Peserta · 18 April 2025",
+  },
+  {
+    category: "Survei",
+    title: "Survei Habitat Elang Jawa",
+    meta: "Kabupaten Bogor · 18 Peserta · 18 April 2025",
+  },
+];
+
+function FilterItem({ label }) {
+  return (
+    <label className="flex cursor-pointer items-center gap-3 text-base text-emerald-900">
+      <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gray-600 p-px">
+        <span className="h-full w-full rounded-lg bg-white" />
+      </span>
+      <span>{label}</span>
+    </label>
+  );
+}
+
+function ActivityCard({ activity }) {
+  return (
+    <article className="group overflow-hidden rounded-3xl bg-gray-400 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+      <div className="h-24 bg-zinc-300 transition group-hover:bg-gray-200" />
+
+      <div className="flex min-h-40 flex-col justify-end p-7">
+        <span className="mb-3 w-fit rounded-full border border-emerald-950 bg-stone-50 px-4 py-2 text-xs text-emerald-900">
+          {activity.category}
+        </span>
+
+        <h3 className="text-xl font-bold leading-tight text-emerald-900">
+          {activity.title}
+        </h3>
+
+        <p className="mt-4 text-center text-xs text-white sm:text-left">
+          {activity.meta}
+        </p>
+      </div>
+    </article>
+  );
+}
+
 export default function KegiatanPage() {
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
-    <div className="w-[1440px] h-[1668px] relative bg-stone-50 overflow-hidden">
-  <div className="w-[1440px] h-32 left-0 top-0 absolute bg-stone-50 border border-black/10" />
-  <div className="p-2.5 left-[167px] top-[38px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Newsreader']">Forest Lestari</div>
-  </div>
-  <div className="w-28 h-12 p-2.5 left-[662px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Beranda</div>
-  </div>
-  <div className="p-2.5 left-[1156px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Tentang Kami</div>
-  </div>
-  <div className="p-2.5 left-[890px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Kegiatan</div>
-  </div>
-  <div className="p-2.5 left-[1018px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Database</div>
-  </div>
-  <div className="p-2.5 left-[786px] top-[43px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-900 text-2xl font-normal font-['Work_Sans']">Artikel</div>
-  </div>
-  <div className="p-[5px] left-[67px] top-[26px] absolute inline-flex justify-start items-center gap-2.5">
-    <img className="w-16 h-16" src="https://placehold.co/70x70" />
-  </div>
-  <div className="w-[1440px] h-0 left-[1440px] top-[1562px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="p-2.5 left-[47px] top-[1596px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-normal font-['Inter']">©  Komunitas Forest Lestari - Bogor</div>
-  </div>
-  <div className="p-2.5 left-[67px] top-[160px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Work_Sans']">Kegiatan Komunitas</div>
-  </div>
-  <div className="p-2.5 left-[67px] top-[214px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xl font-normal font-['Inter']">Rekam Jejak Seluruh Kegiatan Pelestarian Lingkungan yang Telah Dilakukan</div>
-  </div>
-  <div className="p-2.5 left-[67px] top-[364px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xl font-normal font-['Inter']">Lokasi</div>
-  </div>
-  <div className="p-2.5 left-[67px] top-[585px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xl font-normal font-['Inter']">Urutkan</div>
-  </div>
-  <div className="p-2.5 left-[104px] top-[402px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Semua Wilayah</div>
-  </div>
-  <div className="p-2.5 left-[386px] top-[367px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Menampilkan 48 kegiatan</div>
-  </div>
-  <div className="p-2.5 left-[104px] top-[623px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Terbaru</div>
-  </div>
-  <div className="p-2.5 left-[104px] top-[436px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Kota Bogor</div>
-  </div>
-  <div className="p-2.5 left-[104px] top-[657px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Terlama</div>
-  </div>
-  <div className="p-2.5 left-[104px] top-[470px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Kabupaten Bogor</div>
-  </div>
-  <div className="p-2.5 left-[104px] top-[691px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Peserta Terbanyak</div>
-  </div>
-  <div className="p-2.5 left-[104px] top-[504px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Jakarta</div>
-  </div>
-  <div className="p-2.5 left-[104px] top-[538px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Inter']">Depok</div>
-  </div>
-  <div className="w-24 h-9 p-5 left-[77px] top-[267px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Semua</div>
-  </div>
-  <div className="w-32 h-9 p-5 left-[182px] top-[267px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Penanaman</div>
-  </div>
-  <div className="w-20 h-9 p-5 left-[319px] top-[267px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Survei</div>
-  </div>
-  <div className="w-44 h-9 p-5 left-[419px] top-[267px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Bersih Lingkungan</div>
-  </div>
-  <div className="w-24 h-9 p-5 left-[609px] top-[267px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Edukasi</div>
-  </div>
-  <div className="w-36 h-9 p-5 left-[1195px] top-[267px] absolute bg-stone-50 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Tahun: 2025</div>
-    <div className="w-1.5 h-[5.02px] outline outline-1 outline-offset-[-0.50px] outline-emerald-900" />
-  </div>
-  <div className="w-[1440px] h-0 left-[1440px] top-[348px] absolute origin-top-left rotate-180 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-[1212px] h-0 left-[375px] top-[1562px] absolute origin-top-left -rotate-90 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-6 h-6 p-px left-[77px] top-[408px] absolute bg-gray-600 rounded-lg inline-flex justify-start items-start gap-2.5">
-    <div className="w-6 h-6 bg-white rounded-lg" />
-  </div>
-  <div className="w-6 h-6 p-px left-[77px] top-[629px] absolute bg-gray-600 rounded-lg inline-flex justify-start items-start gap-2.5">
-    <div className="w-6 h-6 bg-white rounded-lg" />
-  </div>
-  <div className="w-6 h-6 p-px left-[77px] top-[442px] absolute bg-gray-600 rounded-lg inline-flex justify-start items-start gap-2.5">
-    <div className="w-6 h-6 bg-white rounded-lg" />
-  </div>
-  <div className="w-6 h-6 p-px left-[77px] top-[663px] absolute bg-gray-600 rounded-lg inline-flex justify-start items-start gap-2.5">
-    <div className="w-6 h-6 bg-white rounded-lg" />
-  </div>
-  <div className="w-6 h-6 p-px left-[77px] top-[476px] absolute bg-gray-600 rounded-lg inline-flex justify-start items-start gap-2.5">
-    <div className="w-6 h-6 bg-white rounded-lg" />
-  </div>
-  <div className="w-6 h-6 p-px left-[77px] top-[697px] absolute bg-gray-600 rounded-lg inline-flex justify-start items-start gap-2.5">
-    <div className="w-6 h-6 bg-white rounded-lg" />
-  </div>
-  <div className="w-6 h-6 p-px left-[77px] top-[510px] absolute bg-gray-600 rounded-lg inline-flex justify-start items-start gap-2.5">
-    <div className="w-6 h-6 bg-white rounded-lg" />
-  </div>
-  <div className="w-6 h-6 p-px left-[77px] top-[544px] absolute bg-gray-600 rounded-lg inline-flex justify-start items-start gap-2.5">
-    <div className="w-6 h-6 bg-white rounded-lg" />
-  </div>
-  <div className="w-[457px] h-64 left-[413px] top-[800px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-[937px] h-80 left-[415px] top-[424px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-[457px] h-64 left-[413px] top-[1134px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-[457px] h-64 left-[895px] top-[1134px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-[457px] h-64 left-[895px] top-[800px] absolute bg-gray-400 rounded-3xl" />
-  <div className="w-32 h-7 p-5 left-[840px] top-[479px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-base font-normal font-['Work_Sans']">Penanaman</div>
-  </div>
-  <div className="w-16 h-7 p-5 left-[454px] top-[934px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Survei</div>
-  </div>
-  <div className="w-16 h-7 p-5 left-[454px] top-[1268px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Survei</div>
-  </div>
-  <div className="w-16 h-7 p-5 left-[936px] top-[1268px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Survei</div>
-  </div>
-  <div className="w-20 h-7 p-5 left-[946px] top-[934px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Edukasi</div>
-  </div>
-  <div className="w-28 h-7 p-5 left-[840px] top-[652px] absolute bg-stone-50 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Lihat Laporan</div>
-  </div>
-  <div className="w-36 h-7 p-5 left-[970px] top-[652px] absolute bg-stone-50 rounded-[10px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xs font-normal font-['Work_Sans']">Unduh Dokumentasi</div>
-  </div>
-  <div className="w-96 h-80 left-[413px] top-[424px] absolute bg-zinc-300 rounded-tl-3xl rounded-bl-3xl" />
-  <div className="w-[457px] h-24 left-[413px] top-[800px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
-  <div className="w-[457px] h-24 left-[413px] top-[1134px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
-  <div className="w-[457px] h-24 left-[895px] top-[1134px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
-  <div className="w-[457px] h-24 left-[895px] top-[800px] absolute bg-zinc-300 rounded-tl-3xl rounded-tr-3xl" />
-  <div className="w-[483px] p-2.5 left-[837px] top-[548px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-[471.03px] justify-center text-white text-base font-normal font-['Inter']">Kegiatan penanaman 200 bibit pohon endemik di tepi DAS Cisadane wilayah Bogor bagian barat bersama komunitas dan instansi terkait.</div>
-  </div>
-  <div className="w-28 p-2.5 left-[827px] top-[612px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-28 text-center justify-center text-white text-xs font-normal font-['Inter']">📍 Bogor Barat</div>
-  </div>
-  <div className="w-72 p-2.5 left-[448px] top-[998px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 text-center justify-center text-white text-xs font-normal font-['Inter']">Kabupaten Bogor  · 18 Peserta  ·  18 April 2025</div>
-  </div>
-  <div className="w-72 p-2.5 left-[448px] top-[1332px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 text-center justify-center text-white text-xs font-normal font-['Inter']">Kabupaten Bogor  · 18 Peserta  ·  18 April 2025</div>
-  </div>
-  <div className="w-72 p-2.5 left-[930px] top-[1332px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 text-center justify-center text-white text-xs font-normal font-['Inter']">Kabupaten Bogor  · 18 Peserta  ·  18 April 2025</div>
-  </div>
-  <div className="w-72 p-2.5 left-[941px] top-[998px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-72 text-center justify-center text-white text-xs font-normal font-['Inter']">Kota Sukabumi  · 30 Peserta  ·  7 Januari 2025</div>
-  </div>
-  <div className="w-28 p-2.5 left-[958px] top-[612px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-28 text-center justify-center text-white text-xs font-normal font-['Inter']">👥 42 Peserta</div>
-  </div>
-  <div className="w-24 p-2.5 left-[1085px] top-[612px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-28 text-center justify-center text-white text-xs font-normal font-['Inter']">🌱 200 bibit</div>
-  </div>
-  <div className="w-24 h-9 p-2.5 left-[1085px] top-[612px] absolute" />
-  <div className="w-28 left-[1212px] top-[483.04px] absolute text-center justify-center text-white text-xs font-normal font-['Inter']">26 Mei 2025</div>
-  <div className="w-[482px] p-2.5 left-[838px] top-[509px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-[472px] justify-center text-emerald-900 text-2xl font-bold font-['Inter']">Penanaman Pohon DAS Cisadane</div>
-  </div>
-  <div className="w-80 p-2.5 left-[455px] top-[965px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-80 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Survei Habitat Elang Jawa</div>
-  </div>
-  <div className="w-80 p-2.5 left-[455px] top-[1299px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-80 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Survei Habitat Elang Jawa</div>
-  </div>
-  <div className="w-80 p-2.5 left-[937px] top-[1299px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-80 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Survei Habitat Elang Jawa</div>
-  </div>
-  <div className="w-80 p-2.5 left-[948px] top-[965px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-80 justify-center text-emerald-900 text-xl font-bold font-['Inter']">Workshop Ecoprint </div>
-  </div>
-  <div className="w-80 h-11 left-[723px] top-[1460px] absolute">
-    <div className="w-11 h-11 p-2.5 left-[138px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">3</div>
-    </div>
-    <div className="w-11 h-11 p-2.5 left-[207px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">4</div>
-    </div>
-    <div className="w-11 h-11 p-2.5 left-[276px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="w-3 h-0 border-2 border-stone-50" />
-    </div>
-    <div className="w-11 h-11 p-2.5 left-[69px] top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">2</div>
-    </div>
-    <div className="w-11 h-11 p-2.5 left-0 top-0 absolute bg-gray-400 rounded-[10px] inline-flex justify-center items-center gap-2.5">
-      <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Inter']">1</div>
-    </div>
-  </div>
-  <div className="p-2.5 left-[1108px] top-[1596px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-bold font-['Inter']">Hubungi Kami</div>
-  </div>
-  <div className="p-2.5 left-[1246px] top-[1596px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-bold font-['Inter']">Login Admin</div>
-  </div>
-  <div className="p-2.5 left-[996px] top-[1596px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-bold font-['Inter']">Kerjasama </div>
-  </div>
-</div>
+      <div className="mx-auto w-full max-w-7xl">
+
+        {/* Header */}
+        <section className="mb-10 space-y-3">
+          <h1 className="text-3xl font-bold text-emerald-900 sm:text-4xl">
+            Kegiatan Komunitas
+          </h1>
+          <p className="max-w-3xl text-base text-emerald-900 sm:text-xl">
+            Rekam Jejak Seluruh Kegiatan Pelestarian Lingkungan yang Telah Dilakukan
+          </p>
+        </section>
+
+        {/* Category filter */}
+        <section className="mb-10 flex flex-col gap-5 border-b font-bold border-black/10 pb-10 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap gap-3">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className="rounded-full border border-emerald-950 bg-stone-50 px-5 py-2 text-base text-emerald-900 transition hover:bg-emerald-50 active:scale-95"
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          <button className="w-fit rounded-[10px] border border-emerald-950 bg-stone-50 px-5 py-2 text-base text-emerald-900 transition hover:bg-emerald-50 active:scale-95">
+            Tahun: 2025
+          </button>
+        </section>
+
+        {/* Content */}
+        <section className="grid gap-10 lg:grid-cols-[260px_1fr]">
+          {/* Sidebar filter */}
+          <aside className="space-y-10 lg:border-r lg:border-black/10 lg:pr-8">
+            <div>
+              <h2 className="mb-5 text-xl text-emerald-900">Lokasi</h2>
+              <div className="space-y-4">
+                {locations.map((location) => (
+                  <FilterItem key={location} label={location} />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="mb-5 text-xl text-emerald-900">Urutkan</h2>
+              <div className="space-y-4">
+                {sortOptions.map((option) => (
+                  <FilterItem key={option} label={option} />
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          {/* Cards */}
+          <div>
+            <p className="mb-8 text-base text-emerald-900">Menampilkan 48 kegiatan</p>
+
+            <article className="group mb-8 grid overflow-hidden rounded-3xl bg-gray-400 shadow-sm transition hover:-translate-y-1 hover:shadow-lg lg:grid-cols-[42%_1fr]">
+              <div className="min-h-72 bg-zinc-300 transition group-hover:bg-gray-200 lg:min-h-80" />
+
+              <div className="flex min-h-80 flex-col justify-center p-7">
+                <div className="mb-4 flex flex-wrap items-center gap-3">
+                  <span className="w-fit rounded-full border border-emerald-950 bg-stone-50 px-5 py-2 text-base text-emerald-900">
+                    {featuredActivity.category}
+                  </span>
+                  <span className="ml-auto text-xs text-white">{featuredActivity.date}</span>
+                </div>
+
+                <h2 className="text-2xl font-bold leading-tight text-emerald-900">
+                  {featuredActivity.title}
+                </h2>
+
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-white">
+                  {featuredActivity.description}
+                </p>
+
+                <div className="mt-5 flex flex-wrap gap-4 text-xs text-white">
+                  <span>📍 {featuredActivity.location}</span>
+                  <span>👥 {featuredActivity.participants}</span>
+                  <span>🌱 {featuredActivity.seed}</span>
+                </div>
+
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <button className="rounded-[10px] border border-emerald-950 bg-stone-50 px-4 py-2 text-xs text-emerald-900 transition hover:bg-emerald-50 active:scale-95">
+                    Lihat Laporan
+                  </button>
+                  <button className="rounded-[10px] border border-emerald-950 bg-stone-50 px-4 py-2 text-xs text-emerald-900 transition hover:bg-emerald-50 active:scale-95">
+                    Unduh Dokumentasi
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <div className="grid gap-8 md:grid-cols-2">
+              {activities.map((activity, index) => (
+                <ActivityCard key={`${activity.title}-${index}`} activity={activity} />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            <div className="mt-16 flex justify-center">
+              <div className="flex gap-6 sm:gap-7">
+                {[1, 2, 3, 4].map((page) => (
+                  <button
+                    key={page}
+                    className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-gray-400 text-xl font-bold text-stone-50 transition hover:bg-emerald-900 active:scale-95"
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button className="flex h-11 w-11 items-center justify-center rounded-[10px] bg-gray-400 text-xl font-bold text-stone-50 transition hover:bg-emerald-900 active:scale-95">
+                  −
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        
+      </div>
     </main>
   );
 }

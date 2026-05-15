@@ -1,167 +1,178 @@
 //top dikurang 179
 
-export default function ArticlesPage() {
+export default function BerandaPage() {
+  const stats = [
+    { value: "48", label: "Kegiatan Selesai" },
+    { value: "12", label: "DAS Terdokumentasi" },
+    { value: "37", label: "Spesies Endemik" },
+    { value: "3", label: "Mitra Instansi" },
+  ];
+
+  const activities = [
+    {
+      title: "Penanaman Pohon DAS Cisadane",
+      location: "Bogor",
+      date: "15 Februari 2026",
+    },
+    {
+      title: "Survei Habitat Elang Jawa",
+      location: "Bogor",
+      date: "20 Maret 2026",
+    },
+    {
+      title: "Bersih Sampah Sungai Ciliwung",
+      location: "Jakarta",
+      date: "9 Mei 2026",
+    },
+  ];
+
+  const articles = [
+    {
+      title: "Mengenal Daerah Aliran Sungai Cisadane",
+      date: "28 Maret 2026",
+    },
+    {
+      title: "Tips Konservasi Hutan Hujan Tropis",
+      date: "9 Januari 2026",
+    },
+    {
+      title: "Pengembangan Kehutanan Masyarakat Di Daerah Leuwiliang",
+      date: "16 Februari 2026",
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
-    <div className="w-[1440px] h-[1668px] relative  overflow-hidden">
-  
-  
-  <div className="p-2 left-[72px] top-[40px] absolute bg-stone-400 rounded-full inline-flex justify-start items-start">
-    <div className="w-72 h-4 text-center justify-center text-rose-100 text-sm font-semibold font-['Work_Sans'] leading-4 tracking-wide">KOMUNITAS LINGKUNGAN BOGOR</div>
-  </div>
-  <div className="w-[699.33px] left-[72px] top-[90px] absolute inline-flex flex-col justify-center items-center">
-    <div className="self-stretch justify-center text-emerald-950 text-5xl font-normal font-['Newsreader'] leading-[57.60px]">Bersama Menjaga Kelestarian Hutan &amp; Alam Indonesia</div>
-  </div>
-  <div className="p-2.5 left-[67px] top-[197px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="w-[756px] justify-center text-zinc-700 text-lg font-normal font-['Work_Sans'] leading-7">Platform dokumentasi dan informasi kegiatan pelestarian lingkungan komunitas Forest Lestari.</div>
-  </div>
-  
-  <div className="w-64 h-16 p-5 left-[72px] top-[284px] absolute bg-emerald-900 rounded-[50px] inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-stone-50 text-xl font-bold font-['Work_Sans']">Lihat Kegiatan</div>
-    <div className="w-4 h-0 bg-stone-50 border-2 border-white" />
-  </div>
-  <div className="w-80 h-16 p-5 left-[368px] top-[284px] absolute bg-stone-50 rounded-[50px] outline outline-1 outline-offset-[-1px] outline-emerald-950 inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xl font-bold font-['Work_Sans']">Database Lingkungan</div>
-    <div className="w-3.5 h-0 border-2 border-emerald-900" />
-  </div>
-  
-  {/* foto kanan atas */}
-  <div className="w-96 h-96 left-[890px] top-[10px] absolute bg-white/0 rounded-2xl shadow-[0px_8px_10px_-6px_rgba(0,0,0,0.10)] shadow-xl inline-flex flex-col justify-center items-start overflow-hidden">
-    <img className="self-stretch flex-1 relative" src="https://placehold.co/445x445" />
-    <div className="w-96 h-96 left-0 top-0 absolute bg-gradient-to-l from-emerald-950/40 to-emerald-950/0" />
-  </div>
+    <main className="min-h-screen bg-[#F7F6EF] px-4 py-8 text-[#113522] sm:px-6 lg:px-10">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-14">
+        <div>
+        {/* Hero */}
+        <section className="grid items-center gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="flex flex-col items-start gap-6">
+            <div className="max-w-3xl space-y-3 sm:space-y-4">
+              <div className="w-fit rounded-full bg-yellow-800/50 px-4 py-2 text-xs font-semibold tracking-wide text-orange-50 sm:text-sm">
+                KOMUNITAS LINGKUNGAN BOGOR
+              </div>
 
-  {/* garis pembungkus 48 gtgt */}
-  <div className="w-[1440px] left-0 top-[442px] absolute border border-black/5" />
-  <div className="w-[1440px] left-0 top-[580px] absolute border border-black/5" />
+              <h1 className="font-['Newsreader'] text-4xl font-normal leading-tight text-emerald-950 sm:text-5xl lg:text-6xl">
+                Bersama Menjaga Kelestarian Hutan & Alam Indonesia
+              </h1>
 
-  <div className="w-[1440px] h-0 left-0 top-[829px] absolute outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-40 h-0 left-[720px] top-[672px] absolute origin-top-left rotate-90 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-96 h-0 left-[720px] top-[1164px] absolute origin-top-left rotate-90 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-40 h-0 left-[359px] top-[671px] absolute origin-top-left rotate-90 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  <div className="w-40 h-0 left-[1097px] top-[672px] absolute origin-top-left rotate-90 outline outline-1 outline-offset-[-0.50px] outline-black/10"></div>
-  
-  
-  {/* anu yg tulisan di bawah48 gtgt */}
-  <div className="p-2.5 left-[125px] top-[520px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-normal font-['Inter']">Kegiatan Selesai</div>
-  </div>
-  <div className="p-2.5 left-[460px] top-[520px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-normal font-['Inter']">DAS Terdokumentasi</div>
-  </div>
-  <div className="p-2.5 left-[845px] top-[520px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-normal font-['Inter']">Spesies Endemik</div>
-  </div>
-  <div className="p-2.5 left-[1220px] top-[520px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-sm font-normal font-['Inter']">Mitra Instansi</div>
-  </div>
+              <p className="max-w-2xl  text-base leading-7 text-zinc-700 sm:text-lg">
+                Platform dokumentasi dan informasi kegiatan pelestarian lingkungan komunitas Forest Lestari.
+              </p>
+            </div>
 
-  {/* anu yg 48 gtgt */}
-  <div className="w-20 p-2.5 left-[137px] top-[470px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Inter']">48</div>
-  </div>
-  <div className="w-20 p-2.5 left-[492px] top-[470px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Inter']">12</div>
-  </div>
-  <div className="w-20 p-2.5 left-[863px] top-[470px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Inter']">37</div>
-  </div>
-  <div className="w-20 p-2.5 left-[1231px] top-[470px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Inter']">3</div>
-  </div>
-  
-  {/* tulisan kegiatan terbaru */}
-  <div className="p-2.5 left-[67px] top-[600px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Work_Sans']">Kegiatan Terbaru</div>
-  </div>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <a
+                href="#kegiatan"
+                className="inline-flex h-14 items-center justify-center rounded-full bg-emerald-900 px-7 text-base font-bold text-stone-50 transition hover:bg-emerald-950 active:scale-95 sm:text-lg"
+              >
+                Lihat Kegiatan
+              </a>
 
-  {/* card */}
-  <div className="flex gap-6 mt-[670px] ml-[66px]">
+              <a
+                href="#database"
+                className="inline-flex h-14 items-center justify-center rounded-full border border-emerald-950 bg-stone-50 px-7 text-base font-bold text-emerald-900 transition hover:bg-emerald-50 active:scale-95 sm:text-lg"
+              >
+                Database Lingkungan
+              </a>
+            </div>
+          </div>
 
-    {/* card penanaman pohon DAS Cisadane */}
-    <div className="w-[380px] h-[224px] shrink-0 flex rounded-3xl bg-gray-400 overflow-hidden">
-      <div className="w-[190px] h-full bg-gray-300"></div>
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-white shadow-xl sm:aspect-[5/3] lg:aspect-square">
+            <img
+              className="h-full w-full object-cover"
+              src="https://placehold.co/700x700"
+              alt="Dokumentasi kegiatan lingkungan"
+            />
+            <div className="absolute inset-0 bg-gradient-to-l from-emerald-950/40 to-emerald-950/0" />
+          </div>
+        </section>
+        </div>
 
-      <div className="flex-1 flex flex-col justify-center px-3">
-        <h3 className="text-center text-xl leading-tight text-emerald-900 text-xl font-bold font-['Inter']">
-          Penanaman Pohon DAS Cisadane
-        </h3>
+        {/* Statistik */}
+        <section className="border-y border-black/10 py-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:divide-x md:divide-black/10">
+            {stats.map((item) => (
+              <div key={item.label} className="px-4 py-4 text-center">
+                <p className=" text-4xl font-bold text-emerald-900 sm:text-5xl">
+                  {item.value}
+                </p>
+                <p className="mt-2 text-xs text-emerald-900 sm:text-sm">
+                  {item.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        <p className="text-center mt-1 text-sm text-white font-normal font-['Inter']">
-          Bogor, 15 februari 2026
-        </p>
+        {/* Kegiatan terbaru */}
+        <section id="kegiatan" className="space-y-6 scroll-mt-10">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <h2 className="text-3xl font-bold text-emerald-900 sm:text-4xl">
+              Kegiatan Terbaru
+            </h2>
+            <a href="#" className="text-sm font-semibold text-emerald-900 hover:underline">
+              Lihat semua kegiatan
+            </a>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {activities.map((activity) => (
+              <article
+                key={activity.title}
+                className="group flex overflow-hidden rounded-3xl bg-gray-400 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-h-56"
+              >
+                <div className="w-2/5 bg-gray-300 transition group-hover:bg-gray-200" />
+
+                <div className="flex flex-1 flex-col justify-center px-4 py-8 text-center">
+                  <h3 className=" text-lg font-bold leading-tight text-emerald-900 sm:text-xl">
+                    {activity.title}
+                  </h3>
+                  <p className="mt-2 text-sm text-white">
+                    {activity.location}, {activity.date}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* Artikel dan peta */}
+        <section id="database" className="grid gap-10 border-t border-black/10 pt-10 lg:grid-cols-2 scroll-mt-10">
+          <div className="space-y-6">
+            <h2 className=" text-3xl font-bold text-emerald-900 sm:text-4xl">
+              Artikel Terbaru
+            </h2>
+
+            <div className="divide-y divide-black/10 rounded-3xl bg-stone-50/70 px-5 py-2">
+              {articles.map((article) => (
+                <article key={article.title} className="py-5">
+                  <a
+                    href="#"
+                    className=" text-lg font-normal text-emerald-900 transition hover:text-emerald-700 hover:underline sm:text-xl"
+                  >
+                    {article.title}
+                  </a>
+                  <p className="mt-2 text-xs text-emerald-900/80">
+                    {article.date}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <h2 className=" text-3xl font-bold text-emerald-900 sm:text-4xl">
+              Peta Lokasi Penanaman
+            </h2>
+
+            <div className="flex aspect-[4/3] w-full items-center justify-center rounded-3xl bg-gray-400 p-6 text-center text-sm font-semibold text-white sm:aspect-[16/9] lg:aspect-[4/3]">
+              Area peta lokasi penanaman
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
-
-    {/* card survei habitat elang jawa */}
-    <div className="w-[380px] h-[224px] ml-[40px] shrink-0 flex rounded-3xl bg-gray-400 overflow-hidden">
-      <div className="w-[190px] top-[600px] h-full bg-gray-300 rounded-1-xl"></div>
-
-      <div className="flex-1 flex flex-col justify-center px-3">
-        <h3 className="text-center text-xl leading-tight text-emerald-900 text-xl font-bold font-['Inter']">
-          Survei Habitat Elang Jawa
-        </h3>
-
-        <p className="text-center mt-1 text-sm text-white font-normal font-['Inter']">
-          Bogor, 20 Maret 2026
-        </p>
-      </div>
-    </div>
-
-    {/* card bersih sampah sungai ciliwung */}
-    <div className="w-[380px] h-[224px] ml-[40px] shrink-0 flex rounded-3xl bg-gray-400 overflow-hidden">
-      <div className="w-[190px] top-[600px] h-full bg-gray-300 rounded-1-xl"></div>
-
-      <div className="flex-1 flex flex-col justify-center px-3">
-        <h3 className="text-center text-xl leading-tight text-emerald-900 text-xl font-bold font-['Inter']">
-          Bersih Sampah Sungai Ciliwung
-        </h3>
-
-        <p className="text-center mt-1 text-sm text-white font-normal font-['Inter']">
-          Jakarta, 9 Mei 2026
-        </p>
-      </div>
-    </div>
-  
-  </div>
-
-  {/* tulisan artikel terbaru bawah */}
-
-  <div className="p-2.5 left-[67px] top-[950px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Work_Sans']">Artikel Terbaru</div>
-  </div>
-
-  <div className="p-2.5 left-[83px] top-[1277px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-[10px] font-normal font-['Inter']">12 April 2026</div>
-  </div>
-  <div className="p-2.5 left-[83px] top-[1350px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-[10px] font-normal font-['Inter']">28 Maret  2026</div>
-  </div>
-  <div className="p-2.5 left-[83px] top-[1423px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-[10px] font-normal font-['Inter']">9 Januari  2026</div>
-  </div>
-  <div className="p-2.5 left-[83px] top-[1496px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-[10px] font-normal font-['Inter']">16 Februari  2026</div>
-  </div>
-  
-  <div className="p-2.5 left-[745px] top-[1174px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-4xl font-bold font-['Work_Sans']">Peta Lokasi Penanaman</div>
-  </div>
-   <div className="w-[617px] h-72 left-[752px] top-[1247px] absolute bg-gray-400 rounded-3xl" />
-  
-
-  <div className="p-2.5 left-[82px] top-[1324px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xl font-normal font-['Inter']">Mengenal Daerah Aliran Sungai Cisadane</div>
-  </div>
-  <div className="p-2.5 left-[82px] top-[1397px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xl font-normal font-['Inter']">Tips Konservasi Hutan Hujan Tropis</div>
-  </div>
-  <div className="p-2.5 left-[82px] top-[1470px] absolute inline-flex justify-center items-center gap-2.5">
-    <div className="text-center justify-center text-emerald-900 text-xl font-normal font-['Inter']">Pengembangan Kehutanan Masyarakat Di Daerah Leuwiliang </div>
-  </div>
-  
-  
-</div>
     </main>
   );
 }
