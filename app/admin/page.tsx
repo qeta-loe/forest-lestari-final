@@ -27,17 +27,35 @@ type Kegiatan = {
   image_url: string
 }
 
+type TargetKegiatan = {
+  nama_target: string
+  isi_target: string  
+}
+
 type Dokumen = {
   id: number
   judul: string
   file_url: string
 }
 
+type ArtikelSection = {
+  title: string
+  content: string
+  quote: string
+}
+
 type Artikel = {
   id: number
   judul: string
-  paragraf: string
+  deskripsi_singkat: string
+  kategori: string
+  penulis: string
+  tanggal_publikasi: string
   image_url: string
+  sections: ArtikelSection[]
+  is_draft: boolean
+  created_at?: string
+  updated_at?: string
 }
 
 type PolygonInputPoint = {
@@ -80,9 +98,63 @@ export default function AdminPage() {
   const [dokumen, setDokumen] = useState<Dokumen[]>([])
 
   const [judulArtikel, setJudulArtikel] = useState("")
-  const [paragrafArtikel, setParagrafArtikel] = useState("")
+  const [deskripsiSingkat, setDeskripsiSingkat] = useState("")
+  const [kategoriArtikel, setKategoriArtikel] = useState("")
+  const [penulisArtikel, setPenulisArtikel] = useState("")
+  const [tanggalPublikasi, setTanggalPublikasi] = useState("")
+  const [sectionsArtikel, setSectionsArtikel] = useState<
+    {
+      title: string
+      content: string
+      quote: string
+    }[]
+  >([
+    {
+      title: "",
+      content: "",
+      quote: "",
+    },
+  ])
   const [gambarArtikel, setGambarArtikel] = useState<File | null>(null)
   const [artikel, setArtikel] = useState<Artikel[]>([])
+  const addArtikelSection = () => {
+    setSectionsArtikel((prev) => [
+      ...prev,
+      {
+        title: "",
+        content: "",
+        quote: "",
+      },
+    ])
+  }
+  const removeArtikelSection = (index: number) => {
+    setSectionsArtikel((prev) => prev.filter((_, i) => i !== index))
+  }
+  const updateArtikelSection = (
+    index: number,
+    field: "title" | "content" | "quote",
+    value: string
+  ) => {
+    setSectionsArtikel((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, [field]: value } : item
+      )
+    )
+  }
+  const [editingArtikelId, setEditingArtikelId] = useState<number | null>(null)
+
+  const resetFormArtikel = () => {
+    setEditingArtikelId(null)
+    setJudulArtikel("")
+    setDeskripsiSingkat("")
+    setKategoriArtikel("")
+    setPenulisArtikel("")
+    setTanggalPublikasi("")
+    setSectionsArtikel([
+      { title: "", content: "", quote: "" }
+    ])
+    setGambarArtikel(null)
+  }
 
   const [namaLokasi, setNamaLokasi] = useState("")
   const [deskripsiLokasi, setDeskripsiLokasi] = useState("")
@@ -183,8 +255,29 @@ export default function AdminPage() {
       return
     }
 
+    console.log("ARTIKEL DATA:", data)
+    console.log("ERROR:", error)
+    console.log("LENGTH:", data?.length)
+
+
     setArtikel((data || []) as Artikel[])
   }
+
+  useEffect(() => {
+    fetchArtikel()
+  }, [])
+
+  useEffect(() => {
+    if (menu === "artikel" && !editingArtikelId) {
+      resetFormArtikel()
+    }
+  }, [menu])
+
+  useEffect(() => {
+    if (menu === "artikel" && !editingArtikelId) {
+      resetFormArtikel()
+    }
+  }, [menu])
 
   const fetchLokasiPenanaman = async () => {
     const { data, error } = await supabase
@@ -305,45 +398,111 @@ export default function AdminPage() {
     fetchDokumen()
   }
 
-  const uploadArtikel = async () => {
-    if (!judulArtikel || !paragrafArtikel || !gambarArtikel) {
-      alert("Semua tabel harus diisi")
+  const uploadArtikel = async (draftStatus: boolean) => {
+    if (
+      !judulArtikel ||
+      !deskripsiSingkat ||
+      !kategoriArtikel ||
+      !penulisArtikel ||
+      !tanggalPublikasi ||
+      !gambarArtikel
+    ) {
+      alert("Semua field wajib diisi")
       return
     }
 
-    const fileName = `${Date.now()}-${gambarArtikel.name.replaceAll(" ", "-")}`
+    const invalidSection = sectionsArtikel.some(
+      (section) => !section.title || !section.content
+    )
 
-    const { error: uploadError } = await supabase.storage
-      .from("artikel")
-      .upload(fileName, gambarArtikel)
-
-    if (uploadError) {
-      alert(uploadError.message)
+    if (invalidSection) {
+      alert("Semua section wajib memiliki judul dan isi")
       return
     }
 
-    const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/artikel/${fileName}`
+    let imageUrl = ""
 
-    const { error } = await supabase.from("artikel").insert([
-      {
-        judul: judulArtikel,
-        paragraf: paragrafArtikel,
-        image_url: imageUrl,
-      },
-    ])
+    if (gambarArtikel) {
+      const fileName = `${Date.now()}-${gambarArtikel.name.replaceAll(" ", "-")}`
+
+      const { error: uploadError } = await supabase.storage
+        .from("artikel")
+        .upload(fileName, gambarArtikel)
+
+      if (uploadError) {
+        alert(uploadError.message)
+        return
+      }
+
+      imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/artikel/${fileName}`
+    }
+
+    const payload = {
+      judul: judulArtikel,
+      deskripsi_singkat: deskripsiSingkat,
+      kategori: kategoriArtikel,
+      penulis: penulisArtikel,
+      tanggal_publikasi: tanggalPublikasi,
+      sections: sectionsArtikel,
+      is_draft: draftStatus,
+      ...(imageUrl && { image_url: imageUrl }),
+    }
+
+    let error
+
+    // edit/update 
+    if (editingArtikelId) {
+      const res = await supabase
+        .from("artikel")
+        .update(payload)
+        .eq("id", editingArtikelId)
+
+      error = res.error
+    }
+
+    // create/insert
+    else {
+      const res = await supabase.from("artikel").insert([payload])
+      error = res.error
+    }
 
     if (error) {
       alert(error.message)
       return
     }
 
-    alert("Artikel berhasil ditambahkan")
+    alert(editingArtikelId ? "Artikel berhasil diupdate" : "Artikel berhasil disimpan")
 
+    // reset form
     setJudulArtikel("")
-    setParagrafArtikel("")
+    setDeskripsiSingkat("")
+    setKategoriArtikel("")
+    setPenulisArtikel("")
+    setTanggalPublikasi("")
     setGambarArtikel(null)
+    setSectionsArtikel([
+      { title: "", content: "", quote: "" }
+    ])
+
+    setEditingArtikelId(null)
 
     fetchArtikel()
+
+    await fetchArtikel()
+    setMenu("artikelList")
+  }
+
+  const startEditArtikel = (artikel: Artikel) => {
+    setEditingArtikelId(artikel.id)
+
+    setJudulArtikel(artikel.judul)
+    setDeskripsiSingkat(artikel.deskripsi_singkat)
+    setKategoriArtikel(artikel.kategori)
+    setPenulisArtikel(artikel.penulis)
+    setTanggalPublikasi(artikel.tanggal_publikasi)
+
+    setSectionsArtikel(artikel.sections || [])
+    setGambarArtikel(null)
   }
 
   const updatePolygonPoint = (
@@ -1047,49 +1206,235 @@ export default function AdminPage() {
         )}
 
         {menu === "artikel" && (
-          <div>
-            <h1 className="text-xl text-[#0F5139] font-semibold mb-4">
-              Upload Artikel
-            </h1>
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-[#0F5139]">
+                Kelola Artikel
+              </h1>
 
-            <input
-              type="text"
-              placeholder="Judul artikel"
-              value={judulArtikel}
-              onChange={(e) => setJudulArtikel(e.target.value)}
-              className="text-[#0F5139] block w-full mb-3 p-2 border rounded border-[#0F5139]"
-            />
-
-            <textarea
-              placeholder="Paragraf artikel"
-              value={paragrafArtikel}
-              onChange={(e) => setParagrafArtikel(e.target.value)}
-              className="text-[#0F5139] block min-h-40 w-full mb-3 p-2 border rounded border-[#0F5139]"
-            />
-
-            <div className="mb-4">
-              <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 rounded-xl cursor-pointer hover:bg-gray-50 active:bg-gray-100 transition-all duration-150">
-                <span className="text-sm text-[#0F5139]">Pilih Gambar Artikel</span>
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setGambarArtikel(e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-              </label>
-
-              <p className="text-sm text-gray-500 mt-2">
-                {gambarArtikel ? gambarArtikel.name : "No file chosen"}
+              <p className="mt-2 text-sm text-gray-500">
+                Tambahkan artikel edukasi, berita komunitas, dan publikasi lingkungan.
               </p>
             </div>
 
-            <button
-              onClick={uploadArtikel}
-              className="bg-emerald-900 hover:bg-emerald-950 active:bg-black active:scale-95 transition-all duration-150 text-white px-4 py-2 rounded cursor-pointer"
-            >
-              Upload
-            </button>
+            <div className="rounded-3xl border border-[#0F5139]/10 bg-white p-8 shadow-sm">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                    Judul Artikel
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Masukkan judul artikel"
+                    value={judulArtikel}
+                    onChange={(e) => setJudulArtikel(e.target.value)}
+                    className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                    Deskripsi Singkat
+                  </label>
+
+                  <textarea
+                    placeholder="Tulis ringkasan artikel..."
+                    value={deskripsiSingkat}
+                    onChange={(e) => setDeskripsiSingkat(e.target.value)}
+                    className="min-h-32 w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                    Kategori
+                  </label>
+
+                  <select
+                    value={kategoriArtikel}
+                    onChange={(e) => setKategoriArtikel(e.target.value)}
+                    className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                  >
+                    <option value="">Pilih kategori</option>
+                    <option value="Isu Lingkungan">Isu Lingkungan</option>
+                    <option value="Edukasi dan Tips">Edukasi dan Tips</option>
+                    <option value="Berita Komunitas">Berita Komunitas</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                    Penulis
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Nama penulis"
+                    value={penulisArtikel}
+                    onChange={(e) => setPenulisArtikel(e.target.value)}
+                    className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                    Tanggal Publikasi
+                  </label>
+
+                  <input
+                    type="date"
+                    value={tanggalPublikasi}
+                    onChange={(e) => setTanggalPublikasi(e.target.value)}
+                    className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-10">
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold text-[#0F5139]">
+                      Section Artikel
+                    </h2>
+
+                    <p className="text-sm text-gray-500">
+                      Tambahkan beberapa section untuk isi artikel.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={addArtikelSection}
+                    className="rounded-xl bg-[#0F5139] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#0A3D2A] active:scale-95"
+                  >
+                    + Tambah Section
+                  </button>
+                </div>
+
+                <div className="space-y-5">
+                  {sectionsArtikel.map((section, index) => (
+                    <div
+                      key={index}
+                      className="rounded-2xl border border-[#0F5139]/10 bg-[#F8FAF8] p-6"
+                    >
+                      <div className="mb-5 flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold text-[#0F5139]">
+                            Section {index + 1}
+                          </h3>
+
+                          <p className="text-sm text-gray-500">
+                            Isi detail pembahasan artikel.
+                          </p>
+                        </div>
+
+                        {sectionsArtikel.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeArtikelSection(index)}
+                            className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white transition hover:bg-red-700 active:scale-95"
+                          >
+                            Hapus
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                            Judul Section
+                          </label>
+
+                          <input
+                            type="text"
+                            placeholder="Contoh: Dampak Perubahan Iklim"
+                            value={section.title}
+                            onChange={(e) =>
+                              updateArtikelSection(index, "title", e.target.value)
+                            }
+                            className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                            Isi Section
+                          </label>
+
+                          <textarea
+                            placeholder="Tulis isi section artikel..."
+                            value={section.content}
+                            onChange={(e) =>
+                              updateArtikelSection(index, "content", e.target.value)
+                            }
+                            className="min-h-40 w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                            Kutipan Narasumber (Opsional)
+                          </label>
+
+                          <textarea
+                            placeholder="Masukkan kutipan penting..."
+                            value={section.quote}
+                            onChange={(e) =>
+                              updateArtikelSection(index, "quote", e.target.value)
+                            }
+                            className="min-h-24 w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-10">
+                <label className="mb-3 block text-sm font-medium text-[#0F5139]">
+                  Gambar Artikel
+                </label>
+
+                <label className="flex h-56 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#0F5139]/20 bg-[#F8FAF8] transition hover:bg-[#F1F5F2]">
+                  <div className="text-center">
+                    <p className="text-lg font-semibold text-[#0F5139]">
+                      Upload Cover Artikel
+                    </p>
+
+                    <p className="mt-1 text-sm text-gray-500">
+                      PNG, JPG, atau WEBP
+                    </p>
+
+                    <p className="mt-3 text-sm text-[#0F5139] font-medium">
+                      {gambarArtikel
+                        ? gambarArtikel.name
+                        : "Klik untuk memilih gambar"}
+                    </p>
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setGambarArtikel(e.target.files?.[0] || null)
+                    }
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-10 flex flex-wrap gap-4">
+                <button onClick={() => uploadArtikel(false)}>
+                  {editingArtikelId ? "Update Draft" : "Simpan Draft"}
+                </button>
+
+                <button onClick={() => uploadArtikel(true)}>
+                  {editingArtikelId ? "Update & Publish" : "Publish Artikel"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1103,7 +1448,7 @@ export default function AdminPage() {
               <p className="text-gray-500">Belum ada artikel yang diupload.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {artikel.map((item) => (
+                {artikel.filter(a => !a.is_draft).map((item) => (
                   <div
                     key={item.id}
                     className="overflow-hidden rounded-xl border bg-white shadow-sm transition hover:shadow-md"
@@ -1119,9 +1464,42 @@ export default function AdminPage() {
                         {item.judul}
                       </h2>
 
-                      <p className="line-clamp-3 text-sm text-gray-600">
-                        {item.paragraf}
+                      <p className="text-sm text-gray-500 mb-2">
+                        {item.kategori}
                       </p>
+
+                      <p className="line-clamp-3 text-sm text-gray-600 mb-3">
+                        {item.deskripsi_singkat}
+                      </p>
+
+                      <div className="text-xs text-gray-500 space-y-1">
+                        <p>Penulis: {item.penulis}</p>
+                        <p>
+                          Last Modified:
+                          {" "}
+                          {item.updated_at
+                            ? new Date(item.updated_at).toLocaleString()
+                            : "-"}
+                        </p>
+
+                        <p>
+                          Status:
+                          {" "}
+                          {item.is_draft ? "Draft" : "Published"}
+                        </p>
+                      </div>
+
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          onClick={() => {
+                            startEditArtikel(item)
+                            setMenu("artikel") // pindah ke form edit
+                          }}
+                          className="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
+                        >
+                          Edit Draft
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

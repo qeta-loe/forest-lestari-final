@@ -255,25 +255,6 @@ export default function DatabasePage() {
 
           <PetaLestari />
         </section>
-
-        {/* Footer */}
-        <footer className="border-t border-black/10 pt-8">
-          <div className="flex flex-col gap-4 text-sm text-emerald-900 sm:flex-row sm:items-center sm:justify-between">
-            <p>© Komunitas Forest Lestari - Bogor</p>
-
-            <div className="flex flex-wrap gap-6 font-bold">
-              <a href="#" className="hover:underline">
-                Kerjasama
-              </a>
-              <a href="#" className="hover:underline">
-                Hubungi Kami
-              </a>
-              <a href="#" className="hover:underline">
-                Login Admin
-              </a>
-            </div>
-          </div>
-        </footer>
       </div>
     </main>
   )
