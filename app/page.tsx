@@ -13,6 +13,16 @@ type Artikel = {
   is_draft: boolean | null
 }
 
+type KegiatanTerbaru = {
+  id: number
+  nama_kegiatan: string
+  kabupaten_kota: string | null
+  provinsi: string | null
+  tanggal_mulai: string | null
+  thumbnail_url: string | null
+  is_draft: boolean | null
+}
+
 type PolygonPoint = {
   lat: number
   lng: number
@@ -208,26 +218,11 @@ export default function BerandaPage() {
     { value: "3", label: "Mitra Instansi" },
   ]
 
-  const activities = [
-    {
-      title: "Penanaman Pohon DAS Cisadane",
-      location: "Bogor",
-      date: "15 Februari 2026",
-    },
-    {
-      title: "Survei Habitat Elang Jawa",
-      location: "Bogor",
-      date: "20 Maret 2026",
-    },
-    {
-      title: "Bersih Sampah Sungai Ciliwung",
-      location: "Jakarta",
-      date: "9 Mei 2026",
-    },
-  ]
-
   const [articles, setArticles] = useState<Artikel[]>([])
   const [loadingArticles, setLoadingArticles] = useState(true)
+
+  const [latestKegiatan, setLatestKegiatan] = useState<KegiatanTerbaru[]>([])
+  const [loadingKegiatan, setLoadingKegiatan] = useState(true)
 
   const fetchLatestArticles = async () => {
     setLoadingArticles(true)
@@ -250,8 +245,31 @@ export default function BerandaPage() {
     setLoadingArticles(false)
   }
 
+  const fetchLatestKegiatan = async () => {
+    setLoadingKegiatan(true)
+
+    const { data, error } = await supabase
+      .from("kegiatan")
+      .select(
+        "id, nama_kegiatan, kabupaten_kota, provinsi, tanggal_mulai, thumbnail_url, is_draft"
+      )
+      .eq("is_draft", false)
+      .order("tanggal_mulai", { ascending: false, nullsFirst: false })
+      .limit(3)
+
+    if (error) {
+      console.error(error.message)
+      setLoadingKegiatan(false)
+      return
+    }
+
+    setLatestKegiatan((data || []) as KegiatanTerbaru[])
+    setLoadingKegiatan(false)
+  }
+
   useEffect(() => {
     fetchLatestArticles()
+    fetchLatestKegiatan()
   }, [])
 
   const formatDate = (date?: string | null) => {
@@ -337,34 +355,59 @@ export default function BerandaPage() {
               Kegiatan Terbaru
             </h2>
 
-            <a
-              href="#"
+            <Link
+              href="/kegiatan"
               className="text-sm font-semibold text-emerald-900 hover:underline"
             >
               Lihat semua kegiatan
-            </a>
+            </Link>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {activities.map((activity) => (
-              <article
-                key={activity.title}
-                className="group flex overflow-hidden rounded-3xl bg-emerald-900/50 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-h-56"
-              >
-                <div className="w-2/5 bg-gray-300 transition group-hover:bg-gray-200" />
+          {loadingKegiatan && (
+            <div className="rounded-3xl bg-stone-50/70 p-6 text-sm text-emerald-900">
+              Memuat kegiatan terbaru...
+            </div>
+          )}
 
-                <div className="flex flex-1 flex-col justify-center px-4 py-8 text-center">
-                  <h3 className="text-lg font-bold leading-tight text-emerald-900 sm:text-xl">
-                    {activity.title}
-                  </h3>
+          {!loadingKegiatan && latestKegiatan.length === 0 && (
+            <div className="rounded-3xl bg-stone-50/70 p-6 text-sm text-emerald-900">
+              Belum ada kegiatan terbaru.
+            </div>
+          )}
 
-                  <p className="mt-2 text-sm text-white">
-                    {activity.location}, {activity.date}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
+          {!loadingKegiatan && latestKegiatan.length > 0 && (
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {latestKegiatan.map((activity) => (
+                <Link
+                  key={activity.id}
+                  href={`/kegiatan/${activity.id}`}
+                  className="group flex overflow-hidden rounded-3xl bg-emerald-900/50 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:min-h-56"
+                >
+                  <div className="w-2/5 bg-gray-300 transition group-hover:bg-gray-200">
+                    {activity.thumbnail_url && (
+                      <img
+                        src={activity.thumbnail_url}
+                        alt={activity.nama_kegiatan}
+                        className="h-full w-full object-cover"
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex flex-1 flex-col justify-center px-4 py-8 text-center">
+                    <h3 className="text-lg font-bold leading-tight text-emerald-900 sm:text-xl">
+                      {activity.nama_kegiatan}
+                    </h3>
+
+                    <p className="mt-2 text-sm text-white">
+                      {activity.kabupaten_kota || "-"}
+                      {activity.provinsi ? `, ${activity.provinsi}` : ""},{" "}
+                      {formatDate(activity.tanggal_mulai)}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Artikel dan peta */}

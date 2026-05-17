@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 
 type TargetKegiatan = {
@@ -151,7 +152,10 @@ function FilterItem({
 
 function ActivityCard({ activity }: { activity: Activity }) {
   return (
-    <article className="group overflow-hidden rounded-3xl bg-gray-400 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <Link
+      href={`/kegiatan/${activity.id}`}
+      className="group block overflow-hidden rounded-3xl bg-gray-400 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+    >
       <div className="h-24 bg-zinc-300 transition group-hover:bg-gray-200">
         {activity.thumbnail_url && (
           <img
@@ -175,7 +179,7 @@ function ActivityCard({ activity }: { activity: Activity }) {
           {activity.location} · {activity.participants} · {activity.date}
         </p>
       </div>
-    </article>
+    </Link>
   )
 }
 
@@ -473,16 +477,18 @@ export default function KegiatanPage() {
             )}
 
             {!loading && featuredActivity && (
-              <article className="group mb-8 grid overflow-hidden rounded-3xl bg-emerald-900/50 shadow-sm transition hover:-translate-y-1 hover:shadow-lg lg:grid-cols-[42%_1fr]">
-                <div className="min-h-72 bg-zinc-300 transition group-hover:bg-gray-200 lg:min-h-80">
-                  {featuredActivity.thumbnail_url && (
-                    <img
-                      src={featuredActivity.thumbnail_url}
-                      alt={featuredActivity.title}
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                </div>
+             <Link
+                href={`/kegiatan/${featuredActivity.id}`}
+                className="group mb-8 grid overflow-hidden rounded-3xl bg-emerald-900/50 shadow-sm transition hover:-translate-y-1 hover:shadow-lg lg:grid-cols-[42%_1fr]">    
+                  <div className="min-h-72 bg-zinc-300 transition group-hover:bg-gray-200 lg:min-h-80">
+                    {featuredActivity.thumbnail_url && (
+                      <img
+                        src={featuredActivity.thumbnail_url}
+                        alt={featuredActivity.title}
+                        className="h-full w-full object-cover"
+                      />
+                   )}
+                 </div>
 
                 <div className="flex min-h-80 flex-col justify-center p-7">
                   <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -509,18 +515,9 @@ export default function KegiatanPage() {
                     <span>👥 {featuredActivity.participants}</span>
                     {featuredActivity.seed && <span>🌱 {featuredActivity.seed}</span>}
                   </div>
-
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <button className="rounded-[10px] border border-emerald-950 bg-stone-50 px-4 py-2 text-xs text-emerald-900 transition hover:bg-emerald-50 active:scale-95">
-                      Lihat Laporan
-                    </button>
-
-                    <button className="rounded-[10px] border border-emerald-950 bg-stone-50 px-4 py-2 text-xs text-emerald-900 transition hover:bg-emerald-50 active:scale-95">
-                      Unduh Dokumentasi
-                    </button>
                   </div>
-                </div>
-              </article>
+              
+              </Link>
             )}
 
             {!loading && (
