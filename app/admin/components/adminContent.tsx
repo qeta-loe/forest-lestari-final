@@ -36,6 +36,8 @@ type Props = {
   menu: MenuKey
   setMenu: (menu: MenuKey) => void
   kegiatan: Kegiatan[]
+  editingKegiatan: Kegiatan | null
+  onEditKegiatan: (k: Kegiatan) => void
   dokumen: Dokumen[]
   artikel: Artikel[]
   lokasiPenanaman: LokasiPenanaman[]
@@ -62,6 +64,7 @@ export default function AdminContent({
   menu,
   setMenu,
   kegiatan,
+  editingKegiatan,
   dokumen,
   artikel,
   lokasiPenanaman,
@@ -72,6 +75,7 @@ export default function AdminContent({
   onRefreshLokasi,
   onEditArtikel,
   onArtikelFormSuccess,
+  onEditKegiatan,
   dasList,
   pohonList,
   editingDas,
@@ -85,8 +89,8 @@ export default function AdminContent({
 }: Props) {
   return (
     <div className="flex-1 p-8">
-      {menu === "upload" && <KegiatanUpload onSuccess={onRefreshKegiatan} />}
-      {menu === "list" && <KegiatanList kegiatan={kegiatan} onRefresh={onRefreshKegiatan} />}
+      {menu === "upload" && <KegiatanUpload editingKegiatan={editingKegiatan} onSuccess={onRefreshKegiatan} />}
+      {menu === "list" && <KegiatanList kegiatan={kegiatan} onEdit={onEditKegiatan!} />}
       {menu === "dokumen" && <DokumenUpload onSuccess={onRefreshDokumen} />}
       {menu === "dokumenList" && <DokumenList dokumen={dokumen} />}
       {menu === "artikel" && (

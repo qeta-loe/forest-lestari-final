@@ -34,8 +34,16 @@ export default function AdminPage() {
   const [artikel, setArtikel] = useState<Artikel[]>([])
   const [lokasiPenanaman, setLokasiPenanaman] = useState<LokasiPenanaman[]>([])
   const [editingArtikel, setEditingArtikel] = useState<Artikel | null>(null)
+  const [editingKegiatan, setEditingKegiatan] = useState<Kegiatan | null>(null)
 
-  const loadKegiatan = async () => setKegiatan(await fetchKegiatan())
+  const loadKegiatan = async () => {
+    try {
+      const data = await fetchKegiatan()
+      setKegiatan(data)
+    } catch (err: any) {
+      alert(err.message)
+    }
+  }
   const loadDokumen = async () => setDokumen(await fetchDokumen())
   const loadArtikel = async () => setArtikel(await fetchArtikel())
   const loadLokasi = async () => setLokasiPenanaman(await fetchLokasiPenanaman())
@@ -77,6 +85,7 @@ export default function AdminPage() {
         menu={menu}
         setMenu={setMenu}
         kegiatan={kegiatan}
+        editingKegiatan={editingKegiatan}
         dokumen={dokumen}
         artikel={artikel}
         lokasiPenanaman={lokasiPenanaman}
@@ -86,6 +95,7 @@ export default function AdminPage() {
         onRefreshArtikel={loadArtikel}
         onRefreshLokasi={loadLokasi}
         onEditArtikel={setEditingArtikel}
+        onEditKegiatan={setEditingKegiatan}
         onArtikelFormSuccess={() => { loadArtikel(); setEditingArtikel(null) }}
         dasList={dasList}
         pohonList={pohonList}

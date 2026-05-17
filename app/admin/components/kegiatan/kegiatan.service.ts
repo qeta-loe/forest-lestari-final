@@ -1,10 +1,47 @@
 import { supabase } from "@/lib/supabase"
 
+export type TargetKegiatan = {
+  nama_target: string
+  isi_target: string
+}
+
 export type Kegiatan = {
   id: number
-  nama: string
-  deskripsi: string
-  image_url: string
+
+  nama_kegiatan: string
+  slug?: string
+
+  alamat: string
+  kabupaten_kota: string
+  provinsi: string
+
+  tanggal_mulai: string
+  jam_mulai: string
+  jam_selesai: string
+
+  kategori:
+    | "Penanaman"
+    | "Survei"
+    | "Bersih Lingkungan"
+    | "Edukasi"
+
+  status_kegiatan: "upcoming" | "completed"
+
+  thumbnail_url: string
+
+  deskripsi_kegiatan?: string | null
+  tujuan_kegiatan?: string | null
+  link_pendaftaran?: string | null
+
+  targets?: TargetKegiatan[] | null
+
+  hasil_kegiatan?: string | null
+  press_release?: string | null
+
+  is_draft: boolean
+
+  created_at?: string
+  updated_at?: string
 }
 
 export const fetchKegiatan = async (): Promise<Kegiatan[]> => {
@@ -14,69 +51,102 @@ export const fetchKegiatan = async (): Promise<Kegiatan[]> => {
     .order("id", { ascending: false })
 
   if (error) throw new Error(error.message)
+
   return (data || []) as Kegiatan[]
 }
 
-export const uploadKegiatan = async (
-  nama: string,
-  deskripsi: string,
-  file: File
+type KegiatanPayload = Omit<
+  Kegiatan,
+  "id" | "created_at" | "updated_at" | "thumbnail_url"
+>
+
+export const createKegiatan = async (
+  payload: KegiatanPayload,
+  gambar: File
 ): Promise<void> => {
-  const fileName = `${Date.now()}-${file.name.replaceAll(" ", "-")}`
+  const fileName = `${Date.now()}-${gambar.name.replaceAll(" ", "-")}`
 
   const { error: uploadError } = await supabase.storage
     .from("kegiatan")
-    .upload(fileName, file)
+    .upload(fileName, gambar)
 
-  if (uploadError) throw new Error(uploadError.message)
+  if (uploadError) {
+    throw new Error(uploadError.message)
+  }
 
-  const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/kegiatan/${fileName}`
+  const thumbnailUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/kegiatan/${fileName}`
 
-  const { error } = await supabase.from("kegiatan").insert([{ nama, deskripsi, image_url: imageUrl }])
-  if (error) throw new Error(error.message)
-}
+  const slug = payload.nama_kegiatan
+    .toLowerCase()
+    .replaceAll(" ", "-")
+    .replace(/[^\w-]+/g, "")
 
-export const updateKegiatan = async (
-  id: number,
-  nama: string,
-  deskripsi: string,
-  currentImageUrl: string,
-  file: File | null
-): Promise<void> => {
-  let imageUrl = currentImageUrl
-
-  if (file) {
-    const fileName = `${Date.now()}-${file.name.replaceAll(" ", "-")}`
-    const { error: uploadError } = await supabase.storage
-      .from("kegiatan")
-      .upload(fileName, file)
-
-    if (uploadError) throw new Error(uploadError.message)
-
-    imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/kegiatan/${fileName}`
+  const finalPayload = {
+    ...payload,
+    slug,
+    thumbnail_url: thumbnailUrl,
   }
 
   const { error } = await supabase
     .from("kegiatan")
-    .update({ nama, deskripsi, image_url: imageUrl })
+    .insert([finalPayload])
+
+  if (error) {
+    throw new Error(error.message)
+  }
+}
+
+export const updateKegiatan = async (
+  id: number,
+  payload: KegiatanPayload,
+  gambar: File | null
+): Promise<void> => {
+  let thumbnailUrl: string | undefined
+
+  if (gambar) {
+    const fileName = `${Date.now()}-${gambar.name.replaceAll(" ", "-")}`
+
+    const { error: uploadError } = await supabase.storage
+      .from("kegiatan")
+      .upload(fileName, gambar)
+
+    if (uploadError) {
+      throw new Error(uploadError.message)
+    }
+
+    thumbnailUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/kegiatan/${fileName}`
+  }
+
+  const slug = payload.nama_kegiatan
+    .toLowerCase()
+    .replaceAll(" ", "-")
+    .replace(/[^\w-]+/g, "")
+
+  const updatePayload = {
+    ...payload,
+    slug,
+    ...(thumbnailUrl && { thumbnail_url: thumbnailUrl }),
+  }
+
+  const { error } = await supabase
+    .from("kegiatan")
+    .update(updatePayload)
     .eq("id", id)
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    throw new Error(error.message)
+  }
 }
 
 export const deleteKegiatan = async (
-  ids: number[],
-  kegiatan: Kegiatan[]
+  ids: number[]
 ): Promise<void> => {
-  const selectedItems = kegiatan.filter((item) => ids.includes(item.id))
-  const imagePaths = selectedItems
-    .map((item) => item.image_url?.split("/kegiatan/")[1])
-    .filter(Boolean) as string[]
+  const { error } = await supabase
+    .from("kegiatan")
+    .delete()
+    .in("id", ids)
 
-  if (imagePaths.length > 0) {
-    await supabase.storage.from("kegiatan").remove(imagePaths)
+  if (error) {
+    throw new Error(error.message)
   }
-
-  const { error } = await supabase.from("kegiatan").delete().in("id", ids)
-  if (error) throw new Error(error.message)
 }
