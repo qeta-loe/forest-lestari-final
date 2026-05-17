@@ -4,14 +4,22 @@ import { useEffect, useRef, useState } from "react"
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
 import { supabase } from "@/lib/supabase"
 
-const databaseCards = [
+type DatabaseCardItem = {
+  title: string
+  icon: string
+  type: "das" | "pohon"
+}
+
+const databaseCards: DatabaseCardItem[] = [
   {
     title: "DAS Lestari",
     icon: "🌊",
+    type: "das",
   },
   {
     title: "Pohon Lestari",
     icon: "🌳",
+    type: "pohon",
   },
 ]
 
@@ -23,23 +31,51 @@ type PolygonPoint = {
 type LokasiPenanaman = {
   id: number
   nama_lokasi: string
+  status_lokasi: string | null
   latitude: number
   longitude: number
-  deskripsi: string | null
-  polygon_coordinates: PolygonPoint[] | null
+  luas_area: number | null
+  jumlah_bibit: number | null
+  tanggal_tanam: string | null
+  polygon_coordinates: PolygonPoint[] | string | null
+  created_at: string | null
+  kabupaten_kota: string | null
+  provinsi: string | null
+  alamat: string | null
 }
 
-function DatabaseCard({ title, icon }: { title: string; icon: string }) {
+function DatabaseCard({
+  title,
+  icon,
+  totalData,
+  loading,
+}: {
+  title: string
+  icon: string
+  totalData?: number
+  loading?: boolean
+}) {
   return (
     <article className="group flex min-h-96 flex-col justify-between rounded-3xl bg-gray-400 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      <div className="flex items-center gap-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-300 text-xl text-emerald-900">
-          {icon}
+      <div>
+        <div className="flex items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-300 text-xl text-emerald-900">
+            {icon}
+          </div>
+
+          <h2 className="text-2xl font-bold text-emerald-900">{title}</h2>
         </div>
 
-        <h2 className="text-2xl font-bold text-emerald-900">
-          {title}
-        </h2>
+        {typeof totalData === "number" && (
+          <div className="mt-8">
+            <p className="text-5xl font-bold text-emerald-900">
+              {loading ? "..." : totalData}
+            </p>
+            <p className="mt-2 text-sm font-semibold text-white">
+              Total data tersimpan
+            </p>
+          </div>
+        )}
       </div>
 
       <button className="flex w-fit items-center gap-2 text-xs font-bold text-white transition hover:underline active:scale-95">
@@ -51,8 +87,18 @@ function DatabaseCard({ title, icon }: { title: string; icon: string }) {
 }
 
 function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
-  if (Array.isArray(item.polygon_coordinates)) {
-    return item.polygon_coordinates
+  let polygonData = item.polygon_coordinates
+
+  if (typeof polygonData === "string") {
+    try {
+      polygonData = JSON.parse(polygonData) as PolygonPoint[]
+    } catch {
+      return []
+    }
+  }
+
+  if (Array.isArray(polygonData)) {
+    return polygonData
       .map((point) => ({
         lat: Number(point.lat),
         lng: Number(point.lng),
@@ -75,7 +121,9 @@ function PetaLestari() {
       try {
         const { data, error } = await supabase
           .from("lokasi_penanaman")
-          .select("id, nama_lokasi, latitude, longitude, deskripsi, polygon_coordinates")
+          .select(
+            "id, nama_lokasi, status_lokasi, latitude, longitude, luas_area, jumlah_bibit, tanggal_tanam, polygon_coordinates, created_at, kabupaten_kota, provinsi, alamat"
+          )
           .order("id", { ascending: false })
 
         if (error) {
@@ -166,7 +214,10 @@ function PetaLestari() {
             lng: Number(item.longitude),
           }
 
-          if (!Number.isNaN(markerPosition.lat) && !Number.isNaN(markerPosition.lng)) {
+          if (
+            !Number.isNaN(markerPosition.lat) &&
+            !Number.isNaN(markerPosition.lng)
+          ) {
             bounds.extend(markerPosition)
             hasBounds = true
 
@@ -184,7 +235,9 @@ function PetaLestari() {
 
         setLoading(false)
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Gagal memuat peta"
+        const message =
+          error instanceof Error ? error.message : "Gagal memuat peta"
+
         setErrorMessage(message)
         setLoading(false)
       }
@@ -217,6 +270,57 @@ function PetaLestari() {
 }
 
 export default function DatabasePage() {
+  const [totalDas, setTotalDas] = useState(0)
+  const [loadingDas, setLoadingDas] = useState(true)
+
+  const [totalPohon, setTotalPohon] = useState(0)
+  const [loadingPohon, setLoadingPohon] = useState(true)
+
+  const fetchDasCount = async () => {
+    setLoadingDas(true)
+
+    const { count, error } = await supabase
+      .from("das")
+      .select("id", {
+        count: "exact",
+        head: true,
+      })
+
+    if (error) {
+      console.error(error.message)
+      setLoadingDas(false)
+      return
+    }
+
+    setTotalDas(count || 0)
+    setLoadingDas(false)
+  }
+
+  const fetchPohonCount = async () => {
+    setLoadingPohon(true)
+
+    const { count, error } = await supabase
+      .from("pohon")
+      .select("id", {
+        count: "exact",
+        head: true,
+      })
+
+    if (error) {
+      console.error(error.message)
+      setLoadingPohon(false)
+      return
+    }
+
+    setTotalPohon(count || 0)
+    setLoadingPohon(false)
+  }
+
+  useEffect(() => {
+    fetchDasCount()
+    fetchPohonCount()
+  }, [])
+
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-14">
@@ -236,7 +340,13 @@ export default function DatabasePage() {
         {/* Cards */}
         <section className="grid gap-8 md:grid-cols-2 xl:grid-cols-2">
           {databaseCards.map((card) => (
-            <DatabaseCard key={card.title} title={card.title} icon={card.icon} />
+            <DatabaseCard
+              key={card.title}
+              title={card.title}
+              icon={card.icon}
+              totalData={card.type === "das" ? totalDas : totalPohon}
+              loading={card.type === "das" ? loadingDas : loadingPohon}
+            />
           ))}
         </section>
 

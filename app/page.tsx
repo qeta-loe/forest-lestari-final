@@ -31,15 +31,32 @@ type PolygonPoint = {
 type LokasiPenanaman = {
   id: number
   nama_lokasi: string
-  latitude: number
-  longitude: number
-  deskripsi: string | null
-  polygon_coordinates: PolygonPoint[] | null
+  status_lokasi: string | null
+  latitude: number | null
+  longitude: number | null
+  luas_area: number | null
+  jumlah_bibit: number | null
+  tanggal_tanam: string | null
+  polygon_coordinates: PolygonPoint[] | string | null
+  created_at: string | null
+  kabupaten_kota: string | null
+  provinsi: string | null
+  alamat: string | null
 }
 
 function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
-  if (Array.isArray(item.polygon_coordinates)) {
-    return item.polygon_coordinates
+  let polygonData = item.polygon_coordinates
+
+  if (typeof polygonData === "string") {
+    try {
+      polygonData = JSON.parse(polygonData) as PolygonPoint[]
+    } catch {
+      return []
+    }
+  }
+
+  if (Array.isArray(polygonData)) {
+    return polygonData
       .map((point) => ({
         lat: Number(point.lat),
         lng: Number(point.lng),
@@ -48,6 +65,17 @@ function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
   }
 
   return []
+}
+
+function getMarkerPosition(item: LokasiPenanaman) {
+  const lat = Number(item.latitude)
+  const lng = Number(item.longitude)
+
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    return null
+  }
+
+  return { lat, lng }
 }
 
 function PetaLokasiPenanaman() {
@@ -63,7 +91,7 @@ function PetaLokasiPenanaman() {
         const { data, error } = await supabase
           .from("lokasi_penanaman")
           .select(
-            "id, nama_lokasi, latitude, longitude, deskripsi, polygon_coordinates"
+            "id, nama_lokasi, status_lokasi, latitude, longitude, luas_area, jumlah_bibit, tanggal_tanam, polygon_coordinates, created_at, kabupaten_kota, provinsi, alamat"
           )
           .order("id", { ascending: false })
 
@@ -84,21 +112,20 @@ function PetaLokasiPenanaman() {
           .map((item) => getPolygonPoints(item))
           .find((points) => points.length >= 3)
 
+        const firstMarker = lokasi
+          .map((item) => getMarkerPosition(item))
+          .find(Boolean)
+
         const center = firstPolygon?.[0]
           ? firstPolygon[0]
-          : lokasi.length > 0
-            ? {
-                lat: Number(lokasi[0].latitude),
-                lng: Number(lokasi[0].longitude),
-              }
-            : defaultCenter
+          : firstMarker || defaultCenter
 
         setOptions({
           key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
           v: "weekly",
         })
 
-        const { Map, Polygon } = (await importLibrary(
+        const { Map, Polygon, InfoWindow } = (await importLibrary(
           "maps"
         )) as google.maps.MapsLibrary
 
@@ -123,6 +150,22 @@ function PetaLokasiPenanaman() {
 
         lokasi.forEach((item) => {
           const polygonPoints = getPolygonPoints(item)
+          const markerPosition = getMarkerPosition(item)
+
+          const infoContent = `
+            <div style="max-width: 240px">
+              <strong>${item.nama_lokasi || "Lokasi Penanaman"}</strong>
+              <div>Status: ${item.status_lokasi || "-"}</div>
+              <div>Alamat: ${item.alamat || "-"}</div>
+              <div>${item.kabupaten_kota || "-"}, ${item.provinsi || "-"}</div>
+              <div>Luas Area: ${item.luas_area ?? "-"} ha</div>
+              <div>Jumlah Bibit: ${item.jumlah_bibit ?? "-"}</div>
+            </div>
+          `
+
+          const infoWindow = new InfoWindow({
+            content: infoContent,
+          })
 
           if (polygonPoints.length >= 3) {
             polygonPoints.forEach((point) => {
@@ -141,6 +184,11 @@ function PetaLokasiPenanaman() {
 
             polygon.setMap(map)
 
+            polygon.addListener("click", () => {
+              infoWindow.setPosition(polygonPoints[0])
+              infoWindow.open(map)
+            })
+
             new AdvancedMarkerElement({
               map,
               position: polygonPoints[0],
@@ -150,22 +198,21 @@ function PetaLokasiPenanaman() {
             return
           }
 
-          const markerPosition = {
-            lat: Number(item.latitude),
-            lng: Number(item.longitude),
-          }
-
-          if (
-            !Number.isNaN(markerPosition.lat) &&
-            !Number.isNaN(markerPosition.lng)
-          ) {
+          if (markerPosition) {
             bounds.extend(markerPosition)
             hasBounds = true
 
-            new AdvancedMarkerElement({
+            const marker = new AdvancedMarkerElement({
               map,
               position: markerPosition,
               title: item.nama_lokasi,
+            })
+
+            marker.addListener("click", () => {
+              infoWindow.open({
+                anchor: marker,
+                map,
+              })
             })
           }
         })
