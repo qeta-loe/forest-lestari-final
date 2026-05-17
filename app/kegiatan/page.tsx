@@ -1,6 +1,12 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
+import { supabase } from "@/lib/supabase"
+
+type TargetKegiatan = {
+  nama_target: string
+  isi_target: string
+}
 
 type Activity = {
   id: number
@@ -11,86 +17,111 @@ type Activity = {
   seed?: string
   date: string
   description?: string
+  thumbnail_url?: string | null
+  rawLocation?: string
+  year?: string
 }
 
-const categories = ["Semua", "Penanaman", "Survei", "Bersih Lingkungan", "Edukasi"]
+type KegiatanRow = {
+  id: number
+  nama_kegiatan: string
+  alamat: string | null
+  kabupaten_kota: string | null
+  provinsi: string | null
+  tanggal_mulai: string | null
+  jam_mulai: string | null
+  jam_selesai: string | null
+  kategori: string | null
+  status_kegiatan: string | null
+  deskripsi_kegiatan: string | null
+  tujuan_kegiatan: string | null
+  link_pendaftaran: string | null
+  targets: TargetKegiatan[] | null
+  hasil_kegiatan: string | null
+  press_release: string | null
+  is_draft: boolean | null
+  updated_at: string | null
+  thumbnail_url: string | null
+  draft_status: string | null
+  slug: string | null
+}
 
-const locations = ["Semua Wilayah", "Kota Bogor", "Kabupaten Bogor", "Jakarta", "Depok"]
+const categories = [
+  "Semua",
+  "Penanaman",
+  "Survei",
+  "Bersih Lingkungan",
+  "Edukasi",
+]
+
+const locations = [
+  "Semua Wilayah",
+  "Kota Bogor",
+  "Kabupaten Bogor",
+  "Jakarta",
+  "Depok",
+]
 
 const sortOptions = ["Terbaru", "Terlama", "Peserta Terbanyak"]
 
-const activities: Activity[] = [
-  {
-    id: 1,
-    category: "Penanaman",
-    title: "Penanaman Pohon DAS Cisadane",
-    location: "Bogor Barat",
-    participants: "42 Peserta",
-    seed: "200 bibit",
-    date: "26 Mei 2025",
+function formatDate(date?: string | null) {
+  if (!date) return "Tanggal belum tersedia"
+
+  return new Date(date).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
+
+function getYear(date?: string | null) {
+  if (!date) return ""
+
+  return String(new Date(date).getFullYear())
+}
+
+function getParticipantsText(targets: TargetKegiatan[] | null) {
+  if (!targets || targets.length === 0) return "0 Target"
+
+  return `${targets.length} Target`
+}
+
+function getSeedText(targets: TargetKegiatan[] | null) {
+  if (!targets || targets.length === 0) return undefined
+
+  const bibitTarget = targets.find((target) =>
+    `${target.nama_target} ${target.isi_target}`.toLowerCase().includes("bibit")
+  )
+
+  return bibitTarget?.isi_target
+}
+
+function mapKegiatanToActivity(item: KegiatanRow): Activity {
+  const location = [item.kabupaten_kota, item.provinsi]
+    .filter(Boolean)
+    .join(", ")
+
+  return {
+    id: item.id,
+    category: item.kategori || "Tanpa Kategori",
+    title: item.nama_kegiatan,
+    location: location || "-",
+    rawLocation: item.kabupaten_kota || "",
+    participants: getParticipantsText(item.targets),
+    seed: getSeedText(item.targets),
+    date: formatDate(item.tanggal_mulai),
+    year: getYear(item.tanggal_mulai),
     description:
-      "Kegiatan penanaman 200 bibit pohon endemik di tepi DAS Cisadane wilayah Bogor bagian barat bersama komunitas dan instansi terkait.",
-  },
-  {
-    id: 2,
-    category: "Survei",
-    title: "Survei Habitat Elang Jawa",
-    location: "Kabupaten Bogor",
-    participants: "18 Peserta",
-    date: "18 April 2025",
-  },
-  {
-    id: 3,
-    category: "Edukasi",
-    title: "Workshop Ecoprint",
-    location: "Kota Sukabumi",
-    participants: "30 Peserta",
-    date: "7 Januari 2025",
-  },
-  {
-    id: 4,
-    category: "Survei",
-    title: "Survei Habitat Elang Jawa",
-    location: "Kabupaten Bogor",
-    participants: "18 Peserta",
-    date: "18 April 2025",
-  },
-  {
-    id: 5,
-    category: "Survei",
-    title: "Survei Habitat Elang Jawa",
-    location: "Kabupaten Bogor",
-    participants: "18 Peserta",
-    date: "18 April 2025",
-  },
-  {
-    id: 6,
-    category: "Penanaman",
-    title: "Penanaman Pohon Hutan Kota",
-    location: "Kota Bogor",
-    participants: "25 Peserta",
-    seed: "100 bibit",
-    date: "12 Juni 2025",
-    description:
-      "Kegiatan penanaman pohon di kawasan hutan kota bersama relawan komunitas.",
-  },
-  {
-    id: 7,
-    category: "Bersih Lingkungan",
-    title: "Bersih Sampah Sungai Ciliwung",
-    location: "Jakarta",
-    participants: "35 Peserta",
-    date: "9 Mei 2025",
-  },
-  {
-    id: 8,
-    category: "Edukasi",
-    title: "Edukasi Daur Ulang Sampah",
-    location: "Depok",
-    participants: "40 Peserta",
-    date: "20 Mei 2025",
-  },
-]
+      item.status_kegiatan === "completed"
+        ? item.hasil_kegiatan ||
+          item.deskripsi_kegiatan ||
+          "Dokumentasi kegiatan komunitas dalam pelestarian lingkungan."
+        : item.deskripsi_kegiatan ||
+          item.tujuan_kegiatan ||
+          "Dokumentasi kegiatan komunitas dalam pelestarian lingkungan.",
+    thumbnail_url: item.thumbnail_url,
+  }
+}
 
 function FilterItem({
   label,
@@ -121,7 +152,15 @@ function FilterItem({
 function ActivityCard({ activity }: { activity: Activity }) {
   return (
     <article className="group overflow-hidden rounded-3xl bg-gray-400 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      <div className="h-24 bg-zinc-300 transition group-hover:bg-gray-200" />
+      <div className="h-24 bg-zinc-300 transition group-hover:bg-gray-200">
+        {activity.thumbnail_url && (
+          <img
+            src={activity.thumbnail_url}
+            alt={activity.title}
+            className="h-full w-full object-cover"
+          />
+        )}
+      </div>
 
       <div className="flex min-h-40 flex-col justify-end p-7">
         <span className="mb-3 w-fit rounded-full border border-emerald-950 bg-stone-50 px-4 py-2 text-xs text-emerald-900">
@@ -141,13 +180,66 @@ function ActivityCard({ activity }: { activity: Activity }) {
 }
 
 export default function KegiatanPage() {
+  const [activities, setActivities] = useState<Activity[]>([])
+  const [loading, setLoading] = useState(true)
+
   const [selectedCategory, setSelectedCategory] = useState("Semua")
   const [selectedLocation, setSelectedLocation] = useState("Semua Wilayah")
   const [selectedSort, setSelectedSort] = useState("Terbaru")
+  const [selectedYear, setSelectedYear] = useState("Semua Tahun")
+  const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
-  const loading = false
   const activitiesPerPage = 5
+
+  const fetchActivities = async () => {
+    setLoading(true)
+
+    const { data, error } = await supabase
+      .from("kegiatan")
+      .select(
+        "id, nama_kegiatan, alamat, kabupaten_kota, provinsi, tanggal_mulai, jam_mulai, jam_selesai, kategori, status_kegiatan, deskripsi_kegiatan, tujuan_kegiatan, link_pendaftaran, targets, hasil_kegiatan, press_release, is_draft, updated_at, thumbnail_url, draft_status, slug"
+      )
+      .eq("is_draft", false)
+      .order("tanggal_mulai", { ascending: false, nullsFirst: false })
+      .order("updated_at", { ascending: false })
+
+    if (error) {
+      console.error(error.message)
+      setLoading(false)
+      return
+    }
+
+    const mappedActivities = ((data || []) as KegiatanRow[]).map(
+      mapKegiatanToActivity
+    )
+
+    setActivities(mappedActivities)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    fetchActivities()
+  }, [])
+
+  const availableYears = useMemo(() => {
+    const years = activities
+      .map((activity) => activity.year)
+      .filter((year): year is string => Boolean(year))
+
+    return Array.from(new Set(years)).sort(
+      (a, b) => Number(b) - Number(a)
+    )
+  }, [activities])
+
+  useEffect(() => {
+    if (
+      selectedYear !== "Semua Tahun" &&
+      !availableYears.includes(selectedYear)
+    ) {
+      setSelectedYear("Semua Tahun")
+    }
+  }, [availableYears, selectedYear])
 
   const filteredActivities = useMemo(() => {
     let result = activities.filter((activity) => {
@@ -156,17 +248,36 @@ export default function KegiatanPage() {
 
       const matchLocation =
         selectedLocation === "Semua Wilayah" ||
-        activity.location.includes(selectedLocation)
+        activity.location.includes(selectedLocation) ||
+        activity.rawLocation?.includes(selectedLocation)
 
-      return matchCategory && matchLocation
+      const matchYear =
+        selectedYear === "Semua Tahun" || activity.year === selectedYear
+
+      return matchCategory && matchLocation && matchYear
     })
 
     if (selectedSort === "Terlama") {
       result = [...result].reverse()
     }
 
+    if (selectedSort === "Peserta Terbanyak") {
+      result = [...result].sort((a, b) => {
+        const totalA = Number(a.participants.replace(/\D/g, "")) || 0
+        const totalB = Number(b.participants.replace(/\D/g, "")) || 0
+
+        return totalB - totalA
+      })
+    }
+
     return result
-  }, [selectedCategory, selectedLocation, selectedSort])
+  }, [
+    activities,
+    selectedCategory,
+    selectedLocation,
+    selectedSort,
+    selectedYear,
+  ])
 
   const totalPages = Math.max(
     1,
@@ -182,7 +293,7 @@ export default function KegiatanPage() {
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [selectedCategory, selectedLocation, selectedSort])
+  }, [selectedCategory, selectedLocation, selectedSort, selectedYear])
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -221,8 +332,6 @@ export default function KegiatanPage() {
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
       <div className="mx-auto w-full max-w-7xl">
-        <div className="mb-10 border border-black/10" />
-
         {/* Header */}
         <section className="mb-10 space-y-3">
           <h1 className="text-3xl font-bold text-emerald-900 sm:text-4xl">
@@ -252,9 +361,62 @@ export default function KegiatanPage() {
             ))}
           </div>
 
-          <button className="w-fit rounded-[10px] border border-emerald-950 bg-stone-50 px-5 py-2 text-base text-emerald-900 transition hover:bg-emerald-50 active:scale-95">
-            Tahun: 2025
+          <div className="relative w-fit">
+          <button
+            type="button"
+            onClick={() => setIsYearDropdownOpen((prev) => !prev)}
+            className="flex items-center gap-2 rounded-[10px] border border-emerald-950 bg-stone-50 px-5 py-2 text-base text-emerald-900 transition hover:bg-emerald-50 active:scale-95"
+          >
+            <span>
+              Tahun: {selectedYear === "Semua Tahun" ? "Semua" : selectedYear}
+            </span>
+
+            <span
+              className={`text-lg leading-none transition-transform ${
+                isYearDropdownOpen ? "rotate-90" : ""
+              }`}
+            >
+              ›
+            </span>
           </button>
+
+            {isYearDropdownOpen && (
+              <div className="absolute right-0 z-20 mt-2 w-44 overflow-hidden rounded-xl border border-emerald-950 bg-stone-50 shadow-lg">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedYear("Semua Tahun")
+                    setIsYearDropdownOpen(false)
+                  }}
+                  className={`block w-full px-4 py-3 text-left text-sm transition hover:bg-emerald-50 ${
+                    selectedYear === "Semua Tahun"
+                      ? "text-emerald-900"
+                      : "text-emerald-900/50"
+                  }`}
+                >
+                  Semua Tahun
+                </button>
+
+                {availableYears.map((year) => (
+                  <button
+                    key={year}
+                    type="button"
+                    onClick={() => {
+                      setSelectedYear(year)
+                      setIsYearDropdownOpen(false)
+                    }}
+                    className={`block w-full px-4 py-3 text-left text-sm transition hover:bg-emerald-50 ${
+                      selectedYear === year
+                        ? "bg-emerald-900 text-white"
+                        : "text-emerald-900"
+                    }`}
+                  >
+                    {year}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </section>
 
         {/* Content */}
@@ -298,9 +460,29 @@ export default function KegiatanPage() {
               Menampilkan {filteredActivities.length} kegiatan
             </p>
 
-            {featuredActivity && (
-              <article className="group mb-8 grid overflow-hidden rounded-3xl bg-gray-400 shadow-sm transition hover:-translate-y-1 hover:shadow-lg lg:grid-cols-[42%_1fr]">
-                <div className="min-h-72 bg-zinc-300 transition group-hover:bg-gray-200 lg:min-h-80" />
+            {loading && (
+              <div className="py-20 text-center text-emerald-900">
+                Memuat kegiatan...
+              </div>
+            )}
+
+            {!loading && filteredActivities.length === 0 && (
+              <div className="py-20 text-center text-emerald-900">
+                Belum ada kegiatan.
+              </div>
+            )}
+
+            {!loading && featuredActivity && (
+              <article className="group mb-8 grid overflow-hidden rounded-3xl bg-emerald-900/50 shadow-sm transition hover:-translate-y-1 hover:shadow-lg lg:grid-cols-[42%_1fr]">
+                <div className="min-h-72 bg-zinc-300 transition group-hover:bg-gray-200 lg:min-h-80">
+                  {featuredActivity.thumbnail_url && (
+                    <img
+                      src={featuredActivity.thumbnail_url}
+                      alt={featuredActivity.title}
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
 
                 <div className="flex min-h-80 flex-col justify-center p-7">
                   <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -341,11 +523,13 @@ export default function KegiatanPage() {
               </article>
             )}
 
-            <div className="grid gap-8 md:grid-cols-2">
-              {otherActivities.map((activity) => (
-                <ActivityCard key={activity.id} activity={activity} />
-              ))}
-            </div>
+            {!loading && (
+              <div className="grid gap-8 md:grid-cols-2">
+                {otherActivities.map((activity) => (
+                  <ActivityCard key={activity.id} activity={activity} />
+                ))}
+              </div>
+            )}
 
             {/* PAGINATION */}
             {!loading && filteredActivities.length > 0 && (
@@ -393,8 +577,6 @@ export default function KegiatanPage() {
             )}
           </div>
         </section>
-
-        
       </div>
     </main>
   )
