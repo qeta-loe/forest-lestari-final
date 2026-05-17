@@ -8,8 +8,6 @@ import {
   TargetKegiatan,
 } from "./kegiatan.service"
 
-// use TargetKegiatan from service
-
 type Props = {
   editingKegiatan: Kegiatan | null
   onSuccess: () => void
@@ -46,52 +44,63 @@ export default function KegiatanForm({
   const [pressRelease, setPressRelease] = useState("")
 
   const [targets, setTargets] = useState<TargetKegiatan[]>([
-    defaultTarget,
+    { ...defaultTarget },
   ])
 
   const [thumbnail, setThumbnail] = useState<File | null>(null)
 
+  const resetForm = () => {
+    setNamaKegiatan("")
+    setAlamat("")
+    setKabupatenKota("")
+    setProvinsi("")
+    setTanggalMulai("")
+    setJamMulai("")
+    setJamSelesai("")
+    setKategori("")
+    setStatusKegiatan("upcoming")
+    setDeskripsiKegiatan("")
+    setTujuanKegiatan("")
+    setLinkPendaftaran("")
+    setHasilKegiatan("")
+    setPressRelease("")
+    setTargets([{ ...defaultTarget }])
+    setThumbnail(null)
+  }
+
   useEffect(() => {
     if (editingKegiatan) {
-      setNamaKegiatan(editingKegiatan.nama_kegiatan)
-      setAlamat(editingKegiatan.alamat)
-      setKabupatenKota(editingKegiatan.kabupaten_kota)
-      setProvinsi(editingKegiatan.provinsi)
+      setNamaKegiatan(editingKegiatan.nama_kegiatan || "")
+      setAlamat(editingKegiatan.alamat || "")
+      setKabupatenKota(editingKegiatan.kabupaten_kota || "")
+      setProvinsi(editingKegiatan.provinsi || "")
 
-      setTanggalMulai(editingKegiatan.tanggal_mulai)
-      setJamMulai(editingKegiatan.jam_mulai)
-      setJamSelesai(editingKegiatan.jam_selesai)
+      setTanggalMulai(editingKegiatan.tanggal_mulai || "")
+      setJamMulai(editingKegiatan.jam_mulai || "")
+      setJamSelesai(editingKegiatan.jam_selesai || "")
 
-      setKategori(editingKegiatan.kategori)
-      setStatusKegiatan(editingKegiatan.status_kegiatan)
-
-      setDeskripsiKegiatan(
-        editingKegiatan.deskripsi_kegiatan || ""
+      setKategori(editingKegiatan.kategori || "")
+      setStatusKegiatan(
+        editingKegiatan.status_kegiatan === "completed"
+          ? "completed"
+          : "upcoming"
       )
 
-      setTujuanKegiatan(
-        editingKegiatan.tujuan_kegiatan || ""
-      )
-
-      setLinkPendaftaran(
-        editingKegiatan.link_pendaftaran || ""
-      )
-
-      setHasilKegiatan(
-        editingKegiatan.hasil_kegiatan || ""
-      )
-
-      setPressRelease(
-        editingKegiatan.press_release || ""
-      )
+      setDeskripsiKegiatan(editingKegiatan.deskripsi_kegiatan || "")
+      setTujuanKegiatan(editingKegiatan.tujuan_kegiatan || "")
+      setLinkPendaftaran(editingKegiatan.link_pendaftaran || "")
+      setHasilKegiatan(editingKegiatan.hasil_kegiatan || "")
+      setPressRelease(editingKegiatan.press_release || "")
 
       setTargets(
         editingKegiatan.targets?.length
           ? editingKegiatan.targets
-          : [defaultTarget]
+          : [{ ...defaultTarget }]
       )
 
       setThumbnail(null)
+    } else {
+      resetForm()
     }
   }, [editingKegiatan])
 
@@ -100,9 +109,7 @@ export default function KegiatanForm({
 
     const now = new Date()
 
-    const kegiatanDate = new Date(
-      `${tanggalMulai}T${jamSelesai}`
-    )
+    const kegiatanDate = new Date(`${tanggalMulai}T${jamSelesai}`)
 
     if (kegiatanDate < now) {
       setStatusKegiatan("completed")
@@ -112,13 +119,11 @@ export default function KegiatanForm({
   }, [tanggalMulai, jamSelesai])
 
   const addTarget = () => {
-    setTargets((prev) => [...prev, defaultTarget])
+    setTargets((prev) => [...prev, { ...defaultTarget }])
   }
 
   const removeTarget = (index: number) => {
-    setTargets((prev) =>
-      prev.filter((_, i) => i !== index)
-    )
+    setTargets((prev) => prev.filter((_, i) => i !== index))
   }
 
   const updateTarget = (
@@ -128,9 +133,7 @@ export default function KegiatanForm({
   ) => {
     setTargets((prev) =>
       prev.map((item, i) =>
-        i === index
-          ? ({ ...item, [field]: value } as TargetKegiatan)
-          : item
+        i === index ? { ...item, [field]: value } : item
       )
     )
   }
@@ -180,21 +183,21 @@ export default function KegiatanForm({
 
     try {
       if (editingKegiatan) {
-        await updateKegiatan(
-          editingKegiatan.id,
-          payload,
-          thumbnail
-        )
+        await updateKegiatan(editingKegiatan.id, payload, thumbnail)
 
         alert("Kegiatan berhasil diupdate")
       } else {
         await createKegiatan(payload, thumbnail!)
+
         alert("Kegiatan berhasil dibuat")
+        resetForm()
       }
 
       onSuccess()
-    } catch (err: any) {
-      alert(err.message)
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Terjadi kesalahan"
+      alert(message)
     }
   }
 
@@ -213,22 +216,28 @@ export default function KegiatanForm({
       <div className="rounded-3xl border bg-white p-8 shadow-sm">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <label className="mb-2 block font-medium text-[#0F5139]">Nama Kegiatan</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Nama Kegiatan
+            </label>
             <input
               type="text"
               placeholder="Nama kegiatan"
               value={namaKegiatan}
               onChange={(e) => setNamaKegiatan(e.target.value)}
-              className="rounded-xl border p-3 w-full"
+              className="w-full rounded-xl border p-3"
             />
           </div>
 
           <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">Kategori</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Kategori
+            </label>
             <select
               value={kategori}
-              onChange={(e) => setKategori(e.target.value as Kegiatan["kategori"])}
-              className="rounded-xl border p-3 w-full"
+              onChange={(e) =>
+                setKategori(e.target.value as Kegiatan["kategori"])
+              }
+              className="w-full rounded-xl border p-3"
             >
               <option value="">Pilih kategori</option>
               <option value="Penanaman">Penanaman</option>
@@ -239,67 +248,79 @@ export default function KegiatanForm({
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-2 block font-medium text-[#0F5139]">Alamat</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Alamat
+            </label>
             <input
               type="text"
               placeholder="Alamat"
               value={alamat}
               onChange={(e) => setAlamat(e.target.value)}
-              className="rounded-xl border p-3 w-full"
+              className="w-full rounded-xl border p-3"
             />
           </div>
 
           <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">Kabupaten / Kota</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Kabupaten / Kota
+            </label>
             <input
               type="text"
               placeholder="Kabupaten/Kota"
               value={kabupatenKota}
               onChange={(e) => setKabupatenKota(e.target.value)}
-              className="rounded-xl border p-3 w-full"
+              className="w-full rounded-xl border p-3"
             />
           </div>
 
           <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">Provinsi</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Provinsi
+            </label>
             <input
               type="text"
               placeholder="Provinsi"
               value={provinsi}
               onChange={(e) => setProvinsi(e.target.value)}
-              className="rounded-xl border p-3 w-full"
+              className="w-full rounded-xl border p-3"
             />
           </div>
 
           <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">Tanggal Mulai</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Tanggal Mulai
+            </label>
             <input
               type="date"
               value={tanggalMulai}
               onChange={(e) => setTanggalMulai(e.target.value)}
-              className="rounded-xl border p-3 w-full"
+              className="w-full rounded-xl border p-3"
             />
           </div>
 
           <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">Jam Mulai</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Jam Mulai
+            </label>
             <input
               type="time"
               placeholder="Jam mulai"
               value={jamMulai}
               onChange={(e) => setJamMulai(e.target.value)}
-              className="rounded-xl border p-3 w-full"
+              className="w-full rounded-xl border p-3"
             />
           </div>
 
           <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">Jam Selesai</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Jam Selesai
+            </label>
             <input
               type="time"
               placeholder="Jam selesai"
               value={jamSelesai}
               onChange={(e) => setJamSelesai(e.target.value)}
-              className="rounded-xl border p-3 w-full"
+              className="w-full rounded-xl border p-3"
             />
           </div>
         </div>
@@ -307,7 +328,9 @@ export default function KegiatanForm({
         {/* UPCOMING */}
         {statusKegiatan === "upcoming" && (
           <div className="mt-10 space-y-5">
-            <label className="mb-2 block font-medium text-[#0F5139]">Deskripsi Kegiatan</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Deskripsi Kegiatan
+            </label>
             <textarea
               placeholder="Deskripsi kegiatan"
               value={deskripsiKegiatan}
@@ -315,7 +338,9 @@ export default function KegiatanForm({
               className="min-h-32 w-full rounded-xl border p-4"
             />
 
-            <label className="mb-2 block font-medium text-[#0F5139]">Tujuan Kegiatan</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Tujuan Kegiatan
+            </label>
             <textarea
               placeholder="Tujuan kegiatan"
               value={tujuanKegiatan}
@@ -323,7 +348,9 @@ export default function KegiatanForm({
               className="min-h-32 w-full rounded-xl border p-4"
             />
 
-            <label className="mb-2 block font-medium text-[#0F5139]">Link Pendaftaran</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Link Pendaftaran
+            </label>
             <input
               type="text"
               placeholder="Link pendaftaran"
@@ -334,9 +361,7 @@ export default function KegiatanForm({
 
             <div>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold">
-                  Target Kegiatan
-                </h2>
+                <h2 className="text-xl font-semibold">Target Kegiatan</h2>
 
                 <button
                   type="button"
@@ -350,20 +375,28 @@ export default function KegiatanForm({
               <div className="space-y-4">
                 {targets.map((target, index) => (
                   <div key={index} className="rounded-2xl border p-5">
-                    <label className="mb-2 block font-medium text-[#0F5139]">Nama Target</label>
+                    <label className="mb-2 block font-medium text-[#0F5139]">
+                      Nama Target
+                    </label>
                     <input
                       type="text"
                       placeholder="Nama target"
                       value={target.nama_target}
-                      onChange={(e) => updateTarget(index, "nama_target", e.target.value)}
+                      onChange={(e) =>
+                        updateTarget(index, "nama_target", e.target.value)
+                      }
                       className="mb-3 w-full rounded-xl border p-3"
                     />
 
-                    <label className="mb-2 block font-medium text-[#0F5139]">Isi Target</label>
+                    <label className="mb-2 block font-medium text-[#0F5139]">
+                      Isi Target
+                    </label>
                     <textarea
                       placeholder="Isi target"
                       value={target.isi_target}
-                      onChange={(e) => updateTarget(index, "isi_target", e.target.value)}
+                      onChange={(e) =>
+                        updateTarget(index, "isi_target", e.target.value)
+                      }
                       className="min-h-28 w-full rounded-xl border p-3"
                     />
 
@@ -386,7 +419,9 @@ export default function KegiatanForm({
         {/* COMPLETED */}
         {statusKegiatan === "completed" && (
           <div className="mt-10 space-y-5">
-            <label className="mb-2 block font-medium text-[#0F5139]">Hasil Kegiatan</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Hasil Kegiatan
+            </label>
             <textarea
               placeholder="Hasil kegiatan"
               value={hasilKegiatan}
@@ -394,7 +429,9 @@ export default function KegiatanForm({
               className="min-h-32 w-full rounded-xl border p-4"
             />
 
-            <label className="mb-2 block font-medium text-[#0F5139]">Press Release</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Press Release
+            </label>
             <textarea
               placeholder="Press release"
               value={pressRelease}
@@ -406,11 +443,19 @@ export default function KegiatanForm({
 
         {/* THUMBNAIL */}
         <div className="mt-10">
-          <label className="mb-2 block font-medium text-[#0F5139]">Thumbnail</label>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Thumbnail
+          </label>
           <label className="flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed">
             <p className="font-semibold">Upload Thumbnail</p>
 
-            <p className="mt-3 text-sm">{thumbnail ? thumbnail.name : "Klik pilih gambar"}</p>
+            <p className="mt-3 text-sm">
+              {thumbnail
+                ? thumbnail.name
+                : editingKegiatan?.thumbnail_url
+                  ? "Thumbnail lama tetap digunakan"
+                  : "Klik pilih gambar"}
+            </p>
 
             <input
               type="file"
@@ -433,7 +478,7 @@ export default function KegiatanForm({
             onClick={() => handleSubmit(false)}
             className="rounded-xl bg-[#0F5139] px-6 py-3 text-white"
           >
-            Publish Kegiatan
+            {editingKegiatan ? "Update Kegiatan" : "Publish Kegiatan"}
           </button>
         </div>
       </div>

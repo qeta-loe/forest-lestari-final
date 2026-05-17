@@ -35,25 +35,29 @@ type MenuKey =
 type Props = {
   menu: MenuKey
   setMenu: (menu: MenuKey) => void
+
   kegiatan: Kegiatan[]
   editingKegiatan: Kegiatan | null
-  onEditKegiatan: (k: Kegiatan) => void
+  onEditKegiatan: (k: Kegiatan | null) => void
+  onRefreshKegiatan: () => void | Promise<void>
+
   dokumen: Dokumen[]
   artikel: Artikel[]
   lokasiPenanaman: LokasiPenanaman[]
   editingArtikel: Artikel | null
-  onRefreshKegiatan: () => void
-  onRefreshDokumen: () => void
-  onRefreshArtikel: () => void
-  onRefreshLokasi: () => void
+
+  onRefreshDokumen: () => void | Promise<void>
+  onRefreshArtikel: () => void | Promise<void>
+  onRefreshLokasi: () => void | Promise<void>
   onEditArtikel: (artikel: Artikel) => void
   onArtikelFormSuccess: () => void
+
   dasList: Das[]
   pohonList: PohonWithRelasi[]
   editingDas: Das | null
   editingPohon: PohonWithRelasi | null
-  onRefreshDas: () => void
-  onRefreshPohon: () => void
+  onRefreshDas: () => void | Promise<void>
+  onRefreshPohon: () => void | Promise<void>
   onEditDas: (das: Das) => void
   onEditPohon: (pohon: PohonWithRelasi) => void
   onCancelEditDas: () => void
@@ -85,14 +89,34 @@ export default function AdminContent({
   onEditDas,
   onEditPohon,
   onCancelEditDas,
-  onCancelEditPohon
+  onCancelEditPohon,
 }: Props) {
   return (
     <div className="flex-1 p-8">
-      {menu === "upload" && <KegiatanUpload editingKegiatan={editingKegiatan} onSuccess={onRefreshKegiatan} />}
-      {menu === "list" && <KegiatanList kegiatan={kegiatan} onEdit={onEditKegiatan!} />}
+      {menu === "upload" && (
+        <KegiatanUpload
+          editingKegiatan={editingKegiatan}
+          onSuccess={async () => {
+            await onRefreshKegiatan()
+            onEditKegiatan(null)
+            setMenu("list")
+          }}
+        />
+      )}
+
+      {menu === "list" && (
+        <KegiatanList
+          kegiatan={kegiatan}
+          onEdit={(item) => {
+            onEditKegiatan(item)
+            setMenu("upload")
+          }}
+        />
+      )}
+
       {menu === "dokumen" && <DokumenUpload onSuccess={onRefreshDokumen} />}
       {menu === "dokumenList" && <DokumenList dokumen={dokumen} />}
+
       {menu === "artikel" && (
         <ArtikelForm
           editingArtikel={editingArtikel}
@@ -102,6 +126,7 @@ export default function AdminContent({
           }}
         />
       )}
+
       {menu === "artikelList" && (
         <ArtikelList
           artikel={artikel}
@@ -111,37 +136,61 @@ export default function AdminContent({
           }}
         />
       )}
+
       {menu === "database" && <div />}
-      {menu === "lokasiPenanaman" && <LokasiForm onSuccess={onRefreshLokasi} />}
-      {menu === "daftarLokasiPenanaman" && <LokasiList lokasiPenanaman={lokasiPenanaman} />}
+
+      {menu === "lokasiPenanaman" && (
+        <LokasiForm onSuccess={onRefreshLokasi} />
+      )}
+
+      {menu === "daftarLokasiPenanaman" && (
+        <LokasiList lokasiPenanaman={lokasiPenanaman} />
+      )}
+
       {menu === "das" && (
         <DasForm
           editingDas={editingDas}
-          onSuccess={() => { onRefreshDas(); setMenu("daftarDas") }}
+          onSuccess={() => {
+            onRefreshDas()
+            setMenu("daftarDas")
+          }}
           onCancelEdit={onCancelEditDas}
         />
       )}
+
       {menu === "daftarDas" && (
         <DasList
           dasList={dasList}
           onRefresh={onRefreshDas}
-          onEdit={(das) => { onEditDas(das); setMenu("das") }}
+          onEdit={(das) => {
+            onEditDas(das)
+            setMenu("das")
+          }}
         />
       )}
+
       {menu === "pohon" && (
         <PohonForm
           editingPohon={editingPohon}
-          onSuccess={() => { onRefreshPohon(); setMenu("daftarPohon") }}
+          onSuccess={() => {
+            onRefreshPohon()
+            setMenu("daftarPohon")
+          }}
           onCancelEdit={onCancelEditPohon}
         />
       )}
+
       {menu === "daftarPohon" && (
         <PohonList
           pohonList={pohonList}
           onRefresh={onRefreshPohon}
-          onEdit={(pohon) => { onEditPohon(pohon); setMenu("pohon") }}
+          onEdit={(pohon) => {
+            onEditPohon(pohon)
+            setMenu("pohon")
+          }}
         />
       )}
+
       {menu === "profil" && <ProfilForm />}
     </div>
   )
