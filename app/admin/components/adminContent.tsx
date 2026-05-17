@@ -4,6 +4,14 @@ import { Artikel } from "./artikel/artikel.service"
 import { Dokumen } from "./dokumen/dokumen.service"
 import { Kegiatan } from "./kegiatan/kegiatan.service"
 import { LokasiPenanaman } from "./lokasi/lokasi.service"
+import { Das } from "./das/das.service"
+import { PohonWithRelasi } from "./pohon/pohon.service"
+import { TonggakPencapaian } from "../tentang/tonggak/tonggak.service"
+import { Mitra } from "../tentang/mitra/mitra.service"
+import { LaporanTahunan } from "../tentang/laporan/laporan.service"
+import { Relawan } from "../tentang/relawan/relawan.service"
+import { Program } from "../tentang/program/program.service"
+
 
 import KegiatanUpload from "./kegiatan/uploadKegiatan"
 import KegiatanList from "./kegiatan/listKegiatan"
@@ -18,9 +26,17 @@ import DasForm from "./das/dasForm"
 import DasList from "./das/dasList"
 import PohonForm from "./pohon/pohonForm"
 import PohonList from "./pohon/pohonList"
-
-type Das = any
-type PohonWithRelasi = any
+import OrganisasiManager from "../tentang/organisasi/OrganisasiManager"
+import TonggakForm from "../tentang/tonggak/TonggakForm"
+import TonggakList from "../tentang/tonggak/TonggakList"
+import MitraForm from "../tentang/mitra/MitraForm"
+import MitraList from "../tentang/mitra/MitraList"
+import LaporanForm from "../tentang/laporan/LaporanForm"
+import LaporanList from "../tentang/laporan/LaporanList"
+import RelawanForm from "../tentang/relawan/RelawanForm"
+import RelawanList from "../tentang/relawan/RelawanList"
+import ProgramForm from "../tentang/program/ProgramForm"
+import ProgramList from "../tentang/program/ProgramList"
 
 type MenuKey =
   | "upload" | "list"
@@ -31,6 +47,12 @@ type MenuKey =
   | "das" | "daftarDas"
   | "pohon" | "daftarPohon"
   | "profil"
+  | "organisasi"
+  | "tonggak" | "tonggakList"
+  | "mitra" | "mitraList"
+  | "laporan" | "laporanList"
+  | "relawan" | "relawanList"
+  | "program" | "programList"
 
 type Props = {
   menu: MenuKey
@@ -62,6 +84,33 @@ type Props = {
   onEditPohon: (pohon: PohonWithRelasi) => void
   onCancelEditDas: () => void
   onCancelEditPohon: () => void
+
+  tonggakList: TonggakPencapaian[]
+  mitraList: Mitra[]
+  laporanList: LaporanTahunan[]
+  relawanList: Relawan[]
+  programList: Program[]
+  editingTonggak: TonggakPencapaian | null
+  editingMitra: Mitra | null
+  editingLaporan: LaporanTahunan | null
+  editingRelawan: Relawan | null
+  editingProgram: Program | null
+
+  onRefreshTonggak: () => void
+  onRefreshMitra: () => void
+  onRefreshLaporan: () => void
+  onRefreshRelawan: () => void
+  onRefreshProgram: () => void
+  onEditTonggak: (t: TonggakPencapaian) => void
+  onEditMitra: (m: Mitra) => void
+  onEditLaporan: (l: LaporanTahunan) => void
+  onEditRelawan: (r: Relawan) => void
+  onEditProgram: (p: Program) => void
+  onCancelEditTonggak: () => void
+  onCancelEditMitra: () => void
+  onCancelEditLaporan: () => void
+  onCancelEditRelawan: () => void
+  onCancelEditProgram: () => void
 }
 
 export default function AdminContent({
@@ -90,6 +139,31 @@ export default function AdminContent({
   onEditPohon,
   onCancelEditDas,
   onCancelEditPohon,
+  tonggakList,
+  mitraList,
+  laporanList,
+  relawanList,
+  programList,
+  editingTonggak,
+  editingMitra,
+  editingLaporan,
+  editingRelawan,
+  editingProgram,
+  onRefreshTonggak, 
+  onRefreshMitra, 
+  onRefreshLaporan, 
+  onRefreshRelawan, 
+  onRefreshProgram,
+  onEditTonggak, 
+  onEditMitra, 
+  onEditLaporan, 
+  onEditRelawan, 
+  onEditProgram,
+  onCancelEditTonggak, 
+  onCancelEditMitra, 
+  onCancelEditLaporan, 
+  onCancelEditRelawan, 
+  onCancelEditProgram,
 }: Props) {
   return (
     <div className="flex-1 p-8">
@@ -192,6 +266,77 @@ export default function AdminContent({
       )}
 
       {menu === "profil" && <ProfilForm />}
+      {menu === "organisasi" && <OrganisasiManager />}
+      {menu === "tonggak" && (
+        <TonggakForm
+          editingTonggak={editingTonggak}
+          onSuccess={() => { onRefreshTonggak(); setMenu("tonggakList") }}
+          onCancel={() => { onCancelEditTonggak(); setMenu("tonggakList") }}
+        />
+      )}
+      {menu === "tonggakList" && (
+        <TonggakList
+          tonggakList={tonggakList}
+          onRefresh={onRefreshTonggak}
+          onEdit={(t) => { onEditTonggak(t); setMenu("tonggak") }}
+        />
+      )}
+      {menu === "mitra" && (
+        <MitraForm
+          editingMitra={editingMitra}
+          onSuccess={() => { onRefreshMitra(); setMenu("mitraList") }}
+          onCancel={() => { onCancelEditMitra(); setMenu("mitraList") }}
+        />
+      )}
+      {menu === "mitraList" && (
+        <MitraList
+          mitraList={mitraList}
+          onRefresh={onRefreshMitra}
+          onEdit={(m) => { onEditMitra(m); setMenu("mitra") }}
+        />
+      )}
+      {menu === "laporan" && (
+        <LaporanForm
+          editingLaporan={editingLaporan}
+          onSuccess={() => { onRefreshLaporan(); setMenu("laporanList") }}
+          onCancel={() => { onCancelEditLaporan(); setMenu("laporanList") }}
+        />
+      )}
+      {menu === "laporanList" && (
+        <LaporanList
+          laporanList={laporanList}
+          onRefresh={onRefreshLaporan}
+          onEdit={(l) => { onEditLaporan(l); setMenu("laporan") }}
+        />
+      )}
+      {menu === "relawan" && (
+        <RelawanForm
+          editingRelawan={editingRelawan}
+          onSuccess={() => { onRefreshRelawan(); setMenu("relawanList") }}
+          onCancel={() => { onCancelEditRelawan(); setMenu("relawanList") }}
+        />
+      )}
+      {menu === "relawanList" && (
+        <RelawanList
+          relawanList={relawanList}
+          onRefresh={onRefreshRelawan}
+          onEdit={(r) => { onEditRelawan(r); setMenu("relawan") }}
+        />
+      )}
+      {menu === "program" && (
+        <ProgramForm
+          editingProgram={editingProgram}
+          onSuccess={() => { onRefreshProgram(); setMenu("programList") }}
+          onCancel={() => { onCancelEditProgram(); setMenu("programList") }}
+        />
+      )}
+      {menu === "programList" && (
+        <ProgramList
+          programList={programList}
+          onRefresh={onRefreshProgram}
+          onEdit={(p) => { onEditProgram(p); setMenu("program") }}
+        />
+      )}
     </div>
   )
 }

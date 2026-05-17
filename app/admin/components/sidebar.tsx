@@ -9,6 +9,12 @@ type MenuKey =
   | "das" | "daftarDas"
   | "pohon" | "daftarPohon"
   | "profil"
+  | "organisasi"
+  | "tonggak" | "tonggakList"
+  | "mitra" | "mitraList"
+  | "laporan" | "laporanList"
+  | "relawan" | "relawanList"
+  | "program" | "programList"
 
 type Props = {
   menu: MenuKey
@@ -21,6 +27,14 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
   const isDokumenActive = menu === "dokumen" || menu === "dokumenList"
   const isArtikelActive = menu === "artikel" || menu === "artikelList"
   const isDatabaseActive = ["database","lokasiPenanaman","daftarLokasiPenanaman","das","daftarDas","pohon","daftarPohon"].includes(menu)
+  const isTentangActive = [
+    "organisasi",
+    "tonggak", "tonggakList",
+    "mitra", "mitraList",
+    "laporan", "laporanList",
+    "relawan", "relawanList",
+    "program", "programList",
+  ].includes(menu) 
 
   const mainMenuClass = (active: boolean) =>
     `w-full text-left px-4 py-2 rounded-md mb-2 transition-all duration-150 cursor-pointer active:scale-95 ${
@@ -38,6 +52,15 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
     `ml-8 w-[calc(100%-2rem)] text-left px-4 py-2 rounded-md mb-2 text-sm transition-all duration-150 cursor-pointer active:scale-95 ${
       active ? "bg-[#0F5139]/10 text-[#0F5139] font-semibold" : "text-[#0F5139] hover:bg-gray-100"
     }`
+
+  const tentangSubmenus: { key: MenuKey; listKey: MenuKey; label: string }[] = [
+    { key: "organisasi", listKey: "organisasi", label: "Struktur Organisasi" },
+    { key: "tonggak", listKey: "tonggakList", label: "Tonggak Pencapaian" },
+    { key: "mitra", listKey: "mitraList", label: "Jaringan & Mitra" },
+    { key: "laporan", listKey: "laporanList", label: "Laporan Tahunan" },
+    { key: "relawan", listKey: "relawanList", label: "Relawan" },
+    { key: "program", listKey: "programList", label: "Program" },
+  ]
 
   return (
     <div className="w-[250px] bg-white border-r p-4">
@@ -107,6 +130,37 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
           )}
         </>
       )}
+
+      {/* Tentang Kami */}
+      <button
+        onClick={() => setMenu("organisasi")}
+        className={mainMenuClass(isTentangActive)}
+      >
+        <span className={`text-xs transition-transform duration-200 ${isTentangActive ? "rotate-90" : ""}`}>▶</span>
+        <span>Tentang Kami</span>
+      </button>
+      {isTentangActive && tentangSubmenus.map((item) => {
+        const isSubActive = menu === item.key || menu === item.listKey
+        return (
+          <div key={item.key}>
+            <button
+              onClick={() => setMenu(item.key)}
+              className={subMenuClass(isSubActive)}
+            >
+              {item.label}
+            </button>
+            {/* Sub-list untuk yang punya daftar terpisah */}
+            {item.key !== "organisasi" && isSubActive && (
+              <button
+                onClick={() => setMenu(item.listKey)}
+                className={subSubMenuClass(menu === item.listKey)}
+              >
+                Daftar {item.label}
+              </button>
+            )}
+          </div>
+        )
+      })}
 
       {/* Profil */}
       <button onClick={() => setMenu("profil")} className={mainMenuClass(menu === "profil")}>

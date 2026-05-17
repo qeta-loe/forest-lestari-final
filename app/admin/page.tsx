@@ -13,6 +13,12 @@ import { fetchArtikel, Artikel } from "./components/artikel/artikel.service"
 import { fetchLokasiPenanaman, LokasiPenanaman } from "./components/lokasi/lokasi.service"
 import { fetchDas, Das } from "./components/das/das.service"
 import { fetchPohon, PohonWithRelasi } from "./components/pohon/pohon.service"
+import { fetchTonggak, TonggakPencapaian } from "./tentang/tonggak/tonggak.service"
+import { fetchMitra, Mitra } from "./tentang/mitra/mitra.service"
+import { fetchLaporan, LaporanTahunan } from "./tentang/laporan/laporan.service"
+import { fetchRelawan, Relawan } from "./tentang/relawan/relawan.service"
+import { fetchProgram, Program } from "./tentang/program/program.service"
+
 
 type MenuKey =
   | "upload" | "list"
@@ -23,6 +29,12 @@ type MenuKey =
   | "das" | "daftarDas"
   | "pohon" | "daftarPohon"
   | "profil"
+  | "organisasi"
+  | "tonggak" | "tonggakList"
+  | "mitra" | "mitraList"
+  | "laporan" | "laporanList"
+  | "relawan" | "relawanList"
+  | "program" | "programList"
 
 export default function AdminPage() {
   const router = useRouter()
@@ -35,6 +47,16 @@ export default function AdminPage() {
   const [lokasiPenanaman, setLokasiPenanaman] = useState<LokasiPenanaman[]>([])
   const [editingArtikel, setEditingArtikel] = useState<Artikel | null>(null)
   const [editingKegiatan, setEditingKegiatan] = useState<Kegiatan | null>(null)
+  const [tonggakList, setTonggakList] = useState<TonggakPencapaian[]>([])
+  const [mitraList, setMitraList] = useState<Mitra[]>([])
+  const [laporanList, setLaporanList] = useState<LaporanTahunan[]>([])
+  const [relawanList, setRelawanList] = useState<Relawan[]>([])
+  const [programList, setProgramList] = useState<Program[]>([])
+  const [editingTonggak, setEditingTonggak] = useState<TonggakPencapaian | null>(null)
+  const [editingMitra, setEditingMitra] = useState<Mitra | null>(null)
+  const [editingLaporan, setEditingLaporan] = useState<LaporanTahunan | null>(null)
+  const [editingRelawan, setEditingRelawan] = useState<Relawan | null>(null)
+  const [editingProgram, setEditingProgram] = useState<Program | null>(null)
 
   const loadKegiatan = async () => {
     try {
@@ -54,13 +76,20 @@ export default function AdminPage() {
   const [editingPohon, setEditingPohon] = useState<PohonWithRelasi | null>(null)
   const loadDas = async () => setDasList(await fetchDas())
   const loadPohon = async () => setPohonList(await fetchPohon())
+  const loadTonggak = async () => setTonggakList(await fetchTonggak())
+  const loadMitra = async () => setMitraList(await fetchMitra())
+  const loadLaporan = async () => setLaporanList(await fetchLaporan())
+  const loadRelawan = async () => setRelawanList(await fetchRelawan())
+  const loadProgram = async () => setProgramList(await fetchProgram())
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession()
       if (!data.session) { router.push("/login"); return }
       setCheckingAuth(false)
-      await Promise.all([loadKegiatan(), loadDokumen(), loadArtikel(), loadLokasi(), loadDas(), loadPohon()])
+      await Promise.all([loadKegiatan(), loadDokumen(), loadArtikel(), loadLokasi(),
+        loadDas(), loadPohon(),
+        loadTonggak(), loadMitra(), loadLaporan(), loadRelawan(), loadProgram()])
     }
     checkAuth()
   }, [router])
@@ -107,6 +136,31 @@ export default function AdminPage() {
         onEditPohon={setEditingPohon}
         onCancelEditDas={() => setEditingDas(null)}
         onCancelEditPohon={() => setEditingPohon(null)}
+        tonggakList={tonggakList}
+        mitraList={mitraList}
+        laporanList={laporanList}
+        relawanList={relawanList}
+        programList={programList}
+        editingTonggak={editingTonggak}
+        editingMitra={editingMitra}
+        editingLaporan={editingLaporan}
+        editingRelawan={editingRelawan}
+        editingProgram={editingProgram}
+        onRefreshTonggak={loadTonggak}
+        onRefreshMitra={loadMitra}
+        onRefreshLaporan={loadLaporan}
+        onRefreshRelawan={loadRelawan}
+        onRefreshProgram={loadProgram}
+        onEditTonggak={setEditingTonggak}
+        onEditMitra={setEditingMitra}
+        onEditLaporan={setEditingLaporan}
+        onEditRelawan={setEditingRelawan}
+        onEditProgram={setEditingProgram}
+        onCancelEditTonggak={() => setEditingTonggak(null)}
+        onCancelEditMitra={() => setEditingMitra(null)}
+        onCancelEditLaporan={() => setEditingLaporan(null)}
+        onCancelEditRelawan={() => setEditingRelawan(null)}
+        onCancelEditProgram={() => setEditingProgram(null)}
       />
     </div>
   )
