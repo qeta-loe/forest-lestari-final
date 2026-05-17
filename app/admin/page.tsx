@@ -11,6 +11,8 @@ import { fetchKegiatan, Kegiatan } from "./components/kegiatan/kegiatan.service"
 import { fetchDokumen, Dokumen } from "./components/dokumen/dokumen.service"
 import { fetchArtikel, Artikel } from "./components/artikel/artikel.service"
 import { fetchLokasiPenanaman, LokasiPenanaman } from "./components/lokasi/lokasi.service"
+import { fetchDas, Das } from "./components/das/das.service"
+import { fetchPohon, PohonWithRelasi } from "./components/pohon/pohon.service"
 
 type MenuKey =
   | "upload" | "list"
@@ -38,12 +40,19 @@ export default function AdminPage() {
   const loadArtikel = async () => setArtikel(await fetchArtikel())
   const loadLokasi = async () => setLokasiPenanaman(await fetchLokasiPenanaman())
 
+  const [dasList, setDasList] = useState<Das[]>([])
+  const [pohonList, setPohonList] = useState<PohonWithRelasi[]>([])
+  const [editingDas, setEditingDas] = useState<Das | null>(null)
+  const [editingPohon, setEditingPohon] = useState<PohonWithRelasi | null>(null)
+  const loadDas = async () => setDasList(await fetchDas())
+  const loadPohon = async () => setPohonList(await fetchPohon())
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession()
       if (!data.session) { router.push("/login"); return }
       setCheckingAuth(false)
-      await Promise.all([loadKegiatan(), loadDokumen(), loadArtikel(), loadLokasi()])
+      await Promise.all([loadKegiatan(), loadDokumen(), loadArtikel(), loadLokasi(), loadDas(), loadPohon()])
     }
     checkAuth()
   }, [router])
@@ -78,6 +87,16 @@ export default function AdminPage() {
         onRefreshLokasi={loadLokasi}
         onEditArtikel={setEditingArtikel}
         onArtikelFormSuccess={() => { loadArtikel(); setEditingArtikel(null) }}
+        dasList={dasList}
+        pohonList={pohonList}
+        editingDas={editingDas}
+        editingPohon={editingPohon}
+        onRefreshDas={loadDas}
+        onRefreshPohon={loadPohon}
+        onEditDas={setEditingDas}
+        onEditPohon={setEditingPohon}
+        onCancelEditDas={() => setEditingDas(null)}
+        onCancelEditPohon={() => setEditingPohon(null)}
       />
     </div>
   )
