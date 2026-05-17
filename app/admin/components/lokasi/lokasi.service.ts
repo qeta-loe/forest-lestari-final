@@ -8,10 +8,20 @@ export type PolygonCoordinate = {
 export type LokasiPenanaman = {
   id: number
   nama_lokasi: string
+  status_lokasi: string
+  provinsi: string
+  kabupaten_kota: string
+  alamat: string | null
   latitude: number
   longitude: number
-  deskripsi: string | null
-  polygon_coordinates: PolygonCoordinate[] | null
+  luas_area: number
+  jumlah_bibit: number
+  tanggal_tanam: string
+  polygon_coordinates: {
+    lat: number
+    lng: number
+  }[]
+  created_at: string
 }
 
 export const fetchLokasiPenanaman = async (): Promise<LokasiPenanaman[]> => {
@@ -26,49 +36,56 @@ export const fetchLokasiPenanaman = async (): Promise<LokasiPenanaman[]> => {
 
 export const uploadLokasiPenanaman = async (data: {
   nama_lokasi: string
-  slug: string
-  deskripsi: string
+  status_lokasi: "aktif" | "tidak_aktif"
   provinsi: string
   kabupaten_kota: string
-  alamat_lengkap: string
+  alamat: string
   latitude: number
   longitude: number
   luas_area: number
   jumlah_bibit: number
   tanggal_tanam: string
-  gambar_utama: string
-  gambar_1: string
-  gambar_2: string
-  gambar_3: string
-  status_lokasi: string
-  polygon_coordinates: { lat: number; lng: number }[]
+  polygon_coordinates: PolygonCoordinate[]
 }): Promise<void> => {
-  if (data.polygon_coordinates.length < 3) throw new Error("Polygon minimal harus memiliki 3 titik")
+  // validasi polygon minimal 3 titik
+  if (data.polygon_coordinates.length < 3) {
+    throw new Error("Polygon minimal harus memiliki 3 titik")
+  }
 
-  const hasInvalid = data.polygon_coordinates.some((p) => isNaN(p.lat) || isNaN(p.lng))
-  if (hasInvalid) throw new Error("Latitude dan longitude harus berupa angka")
+  // validasi koordinat
+  const hasInvalidCoordinate =
+    data.polygon_coordinates.some(
+      (point) =>
+        isNaN(point.lat) ||
+        isNaN(point.lng)
+    )
 
-  const { error } = await supabase.from("lokasi_penanaman").insert([
-    {
-      nama_lokasi: data.nama_lokasi,
-      slug: data.slug,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      deskripsi: data.deskripsi || null,
-      provinsi: data.provinsi,
-      kabupaten_kota: data.kabupaten_kota,
-      alamat_lengkap: data.alamat_lengkap,
-      luas_area: data.luas_area,
-      jumlah_bibit: data.jumlah_bibit,
-      tanggal_tanam: data.tanggal_tanam,
-      gambar_utama: data.gambar_utama,
-      gambar_1: data.gambar_1,
-      gambar_2: data.gambar_2,
-      gambar_3: data.gambar_3,
-      status_lokasi: data.status_lokasi,
-      polygon_coordinates: data.polygon_coordinates,
-    },
-  ])
+  if (hasInvalidCoordinate) {
+    throw new Error(
+      "Latitude dan longitude polygon harus berupa angka"
+    )
+  }
 
-  if (error) throw new Error(error.message)
+  const { error } = await supabase
+    .from("lokasi_penanaman")
+    .insert([
+      {
+        nama_lokasi: data.nama_lokasi,
+        status_lokasi: data.status_lokasi,
+        provinsi: data.provinsi,
+        kabupaten_kota: data.kabupaten_kota,
+        alamat: data.alamat || null,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        luas_area: data.luas_area,
+        jumlah_bibit: data.jumlah_bibit,
+        tanggal_tanam: data.tanggal_tanam,
+        polygon_coordinates:
+          data.polygon_coordinates,
+      },
+    ])
+
+  if (error) {
+    throw new Error(error.message)
+  }
 }
