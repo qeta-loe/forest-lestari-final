@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
 import { supabase } from "@/lib/supabase"
 
@@ -8,6 +9,7 @@ type DatabaseCardItem = {
   title: string
   icon: string
   type: "das" | "pohon"
+  href: string
 }
 
 const databaseCards: DatabaseCardItem[] = [
@@ -15,11 +17,13 @@ const databaseCards: DatabaseCardItem[] = [
     title: "DAS Lestari",
     icon: "🌊",
     type: "das",
+    href: "/database/DAS",
   },
   {
     title: "Pohon Lestari",
     icon: "🌳",
     type: "pohon",
+    href: "/database/pohon",
   },
 ]
 
@@ -44,48 +48,6 @@ type LokasiPenanaman = {
   alamat: string | null
 }
 
-function DatabaseCard({
-  title,
-  icon,
-  totalData,
-  loading,
-}: {
-  title: string
-  icon: string
-  totalData?: number
-  loading?: boolean
-}) {
-  return (
-    <article className="group flex min-h-96 flex-col justify-between rounded-3xl bg-gray-400 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      <div>
-        <div className="flex items-center gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-300 text-xl text-emerald-900">
-            {icon}
-          </div>
-
-          <h2 className="text-2xl font-bold text-emerald-900">{title}</h2>
-        </div>
-
-        {typeof totalData === "number" && (
-          <div className="mt-8">
-            <p className="text-5xl font-bold text-emerald-900">
-              {loading ? "..." : totalData}
-            </p>
-            <p className="mt-2 text-sm font-semibold text-white">
-              Total data tersimpan
-            </p>
-          </div>
-        )}
-      </div>
-
-      <button className="flex w-fit items-center gap-2 text-xs font-bold text-white transition hover:underline active:scale-95">
-        Eksplorasi Data
-        <span className="text-base leading-none">→</span>
-      </button>
-    </article>
-  )
-}
-
 function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
   let polygonData = item.polygon_coordinates
 
@@ -107,6 +69,53 @@ function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
   }
 
   return []
+}
+
+function DatabaseCard({
+  title,
+  icon,
+  totalData,
+  loading,
+  href,
+}: {
+  title: string
+  icon: string
+  totalData?: number
+  loading?: boolean
+  href: string
+}) {
+  return (
+    <Link href={href} className="block">
+      <article className="group flex min-h-96 flex-col justify-between rounded-3xl bg-gray-400 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+        <div>
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-300 text-xl text-emerald-900">
+              {icon}
+            </div>
+
+            <h2 className="text-2xl font-bold text-emerald-900">{title}</h2>
+          </div>
+
+          {typeof totalData === "number" && (
+            <div className="mt-8">
+              <p className="text-5xl font-bold text-emerald-900">
+                {loading ? "..." : totalData}
+              </p>
+
+              <p className="mt-2 text-sm font-semibold text-white">
+                Total data tersimpan
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="flex w-fit items-center gap-2 text-xs font-bold text-white transition group-hover:underline">
+          Eksplorasi Data
+          <span className="text-base leading-none">→</span>
+        </div>
+      </article>
+    </Link>
+  )
 }
 
 function PetaLestari() {
@@ -344,6 +353,7 @@ export default function DatabasePage() {
               key={card.title}
               title={card.title}
               icon={card.icon}
+              href={card.href}
               totalData={card.type === "das" ? totalDas : totalPohon}
               loading={card.type === "das" ? loadingDas : loadingPohon}
             />
@@ -357,10 +367,13 @@ export default function DatabasePage() {
               Peta Lestari
             </h2>
 
-            <button className="flex w-fit items-center gap-2 rounded-2xl border border-teal-950 bg-white px-5 py-3 text-xs text-teal-950 transition hover:bg-emerald-50 active:scale-95">
+            <Link
+              href="/database/peta"
+              className="flex w-fit items-center gap-2 rounded-2xl border border-teal-950 bg-white px-5 py-3 text-xs text-teal-950 transition hover:bg-emerald-50 active:scale-95"
+            >
               <span className="inline-block h-3 w-2.5 rounded-sm border border-emerald-900" />
               Buka Peta
-            </button>
+            </Link>
           </div>
 
           <PetaLestari />

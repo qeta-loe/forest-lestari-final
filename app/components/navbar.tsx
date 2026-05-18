@@ -59,13 +59,13 @@ export default function Navbar() {
             </li>
 
             <li>
-              <a
-                href="#tentang"
+              <Link
+                href="/tentangkami"
                 className="flex min-w-[72px] flex-col items-center justify-center rounded-md px-3 py-2 text-center leading-tight transition hover:bg-[#0F5139] hover:text-white sm:min-w-0 sm:flex-row sm:gap-1 sm:whitespace-nowrap sm:py-3"
               >
                 <span>Tentang</span>
                 <span>Kami</span>
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

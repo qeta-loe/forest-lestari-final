@@ -1,73 +1,97 @@
-import Link from "next/link"; 
-export default function TentangKamiPage() {
-  const trustees = [
-    {
-      nama: "Dr. Ir Nandi Kosmaryandi",
-      jabatan: "Board of Trustees",
-      image: "https://placehold.co/300x300",
-    },
-    {
-      nama: "Adam Maulana S.Hut M.Si",
-      jabatan: "Board of Trustees",
-      image: "https://placehold.co/300x300",
-    },
-  ];
+import Link from "next/link"
+import { supabase } from "@/lib/supabase"
 
-  const executives = [
-    {
-      nama: "Zulian Akbar F",
-      jabatan: "Executive Director",
-      image: "https://placehold.co/300x240",
-    },
-    {
-      nama: "Sandi Saputra",
-      jabatan: "Partnership Manager",
-      image: "https://placehold.co/300x240",
-    },
-    {
-      nama: "Chalis Ghuftta",
-      jabatan: "Research Manager",
-      image: "https://placehold.co/300x240",
-    },
-    {
-      nama: "Shaumi Azzahra",
-      jabatan: "Operational Manager",
-      image: "https://placehold.co/300x240",
-    },
-    {
-      nama: "Andika Satria P",
-      jabatan: "Program Manager",
-      image: "https://placehold.co/300x240",
-    },
-  ];
+export const dynamic = "force-dynamic"
 
-  const teams = [
-    {
-      nama: "Aufa Dzuljalali",
-      jabatan: "Biodiversity & Forest Carbon",
-      image: "https://placehold.co/300x240",
-    },
-    {
-      nama: "Lidya Maulida",
-      jabatan: "Animal Rehabilitation & Conservation",
-      image: "https://placehold.co/300x240",
-    },
-    {
-      nama: "Hilmy Abdul Azis",
-      jabatan: "Biodiversity & Marine Conservation",
-      image: "https://placehold.co/300x240",
-    },
-    {
-      nama: "Rizky Arkananta",
-      jabatan: "Social & Environmental",
-      image: "https://placehold.co/300x240",
-    },
-    {
-      nama: "Ahmad Hariz Faza",
-      jabatan: "Media Branding",
-      image: "https://placehold.co/300x240",
-    },
-  ];
+type NamaJabatan = {
+  id: string | number
+  section_id: string
+  nama: string
+  jabatan: string
+  urutan: number | null
+  foto_url: string | null
+  linkedin_url: string | null
+  created_at: string
+}
+
+async function getNamaJabatan() {
+  const { data, error } = await supabase
+    .from("nama_jabatan")
+    .select(
+      "id, section_id, nama, jabatan, urutan, foto_url, linkedin_url, created_at"
+    )
+    .order("urutan", { ascending: true })
+
+  if (error) {
+    console.error("Gagal mengambil data nama_jabatan:", error.message)
+    return []
+  }
+
+  return data as NamaJabatan[]
+}
+
+export default async function TentangKamiPage() {
+  const namaJabatan = await getNamaJabatan()
+
+  const trustees = namaJabatan.filter(
+    (item) => item.section_id === "trustees"
+  )
+
+  const executives = namaJabatan.filter(
+    (item) => item.section_id === "executives"
+  )
+
+  const teams = namaJabatan.filter(
+    (item) => item.section_id === "teams"
+  )
+
+  const stats = [
+    ["340", "Pohon ditanam"],
+    ["52", "Total relawan"],
+    ["455", "Area penghijauan (ha)"],
+    ["4", "DAS dipantau aktif"],
+  ]
+
+  const MemberCard = ({
+    item,
+    imageRatio = "aspect-[4/3]",
+  }: {
+    item: NamaJabatan
+    imageRatio?: string
+  }) => {
+    return (
+      <article className="flex h-full flex-col overflow-hidden rounded-[28px] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+        <div className={`w-full overflow-hidden bg-zinc-300 ${imageRatio}`}>
+          <img
+            src={item.foto_url || "https://placehold.co/300x240"}
+            alt={item.nama}
+            className="h-full w-full object-cover"
+          />
+        </div>
+
+        <div className="flex min-h-[96px] flex-1 flex-col items-center justify-center bg-[#6D6D6D] px-4 py-5 text-center">
+          <h3 className="text-base font-bold leading-tight text-white sm:text-lg">
+            {item.nama}
+          </h3>
+
+          <p className="mt-2 text-sm font-semibold leading-snug text-[#113522]">
+            {item.jabatan}
+          </p>
+
+          {item.linkedin_url && (
+            <a
+              href={item.linkedin_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 text-xs font-semibold text-white underline underline-offset-4"
+            >
+              LinkedIn
+            </a>
+          )}
+        </div>
+      </article>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-[#F7F6EF] text-[#113522]">
@@ -107,12 +131,10 @@ export default function TentangKamiPage() {
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
             <div className="inline-flex rounded-2xl bg-[#D9E5DC] px-5 py-3">
-              <h2 className="text-xl font-bold">
-                Tujuan Strategis
-              </h2>
+              <h2 className="text-xl font-bold">Tujuan Strategis</h2>
             </div>
 
-            <div className="mt-6 rounded-[24px] border border-black/10 bg-white p-8">
+            <div className="mt-6 rounded-[24px] border border-black/10 bg-white p-6 sm:p-8">
               <p className="leading-8 text-zinc-700">
                 Memberikan dampak pada rehabilitasi lingkungan melalui
                 edukasi, diskusi, dan konservasi terhadap kelestarian
@@ -121,114 +143,77 @@ export default function TentangKamiPage() {
             </div>
           </div>
 
-          <div className="h-[300px] rounded-[32px] bg-zinc-300 lg:h-[420px]" />
+          <div className="aspect-[4/3] overflow-hidden rounded-[32px] bg-zinc-300 lg:aspect-auto lg:h-[420px]">
+            <img
+              src="https://placehold.co/600x420"
+              alt="tujuan strategis"
+              className="h-full w-full object-cover"
+            />
+          </div>
         </div>
       </section>
 
-      {/* STRUKTUR */}
+      {/* STRUKTUR ORGANISASI */}
       <section className="border-y border-black/10 py-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <h2 className="text-center text-3xl font-bold">
             Struktur Organisasi
           </h2>
 
-          {/* TRUSTEES */}
-          <div className="mt-16">
-            <div className="mx-auto mb-10 w-fit rounded-2xl bg-white px-6 py-3 shadow-sm">
-              <p className="font-semibold text-[#113522]">
-                Board of Trustees
-              </p>
-            </div>
+          {/* BOARD OF TRUSTEES */}
+          {trustees.length > 0 && (
+            <div className="mt-16">
+              <div className="mx-auto mb-10 w-fit rounded-2xl bg-white px-6 py-3 shadow-sm">
+                <p className="font-semibold text-[#113522]">
+                  Board of Trustees
+                </p>
+              </div>
 
-            <div className="grid gap-8 sm:grid-cols-2">
-              {trustees.map((item, index) => (
-                <div
-                  key={index}
-                  className="overflow-hidden rounded-[28px] bg-white shadow-sm"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.nama}
-                    className="h-[320px] w-full object-cover"
+              <div className="mx-auto grid max-w-3xl grid-cols-1 gap-8 sm:grid-cols-2">
+                {trustees.map((item) => (
+                  <MemberCard
+                    key={item.id}
+                    item={item}
+                    imageRatio="aspect-square"
                   />
-
-                  <div className="bg-[#6D6D6D] p-5 text-center">
-                    <h3 className="text-lg font-bold text-white">
-                      {item.nama}
-                    </h3>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* EXECUTIVES */}
-          <div className="mt-24">
-            <div className="mx-auto mb-10 w-fit rounded-2xl bg-white px-6 py-3 shadow-sm">
-              <p className="font-semibold text-[#113522]">
-                Executives
-              </p>
+          {executives.length > 0 && (
+            <div className="mt-24">
+              <div className="mx-auto mb-10 w-fit rounded-2xl bg-white px-6 py-3 shadow-sm">
+                <p className="font-semibold text-[#113522]">
+                  Executives
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {executives.map((item) => (
+                  <MemberCard key={item.id} item={item} />
+                ))}
+              </div>
             </div>
+          )}
 
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {executives.map((item, index) => (
-                <div
-                  key={index}
-                  className="overflow-hidden rounded-[28px] bg-white shadow-sm"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.nama}
-                    className="h-[240px] w-full object-cover"
-                  />
+          {/* THE TEAM */}
+          {teams.length > 0 && (
+            <div className="mt-24">
+              <div className="mx-auto mb-10 w-fit rounded-2xl bg-white px-6 py-3 shadow-sm">
+                <p className="font-semibold text-[#113522]">
+                  The Team
+                </p>
+              </div>
 
-                  <div className="bg-[#6D6D6D] p-5 text-center">
-                    <h3 className="font-bold text-white">
-                      {item.nama}
-                    </h3>
-
-                    <p className="mt-2 text-sm text-[#113522]">
-                      {item.jabatan}
-                    </p>
-                  </div>
-                </div>
-              ))}
+              <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {teams.map((item) => (
+                  <MemberCard key={item.id} item={item} />
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* TEAM */}
-          <div className="mt-24">
-            <div className="mx-auto mb-10 w-fit rounded-2xl bg-white px-6 py-3 shadow-sm">
-              <p className="font-semibold text-[#113522]">
-                The Team
-              </p>
-            </div>
-
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {teams.map((item, index) => (
-                <div
-                  key={index}
-                  className="overflow-hidden rounded-[28px] bg-white shadow-sm"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.nama}
-                    className="h-[240px] w-full object-cover"
-                  />
-
-                  <div className="bg-[#6D6D6D] p-5 text-center">
-                    <h3 className="font-bold text-white">
-                      {item.nama}
-                    </h3>
-
-                    <p className="mt-2 text-sm text-[#113522]">
-                      {item.jabatan}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -243,25 +228,29 @@ export default function TentangKamiPage() {
             Riwayat Pencapaian
           </h2>
 
-          <button className="rounded-full border border-[#113522] px-6 py-3 text-sm transition hover:bg-[#113522] hover:text-white">
+          <Link
+            href="/tentangkami/pencapaian"
+            className="w-fit rounded-full border border-[#113522] px-6 py-3 text-sm transition hover:bg-[#113522] hover:text-white"
+          >
             Selengkapnya
-          </button>
+          </Link>
         </div>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[1.6fr_1fr]">
-          {/* CARD */}
-          <div className="overflow-hidden rounded-[32px] bg-[#4F4F4F]">
+          <article className="overflow-hidden rounded-[32px] bg-[#4F4F4F]">
             <div className="grid md:grid-cols-[280px_1fr]">
-              <img
-                src="https://placehold.co/300x400"
-                alt="program"
-                className="h-full w-full object-cover"
-              />
+              <div className="aspect-[4/3] bg-zinc-300 md:aspect-auto md:min-h-[320px]">
+                <img
+                  src="https://placehold.co/300x400"
+                  alt="program"
+                  className="h-full w-full object-cover"
+                />
+              </div>
 
-              <div className="p-8 text-white">
+              <div className="flex flex-col justify-center p-6 text-white sm:p-8">
                 <p className="text-xs">3 Maret 2025</p>
 
-                <h3 className="mt-3 text-2xl font-bold text-[#D7F4E4]">
+                <h3 className="mt-3 text-xl font-bold leading-tight text-[#D7F4E4] sm:text-2xl">
                   Penanaman 300 Pohon di DAS Cisadane
                 </h3>
 
@@ -272,28 +261,22 @@ export default function TentangKamiPage() {
                 </p>
 
                 <Link
-                href="/tentangkami/pencapaian"
-                className="mt-8 flex items-center gap-3 text-sm"
+                  href="/tentangkami/pencapaian"
+                  className="mt-8 flex w-fit items-center gap-3 text-sm hover:underline"
                 >
-                Lihat detail →
-              </Link>
+                  Lihat detail
+                </Link>
               </div>
             </div>
-          </div>
+          </article>
 
-          {/* STATS */}
-          <div className="grid grid-cols-2 gap-5">
-            {[
-              ["340", "Pohon ditanam"],
-              ["52", "Total relawan"],
-              ["455", "Area penghijauan (ha)"],
-              ["4", "DAS dipantau aktif"],
-            ].map((item, index) => (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {stats.map((item, index) => (
               <div
                 key={index}
                 className="rounded-[28px] border border-black bg-white p-6 text-center"
               >
-                <h3 className="text-4xl font-bold text-[#113522]">
+                <h3 className="text-3xl font-bold text-[#113522] sm:text-4xl">
                   {item[0]}
                 </h3>
 
@@ -306,5 +289,5 @@ export default function TentangKamiPage() {
         </div>
       </section>
     </main>
-  );
+  )
 }
