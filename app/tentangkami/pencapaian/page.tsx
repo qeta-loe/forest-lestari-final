@@ -122,22 +122,34 @@ export default async function RiwayatPencapaianPage() {
       {/* TIMELINE */}
       <section className="mx-auto max-w-7xl px-6 py-24">
         <div className="mb-16 flex flex-wrap gap-4">
-          {[
-            "Overview",
-            "Penanaman",
-            "Orangutan",
-            "DAS",
-            "Kolaborasi",
-          ].map((item) => (
-            <button
-              key={item}
-              className="rounded-full border border-emerald-900 px-6 py-2 text-emerald-900 transition hover:bg-emerald-900 hover:text-white"
-            >
-              {item}
-            </button>
-          ))}
-        </div>
+        <Link
+          href="/tentangkami/pencapaian"
+          className="rounded-full border border-emerald-900 bg-emerald-900 px-6 py-2 text-sm text-white transition hover:bg-emerald-800"
+        >
+          Overview
+        </Link>
 
+        <Link
+          href="/tentangkami/pencapaian/penanaman"
+          className="rounded-full border border-emerald-900 px-6 py-2 text-sm text-emerald-900 transition hover:bg-emerald-900 hover:text-white"
+        >
+          Penanaman
+        </Link>
+
+        <Link
+          href="/tentangkami/pencapaian/DAS"
+          className="rounded-full border border-emerald-900 px-6 py-2 text-sm text-emerald-900 transition hover:bg-emerald-900 hover:text-white"
+        >
+          DAS
+        </Link>
+
+        <Link
+          href="/tentangkami/pencapaian/kolaborasi"
+          className="rounded-full border border-emerald-900 px-6 py-2 text-sm text-emerald-900 transition hover:bg-emerald-900 hover:text-white"
+        >
+          Kolaborasi
+        </Link>
+      </div>
         <div className="relative space-y-16 border-l border-emerald-900 pl-10">
           {achievements.map((item) => (
             <div key={item.id} className="relative">
