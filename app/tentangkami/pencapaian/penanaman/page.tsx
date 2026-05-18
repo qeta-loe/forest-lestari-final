@@ -56,7 +56,7 @@ export default async function PenanamanPage() {
             Lihat rekap dampak dan program penanaman tahunan
           </h2>
           <Link
-            href="/tentang-kami/pencapaian/laporan"
+            href="/tentangkami/pencapaian/laporan"
             className="mt-6 inline-flex rounded-full bg-white px-6 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100"
           >
             Baca laporan lengkap
