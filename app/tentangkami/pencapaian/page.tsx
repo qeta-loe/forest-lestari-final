@@ -1,4 +1,28 @@
-import Link from "next/link";
+import Link from "next/link"
+import { supabase } from "@/lib/supabase"
+
+export const dynamic = "force-dynamic"
+
+type Mitra = {
+  id: string | number
+  nama: string
+  logo_url: string | null
+  created_at: string
+}
+
+async function getMitra() {
+  const { data, error } = await supabase
+    .from("mitra")
+    .select("id, nama, logo_url, created_at")
+    .order("created_at", { ascending: true })
+
+  if (error) {
+    console.error("Gagal mengambil data mitra:", error.message)
+    return []
+  }
+
+  return data as Mitra[]
+}
 
 const achievements = [
   {
@@ -41,36 +65,25 @@ const achievements = [
     stats: "12 mitra · 300+ masyarakat terdampak · 25 ha area",
     color: "bg-orange-300",
   },
-];
+]
 
-const partners = [
-  "IPB University",
-  "BKSDA",
-  "WWF Indonesia",
-  "Green Peace",
-  "Leuser Foundation",
-  "Komunitas DAS",
-  "Universitas Indonesia",
-  "Relawan Hijau",
-  "Forest Watch",
-  "Earth Care",
-];
+export default async function RiwayatPencapaianPage() {
+  const partners = await getMitra()
 
-export default function RiwayatPencapaianPage() {
   return (
-    <main className="bg-stone-50 min-h-screen">
+    <main className="min-h-screen bg-stone-50">
       {/* HERO */}
       <section className="border-b border-black/10">
-        <div className="max-w-7xl mx-auto px-6 py-24">
-          <span className="px-5 py-2 rounded-full bg-[#DCE8D5] text-sm font-semibold text-emerald-900">
+        <div className="mx-auto max-w-7xl px-6 py-24">
+          <span className="rounded-full bg-[#DCE8D5] px-5 py-2 text-sm font-semibold text-emerald-900">
             RIWAYAT PENCAPAIAN
           </span>
 
-          <h1 className="mt-8 text-5xl md:text-6xl font-bold text-emerald-900 max-w-4xl leading-tight">
+          <h1 className="mt-8 max-w-4xl text-5xl font-bold leading-tight text-emerald-900 md:text-6xl">
             Perjalanan menjaga bumi yang kita cintai
           </h1>
 
-          <p className="mt-8 text-lg text-zinc-600 leading-relaxed max-w-3xl">
+          <p className="mt-8 max-w-3xl text-lg leading-relaxed text-zinc-600">
             Sejak 2019 Forest Lestari telah menorehkan jejak nyata dalam
             pelestarian hutan, rehabilitasi satwa, dan pemberdayaan komunitas.
           </p>
@@ -79,18 +92,18 @@ export default function RiwayatPencapaianPage() {
 
       {/* IMPACT STATS */}
       <section className="border-b border-black/10">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4">
-          <div className="py-12 text-center border-r border-black/10">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 md:grid-cols-4">
+          <div className="border-r border-black/10 py-12 text-center">
             <h2 className="text-4xl font-bold text-emerald-900">340</h2>
             <p className="mt-2 text-sm text-zinc-600">Pohon ditanam</p>
           </div>
 
-          <div className="py-12 text-center border-r border-black/10">
+          <div className="border-r border-black/10 py-12 text-center">
             <h2 className="text-4xl font-bold text-emerald-900">52</h2>
             <p className="mt-2 text-sm text-zinc-600">Total relawan</p>
           </div>
 
-          <div className="py-12 text-center border-r border-black/10">
+          <div className="border-r border-black/10 py-12 text-center">
             <h2 className="text-4xl font-bold text-emerald-900">455</h2>
             <p className="mt-2 text-sm text-zinc-600">
               Area penghijauan (ha)
@@ -107,8 +120,8 @@ export default function RiwayatPencapaianPage() {
       </section>
 
       {/* TIMELINE */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
-        <div className="flex flex-wrap gap-4 mb-16">
+      <section className="mx-auto max-w-7xl px-6 py-24">
+        <div className="mb-16 flex flex-wrap gap-4">
           {[
             "Overview",
             "Penanaman",
@@ -118,20 +131,19 @@ export default function RiwayatPencapaianPage() {
           ].map((item) => (
             <button
               key={item}
-              className="px-6 py-2 rounded-full border border-emerald-900 text-emerald-900 hover:bg-emerald-900 hover:text-white transition"
+              className="rounded-full border border-emerald-900 px-6 py-2 text-emerald-900 transition hover:bg-emerald-900 hover:text-white"
             >
               {item}
             </button>
           ))}
         </div>
 
-        <div className="relative border-l border-emerald-900 pl-10 space-y-16">
+        <div className="relative space-y-16 border-l border-emerald-900 pl-10">
           {achievements.map((item) => (
             <div key={item.id} className="relative">
-              <div className="absolute -left-[49px] top-8 w-5 h-5 rounded-full bg-emerald-900" />
+              <div className="absolute -left-[49px] top-8 h-5 w-5 rounded-full bg-emerald-900" />
 
-              <div className="bg-[#5F6F65] rounded-3xl p-8 flex flex-col lg:flex-row gap-10">
-                {/* CONTENT */}
+              <div className="flex flex-col gap-10 rounded-3xl bg-[#5F6F65] p-8 lg:flex-row">
                 <div className="flex-1">
                   <div className="flex items-center gap-4">
                     <span className="text-xs text-white">
@@ -139,17 +151,17 @@ export default function RiwayatPencapaianPage() {
                     </span>
 
                     <span
-                      className={`px-3 py-1 rounded-full text-[10px] text-white ${item.color}`}
+                      className={`rounded-full px-3 py-1 text-[10px] text-white ${item.color}`}
                     >
                       {item.category}
                     </span>
                   </div>
 
-                  <h2 className="mt-5 text-3xl font-bold text-white leading-snug">
+                  <h2 className="mt-5 text-3xl font-bold leading-snug text-white">
                     {item.title}
                   </h2>
 
-                  <p className="mt-5 text-sm text-white/90 leading-relaxed max-w-2xl">
+                  <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/90">
                     {item.description}
                   </p>
 
@@ -161,12 +173,11 @@ export default function RiwayatPencapaianPage() {
                     href={`/tentang-kami/riwayat-pencapaian/${item.id}`}
                     className="mt-8 inline-flex items-center gap-3 text-sm text-white hover:underline"
                   >
-                    Lihat detail →
+                    Lihat detail
                   </Link>
                 </div>
 
-                {/* IMAGE */}
-                <div className="w-full lg:w-80 h-56 bg-zinc-300 rounded-3xl shrink-0" />
+                <div className="h-56 w-full shrink-0 rounded-3xl bg-zinc-300 lg:w-80" />
               </div>
             </div>
           ))}
@@ -174,30 +185,44 @@ export default function RiwayatPencapaianPage() {
       </section>
 
       {/* PARTNERS */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
-        <h2 className="text-4xl font-bold text-emerald-900 mb-14">
+      <section className="mx-auto max-w-7xl px-6 py-24">
+        <h2 className="mb-14 text-4xl font-bold text-emerald-900">
           Jaringan dan Mitra
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {partners.map((partner, index) => (
-            <div
-              key={index}
-              className="bg-white border border-black/10 rounded-3xl p-6 flex flex-col items-center justify-center"
-            >
-              <div className="w-20 h-20 rounded-2xl bg-zinc-300 mb-5" />
+        {partners.length > 0 ? (
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-5">
+            {partners.map((partner) => (
+              <div
+                key={partner.id}
+                className="flex flex-col items-center justify-center rounded-3xl border border-black/10 bg-white p-6"
+              >
+                <div className="mb-5 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-zinc-100">
+                  <img
+                    src={partner.logo_url || "https://placehold.co/160x160"}
+                    alt={partner.nama}
+                    className="h-full w-full object-contain p-2"
+                  />
+                </div>
 
-              <p className="text-sm text-emerald-900 text-center">
-                {partner}
-              </p>
-            </div>
-          ))}
-        </div>
+                <p className="text-center text-sm text-emerald-900">
+                  {partner.nama}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-3xl border border-black/10 bg-white p-8 text-center">
+            <p className="text-sm text-zinc-600">
+              Data mitra belum tersedia.
+            </p>
+          </div>
+        )}
       </section>
 
       {/* REPORT */}
-      <section className="max-w-7xl mx-auto px-6 pb-24">
-        <div className="bg-[#5F6F65] rounded-3xl overflow-hidden">
+      <section className="mx-auto max-w-7xl px-6 pb-24">
+        <div className="overflow-hidden rounded-3xl bg-[#5F6F65]">
           <div className="grid lg:grid-cols-2">
             <div className="p-10">
               <div className="flex items-center gap-4">
@@ -205,7 +230,7 @@ export default function RiwayatPencapaianPage() {
                   2024
                 </h2>
 
-                <span className="px-4 py-1 rounded-xl bg-white/20 text-xs text-white font-bold">
+                <span className="rounded-xl bg-white/20 px-4 py-1 text-xs font-bold text-white">
                   TERBARU
                 </span>
               </div>
@@ -214,47 +239,47 @@ export default function RiwayatPencapaianPage() {
                 Laporan Tahunan - Rekap Dampak dan Program 2024
               </h3>
 
-              <p className="mt-5 text-sm text-white/80 leading-relaxed max-w-xl">
+              <p className="mt-5 max-w-xl text-sm leading-relaxed text-white/80">
                 Kompilasi lengkap seluruh program sepanjang 2024:
                 penanaman pohon, rehabilitasi orangutan, monitoring DAS,
                 edukasi masyarakat, dan jaringan kemitraan.
               </p>
             </div>
 
-            <div className="border-t lg:border-t-0 lg:border-l border-white/10 grid grid-cols-3">
-              <div className="p-8 border-r border-white/10 flex flex-col justify-center items-center">
+            <div className="grid grid-cols-3 border-t border-white/10 lg:border-l lg:border-t-0">
+              <div className="flex flex-col items-center justify-center border-r border-white/10 p-8">
                 <h4 className="text-4xl font-bold text-white">78</h4>
-                <p className="mt-3 text-sm text-white/70 text-center">
+                <p className="mt-3 text-center text-sm text-white/70">
                   Pohon ditanam
                 </p>
               </div>
 
-              <div className="p-8 border-r border-white/10 flex flex-col justify-center items-center">
+              <div className="flex flex-col items-center justify-center border-r border-white/10 p-8">
                 <h4 className="text-4xl font-bold text-white">23</h4>
-                <p className="mt-3 text-sm text-white/70 text-center">
+                <p className="mt-3 text-center text-sm text-white/70">
                   Relawan aktif
                 </p>
               </div>
 
-              <div className="p-8 flex flex-col justify-center items-center">
+              <div className="flex flex-col items-center justify-center p-8">
                 <h4 className="text-4xl font-bold text-white">12</h4>
-                <p className="mt-3 text-sm text-white/70 text-center">
+                <p className="mt-3 text-center text-sm text-white/70">
                   Program berjalan
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="border-t border-white/10 px-10 py-6 flex justify-end">
+          <div className="flex justify-end border-t border-white/10 px-10 py-6">
             <Link
-                href="/tentangkami/pencapaian/lapooran"
-                className="mt-8 flex items-center gap-3 text-sm"
-                >
-                Baca laporan lengkap →
-              </Link>
+              href="/tentangkami/pencapaian/lapooran"
+              className="text-sm text-white hover:underline"
+            >
+              Baca laporan lengkap
+            </Link>
           </div>
         </div>
       </section>
     </main>
-  );
+  )
 }
