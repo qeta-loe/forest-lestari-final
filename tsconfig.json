@@ -10,6 +10,8 @@
     "types": ["google.maps"],
     "module": "esnext",
     "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
@@ -20,7 +22,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/components/*": ["app/components/*"]
     }
   },
   "include": [
@@ -30,6 +33,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/tentangkami/pencapaian/laporan/laporan"  ],
+  ],
   "exclude": ["node_modules"]
 }
