@@ -93,29 +93,147 @@ export default async function TentangKamiPage() {
         </div>
       </section>
 
-      {/* RIWAYAT PENCAPAIAN PREVIEW */}
-      <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
-        <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#315B47]">
-          Jejak Langkah
-        </p>
+{/* RIWAYAT PENCAPAIAN PREVIEW */}
+<section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
+  <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#315B47]">
+    Jejak Langkah
+  </p>
 
-        <div className="mt-3 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-3xl font-bold">Riwayat Pencapaian</h2>
-          <Link
-            href="/tentangkami/pencapaian"
-            className="w-fit rounded-full border border-[#113522] px-6 py-3 text-sm transition hover:bg-[#113522] hover:text-white"
-          >
-            Selengkapnya
-          </Link>
-        </div>
+  <div className="mt-3 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+    <h2 className="text-3xl font-bold text-emerald-900">
+      Riwayat Pencapaian
+    </h2>
 
-        {/* Preview tonggak terbaru */}
-        {tonggakPreview.length > 0 && (
-          <div className="mt-10">
-            <TonggakTimeline tonggakList={tonggakPreview} />
+    <Link
+      href="/tentangkami/pencapaian"
+      className="w-fit rounded-full border border-[#113522] px-6 py-3 text-sm transition hover:bg-[#113522] hover:text-white"
+    >
+      Selengkapnya
+    </Link>
+  </div>
+
+  <div className="mt-10 grid gap-8 lg:grid-cols-[1.65fr_1fr]">
+    {/* CARD RIWAYAT DARI SUPABASE */}
+    {tonggakPreview.length > 0 ? (
+      tonggakPreview.map((item: any) => (
+        <article
+          key={item.id}
+          className="overflow-hidden rounded-3xl bg-gray-400 shadow-sm"
+        >
+          <div className="grid min-h-[320px] md:grid-cols-[260px_1fr]">
+            <div className="min-h-[260px] bg-zinc-300 md:min-h-[320px]">
+              <img
+                src={
+                  item.image_url ||
+                  item.thumbnail_url ||
+                  item.gambar_url ||
+                  "https://placehold.co/300x400"
+                }
+                alt={item.judul || item.title || item.nama_tonggak || "Riwayat pencapaian"}
+                className="h-full w-full object-cover"
+              />
+            </div>
+
+            <div className="flex flex-col justify-center p-7 text-white sm:p-8">
+              <p className="text-xs font-bold text-white">
+                {item.tanggal
+                  ? new Date(item.tanggal).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : item.created_at
+                    ? new Date(item.created_at).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : "Tanggal belum tersedia"}
+              </p>
+
+              <h3 className="mt-4 text-xl font-bold leading-tight text-emerald-900 sm:text-2xl">
+                {item.judul ||
+                  item.title ||
+                  item.nama_tonggak ||
+                  "Riwayat Pencapaian"}
+              </h3>
+
+              <p className="mt-5 max-w-xl text-xs leading-6 text-white sm:text-sm">
+                {item.deskripsi ||
+                  item.description ||
+                  item.ringkasan ||
+                  "Deskripsi pencapaian belum tersedia."}
+              </p>
+
+              <Link
+                href="/tentangkami/pencapaian"
+                className="mt-7 flex w-fit items-center gap-3 text-xs text-white transition hover:underline"
+              >
+                Lihat detail
+                <span className="inline-block h-0 w-4 border-2 border-white" />
+              </Link>
+            </div>
           </div>
-        )}
-      </section>
+        </article>
+      ))
+    ) : (
+      <div className="flex min-h-[320px] items-center justify-center rounded-3xl bg-gray-400 p-8 text-center text-sm font-semibold text-white">
+        Belum ada riwayat pencapaian.
+      </div>
+    )}
+
+    {/* KOTAK STATISTIK DARI SUPABASE */}
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      {[
+        {
+          value:
+            (stats as any)?.pohon_ditanam ??
+            (stats as any)?.total_pohon ??
+            (stats as any)?.jumlah_pohon ??
+            0,
+          label: "Pohon ditanam",
+        },
+        {
+          value:
+            (stats as any)?.total_relawan ??
+            (stats as any)?.relawan ??
+            (stats as any)?.jumlah_relawan ??
+            0,
+          label: "Total relawan",
+        },
+        {
+          value:
+            (stats as any)?.area_penghijauan ??
+            (stats as any)?.area_penghijauan_ha ??
+            (stats as any)?.luas_area ??
+            0,
+          label: "Area penghijauan (ha)",
+        },
+        {
+          value:
+            (stats as any)?.das_dipantau ??
+            (stats as any)?.das_dipantau_aktif ??
+            (stats as any)?.total_das ??
+            0,
+          label: "DAS dipantau aktif",
+        },
+      ].map((item) => (
+        <div
+          key={item.label}
+          className="flex min-h-36 flex-col items-center justify-center rounded-3xl border border-black bg-stone-50 p-6 text-center"
+        >
+          <p className="text-3xl font-bold text-emerald-900 sm:text-4xl">
+            {item.value}
+          </p>
+
+          <p className="mt-3 text-sm text-emerald-900">
+            {item.label}
+          </p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
     </main>
   )
 }
