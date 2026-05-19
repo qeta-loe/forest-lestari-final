@@ -1,89 +1,28 @@
-"use client"
-
 import Link from "next/link"
+import { supabase } from "@/lib/supabase"
+export const dynamic = "force-dynamic"
 
-const distributionRows = [
-  {
-    name: "Meranti Merah",
-    scientificName: "Shorea sp.",
-    value: 135,
-  },
-  {
-    name: "Ramin",
-    scientificName: "Gonystylus bancanus",
-    value: 55,
-  },
-  {
-    name: "Jelutung",
-    scientificName: "Dyera costulata",
-    value: 45,
-  },
-  {
-    name: "Ulin",
-    scientificName: "Eusideroxylon zwageri",
-    value: 40,
-  },
-  {
-    name: "Gaharu",
-    scientificName: "Aquilaria malaccensis",
-    value: 30,
-  },
-  {
-    name: "Karet Hutan",
-    scientificName: "Hevea sp.",
-    value: 20,
-  },
-  {
-    name: "Tengkawang",
-    scientificName: "Shorea stenoptera",
-    value: 15,
-  },
-]
+async function getPohonData() {
+  const { data, error } = await supabase
+    .from("pohon")
+    .select(`
+      id,
+      nama_umum,
+      nama_ilmiah,
+      jumlah,
+      lokasi_penanaman (nama_lokasi)
+    `)
+    .order("jumlah", { ascending: false })
 
-const tableHeaders = [
-  "Area",
-  "Meranti",
-  "Tengkawang",
-  "Ramin",
-  "Jelutung",
-  "Ulin",
-  "Gaharu",
-  "Karet Hutan",
-]
-
-const tableRows = [
-  {
-    area: "Pondok Ambung",
-    values: [50, 5, 25, 20, 15, 15, 10],
-  },
-  {
-    area: "Tanjung Harapan",
-    values: [40, 5, 20, 15, 15, 10, 5],
-  },
-  {
-    area: "Teluk Pulai",
-    values: [45, 5, 10, 10, 10, 5, 5],
-  },
-]
-
-const stats = [
-  {
-    value: "340",
-    label: "Pohon tercatat",
-  },
-  {
-    value: "7",
-    label: "Jenis pohon",
-  },
-  {
-    value: "Meranti",
-    label: "Jenis terbanyak",
-  },
-  {
-    value: "3",
-    label: "Area lokasi",
-  },
-]
+  if (error || !data) return []
+  return data as {
+    id: number
+    nama_umum: string
+    nama_ilmiah: string | null
+    jumlah: number
+    lokasi_penanaman: { nama_lokasi: string } []
+  }[]
+}
 
 function TabButton({
   href,
@@ -108,8 +47,52 @@ function TabButton({
   )
 }
 
-export default function DatabasePohonPage() {
-  const maxValue = Math.max(...distributionRows.map((item) => item.value))
+export default async function DatabasePohonPage() {
+  const pohonData = await getPohonData()
+
+  const distributionMap = new Map<string, { nama_ilmiah: string | null; jumlah: number }>()
+  for (const p of pohonData) {
+    const existing = distributionMap.get(p.nama_umum)
+    if (existing) {
+      existing.jumlah += p.jumlah
+    } else {
+      distributionMap.set(p.nama_umum, { nama_ilmiah: p.nama_ilmiah, jumlah: p.jumlah })
+    }
+  }
+  const distributionRows = Array.from(distributionMap.entries())
+    .map(([nama_umum, v]) => ({
+      name: nama_umum,
+      scientificName: v.nama_ilmiah ?? "",
+      value: v.jumlah,
+    }))
+    .sort((a, b) => b.value - a.value)
+
+  const lokasiMap = new Map<string, Map<string, number>>()
+  for (const p of pohonData) {
+    const lokasi = p.lokasi_penanaman?.[0]?.nama_lokasi ?? "Tidak diketahui"
+    if (!lokasiMap.has(lokasi)) lokasiMap.set(lokasi, new Map())
+    const jenisMasp = lokasiMap.get(lokasi)!
+    jenisMasp.set(p.nama_umum, (jenisMasp.get(p.nama_umum) ?? 0) + p.jumlah)
+  }
+  const tableHeaders = ["Area", ...distributionRows.map((d) => d.name)]
+  const tableRows = Array.from(lokasiMap.entries()).map(([area, jenisMap]) => ({
+    area,
+    values: distributionRows.map((d) => jenisMap.get(d.name) ?? 0),
+  }))
+
+  const totalPohon = distributionRows.reduce((sum, d) => sum + d.value, 0)
+  const jenisTerbanyak = distributionRows[0]?.name ?? "—"
+  const jumlahJenis = distributionRows.length
+  const jumlahLokasi = lokasiMap.size
+
+  const stats = [
+    { value: totalPohon.toLocaleString("id-ID"), label: "Pohon tercatat" },
+    { value: String(jumlahJenis), label: "Jenis pohon" },
+    { value: jenisTerbanyak, label: "Jenis terbanyak" },
+    { value: String(jumlahLokasi), label: "Area lokasi" },
+  ]
+
+  const maxValue = Math.max(...distributionRows.map((d) => d.value), 1)
 
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">

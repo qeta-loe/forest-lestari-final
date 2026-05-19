@@ -8,7 +8,6 @@ import AdminSidebar from "./components/sidebar"
 import AdminContent from "./components/adminContent"
 
 import { fetchKegiatan, Kegiatan } from "./components/kegiatan/kegiatan.service"
-import { fetchDokumen, Dokumen } from "./components/dokumen/dokumen.service"
 import { fetchArtikel, Artikel } from "./components/artikel/artikel.service"
 import { fetchLokasiPenanaman, LokasiPenanaman } from "./components/lokasi/lokasi.service"
 import { fetchDas, Das } from "./components/das/das.service"
@@ -23,8 +22,6 @@ import { fetchProgram, Program } from "./tentang/program/program.service"
 type MenuKey =
   | "upload"
   | "list"
-  | "dokumen"
-  | "dokumenList"
   | "artikel"
   | "artikelList"
   | "database"
@@ -54,7 +51,6 @@ export default function AdminPage() {
   const [menu, setMenu] = useState<MenuKey>("upload")
 
   const [kegiatan, setKegiatan] = useState<Kegiatan[]>([])
-  const [dokumen, setDokumen] = useState<Dokumen[]>([])
   const [artikel, setArtikel] = useState<Artikel[]>([])
   const [lokasiPenanaman, setLokasiPenanaman] = useState<LokasiPenanaman[]>([])
 
@@ -88,17 +84,6 @@ export default function AdminPage() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Gagal memuat kegiatan"
-      alert(message)
-    }
-  }
-
-  const loadDokumen = async () => {
-    try {
-      const data = await fetchDokumen()
-      setDokumen(data)
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat dokumen"
       alert(message)
     }
   }
@@ -238,7 +223,6 @@ if (adminError || !isAdmin) {
 
       await Promise.all([
         loadKegiatan(),
-        loadDokumen(),
         loadArtikel(),
         loadLokasi(),
         loadDas(),
@@ -276,12 +260,10 @@ if (adminError || !isAdmin) {
         setMenu={setMenu}
         kegiatan={kegiatan}
         editingKegiatan={editingKegiatan}
-        dokumen={dokumen}
         artikel={artikel}
         lokasiPenanaman={lokasiPenanaman}
         editingArtikel={editingArtikel}
         onRefreshKegiatan={loadKegiatan}
-        onRefreshDokumen={loadDokumen}
         onRefreshArtikel={loadArtikel}
         onRefreshLokasi={loadLokasi}
         onEditArtikel={setEditingArtikel}

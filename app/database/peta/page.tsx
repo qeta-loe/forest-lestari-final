@@ -4,21 +4,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 
-const stats = [
-  {
-    value: "6",
-    label: "Lokasi aktif",
-  },
-  {
-    value: "1.840",
-    label: "Total bibit ditanam",
-  },
-  {
-    value: "47,2",
-    label: "Total luas (ha)",
-  },
-]
-
 type PolygonPoint = {
   lat: number
   lng: number
@@ -38,6 +23,12 @@ type LokasiPenanaman = {
   kabupaten_kota: string | null
   provinsi: string | null
   alamat: string | null
+}
+
+type DatabaseStats = {
+  lokasi_aktif: number
+  total_bibit: number
+  total_luas: number
 }
 
 function TabButton({
@@ -110,6 +101,80 @@ function popupContent(item: LokasiPenanaman) {
       <span>Luas area: ${escapeHtml(item.luas_area ?? 0)} ha</span>
     </div>
   `
+}
+
+function formatNumber(value: number): string {
+  return value % 1 === 0
+    ? value.toLocaleString("id-ID")
+    : value.toLocaleString("id-ID", { maximumFractionDigits: 1 })
+}
+
+function StatsSection() {
+  const [stats, setStats] = useState<DatabaseStats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStats() {
+      const { data, error } = await supabase
+        .from("lokasi_penanaman")
+        .select("status_lokasi, jumlah_bibit, luas_area")
+
+        if (error || !data) {
+        setLoading(false)
+        return
+      }
+
+      const lokasi_aktif = data.filter(
+        (item) =>
+          item.status_lokasi?.toLowerCase() === "aktif" ||
+          item.status_lokasi === null // hitung semua jika status tidak diset
+      ).length
+
+      const total_bibit = data.reduce(
+        (sum, item) => sum + (item.jumlah_bibit || 0),
+        0
+      )
+
+      const total_luas = data.reduce(
+        (sum, item) => sum + (item.luas_area || 0),
+        0
+      )
+
+      setStats({ lokasi_aktif, total_bibit, total_luas })
+      setLoading(false)
+    }
+
+    fetchStats()
+  }, [])
+
+  const items = stats
+    ? [
+        { value: formatNumber(stats.lokasi_aktif), label: "Lokasi aktif" },
+        { value: formatNumber(stats.total_bibit), label: "Total bibit ditanam" },
+        { value: formatNumber(stats.total_luas), label: "Total luas (ha)" },
+      ]
+    : [
+        { value: "—", label: "Lokasi aktif" },
+        { value: "—", label: "Total bibit ditanam" },
+        { value: "—", label: "Total luas (ha)" },
+      ]
+    
+    return (
+    <section className="grid gap-4 border-b border-black/10 pb-8 sm:grid-cols-3">
+      {items.map((item) => (
+        <div key={item.label} className="p-6 text-center">
+          <p
+            className={`text-3xl font-bold text-emerald-900 sm:text-4xl transition-opacity duration-300 ${
+              loading ? "opacity-30" : "opacity-100"
+            }`}
+          >
+            {item.value}
+          </p>
+          <p className="mt-2 text-sm text-emerald-900">{item.label}</p>
+        </div>
+      ))}
+    </section>
+  )
 }
 
 function PetaLestari() {
@@ -491,19 +556,7 @@ export default function DatabasePetaPage() {
         </section>
 
         {/* Stats */}
-        <section className="grid gap-4 border-b border-black/10 pb-8 sm:grid-cols-3">
-          {stats.map((item) => (
-            <div key={item.label} className="p-6 text-center">
-              <p className="text-3xl font-bold text-emerald-900 sm:text-4xl">
-                {item.value}
-              </p>
-
-              <p className="mt-2 text-sm text-emerald-900">
-                {item.label}
-              </p>
-            </div>
-          ))}
-        </section>
+        <StatsSection />
 
         {/* Peta Lestari */}
         <section className="rounded-3xl border border-black bg-stone-50 p-5 sm:p-8 lg:p-10">

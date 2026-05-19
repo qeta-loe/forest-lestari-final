@@ -2,7 +2,6 @@
 
 type MenuKey =
   | "upload" | "list"
-  | "dokumen" | "dokumenList"
   | "artikel" | "artikelList"
   | "database"
   | "lokasiPenanaman" | "daftarLokasiPenanaman"
@@ -24,7 +23,6 @@ type Props = {
 
 export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
   const isKegiatanActive = menu === "upload" || menu === "list"
-  const isDokumenActive = menu === "dokumen" || menu === "dokumenList"
   const isArtikelActive = menu === "artikel" || menu === "artikelList"
   const isDatabaseActive = ["database","lokasiPenanaman","daftarLokasiPenanaman","das","daftarDas","pohon","daftarPohon"].includes(menu)
   const isTentangActive = [
@@ -73,16 +71,6 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
       {isKegiatanActive && (
         <button onClick={() => setMenu("list")} className={subMenuClass(menu === "list")}>
           Daftar Kegiatan
-        </button>
-      )}
-
-      {/* Dokumen */}
-      <button onClick={() => setMenu("dokumen")} className={`${mainMenuClass(isDokumenActive)} flex items-center gap-2`}>
-        <span>▶</span><span>Upload Dokumen</span>
-      </button>
-      {isDokumenActive && (
-        <button onClick={() => setMenu("dokumenList")} className={subMenuClass(menu === "dokumenList")}>
-          Daftar Dokumen
         </button>
       )}
 

@@ -1,7 +1,6 @@
 "use client"
 
 import { Artikel } from "./artikel/artikel.service"
-import { Dokumen } from "./dokumen/dokumen.service"
 import { Kegiatan } from "./kegiatan/kegiatan.service"
 import { LokasiPenanaman } from "./lokasi/lokasi.service"
 import { Das } from "./das/das.service"
@@ -15,8 +14,6 @@ import { Program } from "../tentang/program/program.service"
 
 import KegiatanUpload from "./kegiatan/uploadKegiatan"
 import KegiatanList from "./kegiatan/listKegiatan"
-import DokumenUpload from "./dokumen/uploadDokumen"
-import DokumenList from "./dokumen/listDokumen"
 import ArtikelForm from "./artikel/artikelForm"
 import ArtikelList from "./artikel/artikelList"
 import LokasiForm from "./lokasi/lokasiForm"
@@ -40,7 +37,6 @@ import ProgramList from "../tentang/program/ProgramList"
 
 type MenuKey =
   | "upload" | "list"
-  | "dokumen" | "dokumenList"
   | "artikel" | "artikelList"
   | "database"
   | "lokasiPenanaman" | "daftarLokasiPenanaman"
@@ -63,12 +59,10 @@ type Props = {
   onEditKegiatan: (k: Kegiatan | null) => void
   onRefreshKegiatan: () => void | Promise<void>
 
-  dokumen: Dokumen[]
   artikel: Artikel[]
   lokasiPenanaman: LokasiPenanaman[]
   editingArtikel: Artikel | null
 
-  onRefreshDokumen: () => void | Promise<void>
   onRefreshArtikel: () => void | Promise<void>
   onRefreshLokasi: () => void | Promise<void>
   onEditArtikel: (artikel: Artikel) => void
@@ -118,12 +112,10 @@ export default function AdminContent({
   setMenu,
   kegiatan,
   editingKegiatan,
-  dokumen,
   artikel,
   lokasiPenanaman,
   editingArtikel,
   onRefreshKegiatan,
-  onRefreshDokumen,
   onRefreshArtikel,
   onRefreshLokasi,
   onEditArtikel,
@@ -187,9 +179,6 @@ export default function AdminContent({
           }}
         />
       )}
-
-      {menu === "dokumen" && <DokumenUpload onSuccess={onRefreshDokumen} />}
-      {menu === "dokumenList" && <DokumenList dokumen={dokumen} />}
 
       {menu === "artikel" && (
         <ArtikelForm
