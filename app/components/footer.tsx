@@ -18,7 +18,7 @@ export default function Footer() {
     if (adminError === "invalid_email") {
       setOpen(true)
       setLoadingLogin(false)
-      setErrorMessage("Email tidak valid.")
+      setErrorMessage("Akun tidak terdaftar sebagai admin.")
       window.history.replaceState(null, "", pathname)
     }
 

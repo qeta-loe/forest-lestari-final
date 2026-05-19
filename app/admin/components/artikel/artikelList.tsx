@@ -1,32 +1,64 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { Artikel } from "./artikel.service"
+import { useEffect, useMemo, useState } from "react"
+import { Artikel, fetchArtikel } from "./artikel.service"
 
 type Props = {
-  artikel: Artikel[]
+  artikel?: Artikel[]
   onEdit: (artikel: Artikel) => void
 }
 
 type FilterStatus = "semua" | "published" | "draft"
 
-export default function ArtikelList({ artikel, onEdit }: Props) {
+export default function ArtikelList({ artikel = [], onEdit }: Props) {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("semua")
+  const [artikelData, setArtikelData] = useState<Artikel[]>(artikel)
+  const [loading, setLoading] = useState(true)
+
+  const loadArtikel = async () => {
+    try {
+      setLoading(true)
+
+      const data = await fetchArtikel()
+
+      console.log("ARTIKEL DARI SUPABASE:", data)
+
+      setArtikelData(data)
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Gagal memuat artikel"
+
+      console.error("GAGAL FETCH ARTIKEL:", message)
+      alert(message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadArtikel()
+  }, [])
+
+  useEffect(() => {
+    if (artikel.length > 0) {
+      setArtikelData(artikel)
+    }
+  }, [artikel])
 
   const filteredArtikel = useMemo(() => {
     if (filterStatus === "published") {
-      return artikel.filter((item) => !item.is_draft)
+      return artikelData.filter((item) => !item.is_draft)
     }
 
     if (filterStatus === "draft") {
-      return artikel.filter((item) => item.is_draft)
+      return artikelData.filter((item) => item.is_draft)
     }
 
-    return artikel
-  }, [artikel, filterStatus])
+    return artikelData
+  }, [artikelData, filterStatus])
 
-  const totalPublished = artikel.filter((item) => !item.is_draft).length
-  const totalDraft = artikel.filter((item) => item.is_draft).length
+  const totalPublished = artikelData.filter((item) => !item.is_draft).length
+  const totalDraft = artikelData.filter((item) => item.is_draft).length
 
   return (
     <div>
@@ -44,7 +76,7 @@ export default function ArtikelList({ artikel, onEdit }: Props) {
                 : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
             }`}
           >
-            Semua ({artikel.length})
+            Semua ({artikelData.length})
           </button>
 
           <button
@@ -68,10 +100,19 @@ export default function ArtikelList({ artikel, onEdit }: Props) {
           >
             Draft ({totalDraft})
           </button>
+
+          <button
+            onClick={loadArtikel}
+            className="rounded-full border border-[#0F5139] bg-white px-4 py-2 text-sm text-[#0F5139] transition hover:bg-[#0F5139]/10"
+          >
+            Refresh
+          </button>
         </div>
       </div>
 
-      {filteredArtikel.length === 0 ? (
+      {loading ? (
+        <p className="text-gray-500">Memuat artikel...</p>
+      ) : filteredArtikel.length === 0 ? (
         <p className="text-gray-500">
           Belum ada artikel pada status ini.
         </p>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import Link from "next/link"
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
 import { supabase } from "@/lib/supabase"
 
 const stats = [
@@ -63,6 +64,17 @@ function TabButton({
   )
 }
 
+function isValidLatLng(lat: number, lng: number) {
+  return (
+    !Number.isNaN(lat) &&
+    !Number.isNaN(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180
+  )
+}
+
 function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
   let polygonData = item.polygon_coordinates
 
@@ -77,11 +89,13 @@ function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
   if (!Array.isArray(polygonData)) return []
 
   return polygonData
-    .map((point) => ({
-      lat: Number(point.lat),
-      lng: Number(point.lng),
-    }))
-    .filter((point) => !Number.isNaN(point.lat) && !Number.isNaN(point.lng))
+    .map((point) => {
+      const lat = Number(point.lat)
+      const lng = Number(point.lng)
+
+      return { lat, lng }
+    })
+    .filter((point) => isValidLatLng(point.lat, point.lng))
 }
 
 function escapeHtml(value: string | number | null | undefined) {
@@ -95,26 +109,70 @@ function escapeHtml(value: string | number | null | undefined) {
 
 function popupContent(item: LokasiPenanaman) {
   return `
-    <div style="min-width: 220px; font-family: Arial, sans-serif;">
-      <strong>${escapeHtml(item.nama_lokasi || "Lokasi Penanaman")}</strong>
-      <br />
-      <span>Status: ${escapeHtml(item.status_lokasi || "-")}</span>
-      <br />
-      <span>Alamat: ${escapeHtml(item.alamat || "-")}</span>
-      <br />
-      <span>${escapeHtml(item.kabupaten_kota || "-")}, ${escapeHtml(item.provinsi || "-")}</span>
-      <br />
-      <br />
-      <span>Jumlah bibit: ${escapeHtml(item.jumlah_bibit ?? 0)}</span>
-      <br />
-      <span>Luas area: ${escapeHtml(item.luas_area ?? 0)} ha</span>
+    <div style="
+      min-width: 240px;
+      max-width: 280px;
+      font-family: Inter, Arial, sans-serif;
+      color: #0F5139;
+    ">
+      <strong style="
+        display: block;
+        margin-bottom: 8px;
+        font-size: 16px;
+        line-height: 1.3;
+      ">
+        ${escapeHtml(item.nama_lokasi || "Lokasi Penanaman")}
+      </strong>
+
+      <div style="
+        display: grid;
+        gap: 5px;
+        font-size: 13px;
+        line-height: 1.5;
+      ">
+        <div>
+          <strong>Status:</strong> ${escapeHtml(item.status_lokasi || "-")}
+        </div>
+
+        <div>
+          <strong>Alamat:</strong> ${escapeHtml(item.alamat || "-")}
+        </div>
+
+        <div>
+          <strong>Wilayah:</strong> ${escapeHtml(item.kabupaten_kota || "-")}, ${escapeHtml(item.provinsi || "-")}
+        </div>
+
+        <div>
+          <strong>Jumlah bibit:</strong> ${escapeHtml(item.jumlah_bibit ?? 0)}
+        </div>
+
+        <div>
+          <strong>Luas area:</strong> ${escapeHtml(item.luas_area ?? 0)} ha
+        </div>
+      </div>
     </div>
   `
 }
 
+function createMarkerContent() {
+  const wrapper = document.createElement("div")
+
+  wrapper.innerHTML = `
+    <div style="
+      width: 22px;
+      height: 22px;
+      border-radius: 9999px;
+      background: #0F5139;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    "></div>
+  `
+
+  return wrapper
+}
+
 function PetaLestari() {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null)
-  const mapInstanceRef = useRef<any>(null)
+  const mapRef = useRef<HTMLDivElement | null>(null)
 
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
@@ -122,12 +180,10 @@ function PetaLestari() {
   useEffect(() => {
     let cancelled = false
 
-    async function loadMap() {
+    const loadMap = async () => {
       try {
         setLoading(true)
         setErrorMessage("")
-
-        const L = await import("leaflet")
 
         const { data, error } = await supabase
           .from("lokasi_penanaman")
@@ -142,105 +198,144 @@ function PetaLestari() {
           return
         }
 
-        if (!mapContainerRef.current || cancelled) return
-
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.remove()
-          mapInstanceRef.current = null
-        }
-
         const lokasi = (data || []) as LokasiPenanaman[]
 
-        const defaultCenter: [number, number] = [-6.5971, 106.806]
+        const defaultCenter = {
+          lat: -6.5971,
+          lng: 106.806,
+        }
 
-        const map = L.map(mapContainerRef.current, {
-          center: defaultCenter,
-          zoom: 11,
-          scrollWheelZoom: true,
-          zoomControl: true,
+        const firstPolygon = lokasi
+          .map((item) => getPolygonPoints(item))
+          .find((points) => points.length >= 3)
+
+        const firstValidMarker = lokasi.find((item) => {
+          const lat = Number(item.latitude)
+          const lng = Number(item.longitude)
+
+          return isValidLatLng(lat, lng)
         })
 
-        mapInstanceRef.current = map
+        const center = firstPolygon?.[0]
+          ? firstPolygon[0]
+          : firstValidMarker
+            ? {
+                lat: Number(firstValidMarker.latitude),
+                lng: Number(firstValidMarker.longitude),
+              }
+            : defaultCenter
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: "&copy; OpenStreetMap contributors",
-        }).addTo(map)
-
-        const markerIcon = L.divIcon({
-          className: "custom-leaflet-marker",
-          html: `
-            <div style="
-              width: 18px;
-              height: 18px;
-              border-radius: 9999px;
-              background: #0F5139;
-              border: 3px solid white;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-            "></div>
-          `,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
+        setOptions({
+          key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+          v: "weekly",
         })
 
-        const bounds = L.latLngBounds([])
+        const { Map, Polygon, InfoWindow } = (await importLibrary(
+          "maps"
+        )) as google.maps.MapsLibrary
+
+        const { LatLngBounds } = (await importLibrary(
+          "core"
+        )) as google.maps.CoreLibrary
+
+        const { AdvancedMarkerElement } = (await importLibrary(
+          "marker"
+        )) as google.maps.MarkerLibrary
+
+        if (!mapRef.current || cancelled) return
+
+        const map = new Map(mapRef.current, {
+          center,
+          zoom: lokasi.length > 0 ? 12 : 10,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID",
+        })
+
+        const bounds = new LatLngBounds()
+        const infoWindow = new InfoWindow({
+          maxWidth: 320,
+        })
+
         let hasBounds = false
 
         lokasi.forEach((item) => {
           const polygonPoints = getPolygonPoints(item)
 
           if (polygonPoints.length >= 3) {
-            const points = polygonPoints.map(
-              (point) => [point.lat, point.lng] as [number, number]
-            )
-
-            L.polygon(points, {
-              color: "#0F5139",
-              weight: 2,
-              opacity: 0.9,
-              fillColor: "#0F5139",
-              fillOpacity: 0.25,
-            })
-              .addTo(map)
-              .bindPopup(popupContent(item))
-
-            points.forEach((point) => {
+            polygonPoints.forEach((point) => {
               bounds.extend(point)
               hasBounds = true
             })
 
-            L.marker(points[0], { icon: markerIcon })
-              .addTo(map)
-              .bindPopup(popupContent(item))
+            const polygon = new Polygon({
+              paths: polygonPoints,
+              strokeColor: "#0F5139",
+              strokeOpacity: 0.9,
+              strokeWeight: 2,
+              fillColor: "#0F5139",
+              fillOpacity: 0.25,
+              clickable: true,
+            })
+
+            polygon.setMap(map)
+
+            polygon.addListener("click", (event: google.maps.MapMouseEvent) => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(event.latLng || polygonPoints[0])
+              infoWindow.open({
+                map,
+              })
+            })
+
+            const marker = new AdvancedMarkerElement({
+              map,
+              position: polygonPoints[0],
+              title: item.nama_lokasi,
+              content: createMarkerContent(),
+            })
+
+            marker.addListener("click", () => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(polygonPoints[0])
+              infoWindow.open({
+                map,
+              })
+            })
 
             return
           }
 
-          const lat = Number(item.latitude)
-          const lng = Number(item.longitude)
+          const markerPosition = {
+            lat: Number(item.latitude),
+            lng: Number(item.longitude),
+          }
 
-          if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
-            const position: [number, number] = [lat, lng]
-
-            bounds.extend(position)
+          if (isValidLatLng(markerPosition.lat, markerPosition.lng)) {
+            bounds.extend(markerPosition)
             hasBounds = true
 
-            L.marker(position, { icon: markerIcon })
-              .addTo(map)
-              .bindPopup(popupContent(item))
+            const marker = new AdvancedMarkerElement({
+              map,
+              position: markerPosition,
+              title: item.nama_lokasi,
+              content: createMarkerContent(),
+            })
+
+            marker.addListener("click", () => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(markerPosition)
+              infoWindow.open({
+                map,
+              })
+            })
           }
         })
 
         if (hasBounds) {
-          map.fitBounds(bounds, {
-            padding: [40, 40],
-            maxZoom: 16,
-          })
+          map.fitBounds(bounds)
         }
-
-        setTimeout(() => {
-          map.invalidateSize()
-        }, 250)
 
         setLoading(false)
       } catch (error) {
@@ -256,17 +351,12 @@ function PetaLestari() {
 
     return () => {
       cancelled = true
-
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
-        mapInstanceRef.current = null
-      }
     }
   }, [])
 
   return (
     <div className="relative h-[420px] w-full overflow-hidden rounded-3xl bg-gray-400 sm:h-[560px] lg:h-[720px]">
-      <div ref={mapContainerRef} className="h-full w-full" />
+      <div ref={mapRef} className="h-full w-full" />
 
       {loading && (
         <div className="absolute inset-0 z-[999] flex items-center justify-center bg-gray-400 text-sm font-semibold text-white">
@@ -287,194 +377,18 @@ export default function DatabasePetaPage() {
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
       <style jsx global>{`
-        .leaflet-container {
-          width: 100%;
-          height: 100%;
-          position: relative;
-          overflow: hidden;
-          background: #ddd;
-          outline: 0;
-          font-family: inherit;
-          z-index: 1;
+        .gm-style .gm-style-iw-c {
+          border-radius: 18px !important;
+          padding: 12px !important;
         }
 
-        .leaflet-pane,
-        .leaflet-tile,
-        .leaflet-marker-icon,
-        .leaflet-marker-shadow,
-        .leaflet-tile-container,
-        .leaflet-pane > svg,
-        .leaflet-pane > canvas,
-        .leaflet-zoom-box,
-        .leaflet-image-layer,
-        .leaflet-layer {
-          position: absolute;
-          left: 0;
-          top: 0;
+        .gm-style .gm-style-iw-d {
+          overflow: hidden !important;
         }
 
-        .leaflet-container img.leaflet-tile {
-          max-width: none !important;
-          max-height: none !important;
-          width: 256px !important;
-          height: 256px !important;
-        }
-
-        .leaflet-tile {
-          filter: inherit;
-          visibility: hidden;
-        }
-
-        .leaflet-tile-loaded {
-          visibility: inherit;
-        }
-
-        .leaflet-zoom-animated {
-          transform-origin: 0 0;
-        }
-
-        .leaflet-interactive {
-          cursor: pointer;
-        }
-
-        .leaflet-control {
-          position: relative;
-          z-index: 800;
-          pointer-events: auto;
-        }
-
-        .leaflet-top,
-        .leaflet-bottom {
-          position: absolute;
-          z-index: 1000;
-          pointer-events: none;
-        }
-
-        .leaflet-top {
-          top: 0;
-        }
-
-        .leaflet-right {
-          right: 0;
-        }
-
-        .leaflet-bottom {
-          bottom: 0;
-        }
-
-        .leaflet-left {
-          left: 0;
-        }
-
-        .leaflet-control {
-          float: left;
-          clear: both;
-        }
-
-        .leaflet-right .leaflet-control {
-          float: right;
-        }
-
-        .leaflet-top .leaflet-control {
-          margin-top: 10px;
-        }
-
-        .leaflet-bottom .leaflet-control {
-          margin-bottom: 10px;
-        }
-
-        .leaflet-left .leaflet-control {
-          margin-left: 10px;
-        }
-
-        .leaflet-right .leaflet-control {
-          margin-right: 10px;
-        }
-
-        .leaflet-control-zoom a {
-          display: block;
-          width: 30px;
-          height: 30px;
-          line-height: 30px;
-          text-align: center;
-          text-decoration: none;
-          color: #0f5139;
-          background: white;
-          border-bottom: 1px solid #ccc;
-          font-size: 18px;
-          font-weight: bold;
-        }
-
-        .leaflet-control-zoom {
-          border: 2px solid rgba(0, 0, 0, 0.2);
-          border-radius: 6px;
-          overflow: hidden;
-        }
-
-        .leaflet-popup {
-          position: absolute;
-          text-align: center;
-          margin-bottom: 20px;
-        }
-
-        .leaflet-popup-content-wrapper {
-          padding: 8px;
-          text-align: left;
-          border-radius: 12px;
-          background: white;
-          box-shadow: 0 3px 14px rgba(0, 0, 0, 0.25);
-        }
-
-        .leaflet-popup-content {
-          margin: 8px;
-          line-height: 1.5;
-          font-size: 13px;
-        }
-
-        .leaflet-popup-tip-container {
-          width: 40px;
-          height: 20px;
-          position: absolute;
-          left: 50%;
-          margin-left: -20px;
-          overflow: hidden;
-          pointer-events: none;
-        }
-
-        .leaflet-popup-tip {
-          width: 17px;
-          height: 17px;
-          padding: 1px;
-          margin: -10px auto 0;
-          transform: rotate(45deg);
-          background: white;
-          box-shadow: 0 3px 14px rgba(0, 0, 0, 0.25);
-        }
-
-        .leaflet-popup-close-button {
-          position: absolute;
-          top: 0;
-          right: 0;
-          padding: 6px 8px;
-          text-align: center;
-          width: 24px;
-          height: 24px;
-          font: 16px/24px Tahoma, Verdana, sans-serif;
-          color: #555;
-          text-decoration: none;
-          font-weight: bold;
-          background: transparent;
-          border: none;
-        }
-
-        .leaflet-marker-icon,
-        .leaflet-marker-shadow {
-          display: block;
-        }
-
-        .custom-leaflet-marker {
-          background: transparent;
-          border: none;
+        .gm-ui-hover-effect {
+          top: 4px !important;
+          right: 4px !important;
         }
       `}</style>
 
@@ -487,7 +401,7 @@ export default function DatabasePetaPage() {
 
           <TabButton href="/database/pohon">Pohon Lestari</TabButton>
 
-          <TabButton href="/database/das">DAS Lestari</TabButton>
+          <TabButton href="/database/DAS">DAS Lestari</TabButton>
         </section>
 
         {/* Stats */}

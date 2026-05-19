@@ -149,7 +149,7 @@ export default function KegiatanForm({
       !jamSelesai ||
       !kategori
     ) {
-      return alert("Semua field wajib diisi")
+      return alert("Semua tabel wajib diisi")
     }
 
     if (!editingKegiatan && !thumbnail) {
@@ -185,11 +185,11 @@ export default function KegiatanForm({
       if (editingKegiatan) {
         await updateKegiatan(editingKegiatan.id, payload, thumbnail)
 
-        alert("Kegiatan berhasil diupdate")
+        alert("Kegiatan berhasil diperbarui")
       } else {
         await createKegiatan(payload, thumbnail!)
 
-        alert("Kegiatan berhasil dibuat")
+        alert("Kegiatan berhasil ditambahkan")
         resetForm()
       }
 

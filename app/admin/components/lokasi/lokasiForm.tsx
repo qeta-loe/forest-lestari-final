@@ -82,7 +82,7 @@ export default function LokasiForm({
       !tanggalTanam
     ) {
       return alert(
-        "Semua field wajib diisi"
+        "Semua tabel harus diisi"
       )
     }
 

@@ -94,7 +94,7 @@ export default function DasForm({ editingDas, onSuccess, onCancelEdit }: Props) 
 
   const handleSubmit = async () => {
     if (!namaDas || !luasHa || !luasTutupanHa || !jenisTanah || !kemiringanMin || !kemiringanMax) {
-      return alert("Semua field wajib diisi")
+      return alert("Semua tabel wajib diisi")
     }
 
     if (polygonPoints.length < 3) return alert("Polygon minimal 3 titik")

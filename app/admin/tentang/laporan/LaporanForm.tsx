@@ -34,11 +34,11 @@ export default function LaporanForm({ editingLaporan, onSuccess, onCancel }: Pro
 
   const handleSubmit = async () => {
     if (!tahun || !judul || !tanggalPublikasi) {
-      return alert("Tahun, judul, dan tanggal publikasi wajib diisi")
+      return alert("Semua tabel harus diisi")
     }
     if (!editingLaporan && !file) return alert("File PDF wajib diupload")
     if (file && !file.name.toLowerCase().endsWith(".pdf")) {
-      return alert("File harus berformat PDF")
+      return alert("Ekstensi file harus .pdf")
     }
 
     const input = {
