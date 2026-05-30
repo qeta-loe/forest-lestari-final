@@ -63,7 +63,6 @@ type Props = {
   lokasiPenanaman: LokasiPenanaman[]
   editingArtikel: Artikel | null
 
-  onRefreshDokumen: () => void | Promise<void>
   onRefreshArtikel: () => void | Promise<void>
   onRefreshLokasi: () => void | Promise<void>
   onEditArtikel: (artikel: Artikel) => void

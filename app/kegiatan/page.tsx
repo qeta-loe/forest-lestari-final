@@ -154,7 +154,7 @@ function ActivityCard({ activity }: { activity: Activity }) {
   return (
     <Link
       href={`/kegiatan/${activity.id}`}
-      className="group block overflow-hidden rounded-3xl bg-gray-400 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+      className="group block overflow-hidden rounded-3xl bg-emerald-900/50 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
     >
       <div className="h-24 bg-zinc-300 transition group-hover:bg-gray-200">
         {activity.thumbnail_url && (

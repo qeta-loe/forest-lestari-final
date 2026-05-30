@@ -258,11 +258,24 @@ function PetaLokasiPenanaman() {
 }
 
 export default function BerandaPage() {
+  const [totalKegiatan, setTotalKegiatan] = useState(0)
+  const [totalDas, setTotalDas] = useState(0)
+  const [totalMitra, setTotalMitra] = useState(0)
+  const [loadingStats, setLoadingStats] = useState(true)
+
   const stats = [
-    { value: "48", label: "Kegiatan Selesai" },
-    { value: "12", label: "DAS Terdokumentasi" },
-    { value: "37", label: "Spesies Endemik" },
-    { value: "3", label: "Mitra Instansi" },
+    {
+      value: loadingStats ? "..." : String(totalKegiatan),
+      label: "Kegiatan Selesai",
+    },
+    {
+      value: loadingStats ? "..." : String(totalDas),
+      label: "DAS Terdokumentasi",
+    },
+    {
+      value: loadingStats ? "..." : String(totalMitra),
+      label: "Mitra Instansi",
+    },
   ]
 
   const [articles, setArticles] = useState<Artikel[]>([])
@@ -270,6 +283,43 @@ export default function BerandaPage() {
 
   const [latestKegiatan, setLatestKegiatan] = useState<KegiatanTerbaru[]>([])
   const [loadingKegiatan, setLoadingKegiatan] = useState(true)
+
+  const fetchStats = async () => {
+  setLoadingStats(true)
+
+  const [kegiatanRes, dasRes, mitraRes] = await Promise.all([
+    supabase
+      .from("kegiatan")
+      .select("id", { count: "exact", head: true })
+      .eq("is_draft", false),
+
+    supabase
+      .from("das")
+      .select("id", { count: "exact", head: true }),
+
+    supabase
+      .from("mitra")
+      .select("id", { count: "exact", head: true }),
+  ])
+
+  if (kegiatanRes.error) {
+    console.error("FETCH TOTAL KEGIATAN ERROR:", kegiatanRes.error.message)
+  }
+
+  if (dasRes.error) {
+    console.error("FETCH TOTAL DAS ERROR:", dasRes.error.message)
+  }
+
+  if (mitraRes.error) {
+    console.error("FETCH TOTAL MITRA ERROR:", mitraRes.error.message)
+  }
+
+  setTotalKegiatan(kegiatanRes.count || 0)
+  setTotalDas(dasRes.count || 0)
+  setTotalMitra(mitraRes.count || 0)
+
+  setLoadingStats(false)
+}
 
   const fetchLatestArticles = async () => {
     setLoadingArticles(true)
@@ -314,10 +364,11 @@ export default function BerandaPage() {
     setLoadingKegiatan(false)
   }
 
-  useEffect(() => {
-    fetchLatestArticles()
-    fetchLatestKegiatan()
-  }, [])
+ useEffect(() => {
+  fetchStats()
+  fetchLatestArticles()
+  fetchLatestKegiatan()
+}, [])
 
   const formatDate = (date?: string | null) => {
     if (!date) return "Tanggal tidak tersedia"
@@ -352,37 +403,35 @@ export default function BerandaPage() {
               </div>
 
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-                <a
-                  href="#kegiatan"
-                  className="inline-flex h-14 items-center justify-center rounded-full bg-emerald-900 px-7 text-base font-bold text-stone-50 transition hover:bg-emerald-950 active:scale-95 sm:text-lg"
-                >
-                  Lihat Kegiatan
-                </a>
+                <Link
+  href="/kegiatan"
+  className="inline-flex h-14 items-center justify-center rounded-full bg-emerald-900 px-7 text-base font-bold text-stone-50 transition hover:bg-emerald-950 active:scale-95 sm:text-lg"
+>
+  Lihat Kegiatan
+</Link>
 
-                <a
-                  href="#database"
-                  className="inline-flex h-14 items-center justify-center rounded-full border border-emerald-950 bg-stone-50 px-7 text-base font-bold text-emerald-900 transition hover:bg-emerald-50 active:scale-95 sm:text-lg"
-                >
-                  Database Lingkungan
-                </a>
+<Link
+  href="/database"
+  className="inline-flex h-14 items-center justify-center rounded-full border border-emerald-950 bg-stone-50 px-7 text-base font-bold text-emerald-900 transition hover:bg-emerald-50 active:scale-95 sm:text-lg"
+>
+  Database Lingkungan
+</Link>
               </div>
             </div>
 
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-white shadow-xl sm:aspect-[5/3] lg:aspect-square">
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl sm:aspect-[5/3] lg:aspect-square">
               <img
                 className="h-full w-full object-cover"
-                src="https://placehold.co/700x700"
+                src="/images/hutan.jpg"
                 alt="Dokumentasi kegiatan lingkungan"
               />
-              <div className="absolute inset-0 bg-gradient-to-l from-emerald-950/40 to-emerald-950/0" />
             </div>
           </section>
         </div>
 
         {/* Statistik */}
         <section className="border-y border-black/10 py-6">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:divide-x md:divide-black/10">
-            {stats.map((item) => (
+         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:divide-x md:divide-black/10">   {stats.map((item) => (
               <div key={item.label} className="px-4 py-4 text-center">
                 <p className="text-4xl font-bold text-emerald-900 sm:text-5xl">
                   {item.value}
@@ -501,12 +550,21 @@ export default function BerandaPage() {
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-emerald-900 sm:text-4xl">
-              Peta Lokasi Penanaman
-            </h2>
+  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <h2 className="text-3xl font-bold text-emerald-900 sm:text-4xl">
+      Peta Lokasi Penanaman
+    </h2>
 
-            <PetaLokasiPenanaman />
-          </div>
+    <Link
+      href="/database/peta"
+      className="inline-flex w-fit items-center justify-center rounded-full border border-emerald-950 bg-stone-50 px-5 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50 active:scale-95"
+    >
+      Lihat Peta
+    </Link>
+  </div>
+
+  <PetaLokasiPenanaman />
+</div>
         </section>
       </div>
     </main>

@@ -69,11 +69,9 @@ export default function AdminPage() {
   const [relawanList, setRelawanList] = useState<Relawan[]>([])
   const [programList, setProgramList] = useState<Program[]>([])
 
-  const [editingTonggak, setEditingTonggak] =
-    useState<TonggakPencapaian | null>(null)
+  const [editingTonggak, setEditingTonggak] = useState<TonggakPencapaian | null>(null)
   const [editingMitra, setEditingMitra] = useState<Mitra | null>(null)
-  const [editingLaporan, setEditingLaporan] =
-    useState<LaporanTahunan | null>(null)
+  const [editingLaporan, setEditingLaporan] = useState<LaporanTahunan | null>(null)
   const [editingRelawan, setEditingRelawan] = useState<Relawan | null>(null)
   const [editingProgram, setEditingProgram] = useState<Program | null>(null)
 
@@ -82,20 +80,17 @@ export default function AdminPage() {
       const data = await fetchKegiatan()
       setKegiatan(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat kegiatan"
+      const message = err instanceof Error ? err.message : "Gagal memuat kegiatan"
       alert(message)
     }
   }
-
 
   const loadArtikel = async () => {
     try {
       const data = await fetchArtikel()
       setArtikel(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat artikel"
+      const message = err instanceof Error ? err.message : "Gagal memuat artikel"
       alert(message)
     }
   }
@@ -105,8 +100,7 @@ export default function AdminPage() {
       const data = await fetchLokasiPenanaman()
       setLokasiPenanaman(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat lokasi penanaman"
+      const message = err instanceof Error ? err.message : "Gagal memuat lokasi penanaman"
       alert(message)
     }
   }
@@ -126,8 +120,7 @@ export default function AdminPage() {
       const data = await fetchPohon()
       setPohonList(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat pohon"
+      const message = err instanceof Error ? err.message : "Gagal memuat pohon"
       alert(message)
     }
   }
@@ -137,8 +130,7 @@ export default function AdminPage() {
       const data = await fetchTonggak()
       setTonggakList(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat tonggak pencapaian"
+      const message = err instanceof Error ? err.message : "Gagal memuat tonggak pencapaian"
       alert(message)
     }
   }
@@ -148,8 +140,7 @@ export default function AdminPage() {
       const data = await fetchMitra()
       setMitraList(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat mitra"
+      const message = err instanceof Error ? err.message : "Gagal memuat mitra"
       alert(message)
     }
   }
@@ -159,8 +150,7 @@ export default function AdminPage() {
       const data = await fetchLaporan()
       setLaporanList(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat laporan"
+      const message = err instanceof Error ? err.message : "Gagal memuat laporan"
       alert(message)
     }
   }
@@ -170,8 +160,7 @@ export default function AdminPage() {
       const data = await fetchRelawan()
       setRelawanList(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat relawan"
+      const message = err instanceof Error ? err.message : "Gagal memuat relawan"
       alert(message)
     }
   }
@@ -181,8 +170,7 @@ export default function AdminPage() {
       const data = await fetchProgram()
       setProgramList(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Gagal memuat program"
+      const message = err instanceof Error ? err.message : "Gagal memuat program"
       alert(message)
     }
   }
@@ -201,24 +189,24 @@ export default function AdminPage() {
 
       const userEmail = session.user.email
 
-if (!userEmail) {
-  await supabase.auth.signOut()
-  router.push("/?adminError=invalid_email")
-  return
-}
+      if (!userEmail) {
+        await supabase.auth.signOut()
+        router.push("/?adminError=invalid_email")
+        return
+      }
 
-const { data: isAdmin, error: adminError } = await supabase.rpc(
-  "is_admin_email",
-  {
-    check_email: userEmail,
-  }
-)
+      const { data: isAdmin, error: adminError } = await supabase.rpc(
+        "is_admin_email",
+        {
+          check_email: userEmail,
+        }
+      )
 
-if (adminError || !isAdmin) {
-  await supabase.auth.signOut()
-  router.push("/?adminError=invalid_email")
-  return
-}
+      if (adminError || !isAdmin) {
+        await supabase.auth.signOut()
+        router.push("/?adminError=invalid_email")
+        return
+      }
 
       setCheckingAuth(false)
 

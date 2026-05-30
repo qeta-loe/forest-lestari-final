@@ -1,29 +1,34 @@
-"use client"
-
-import { useEffect, useMemo, useState, type ReactNode } from "react"
+import type { ReactNode } from "react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 
-type PohonRow = {
-  id: number
-  nama_umum: string | null
-  nama_ilmiah: string | null
-  jumlah: number | null
-  lokasi_penanaman_id: number | null
-  das_id: number | null
-  created_at: string | null
-  updated_at: string | null
+export const dynamic = "force-dynamic"
+
+async function getPohonData() {
+  const { data, error } = await supabase
+    .from("pohon")
+    .select(`
+      id,
+      nama_umum,
+      nama_ilmiah,
+      jumlah,
+      lokasi_penanaman (nama_lokasi)
+    `)
+    .order("jumlah", { ascending: false })
+
+  if (error || !data) return []
+
+  return data as {
+    id: number
+    nama_umum: string
+    nama_ilmiah: string | null
+    jumlah: number
+    lokasi_penanaman: { nama_lokasi: string }[]
+  }[]
 }
 
-type DistributionRow = {
-  name: string
-  scientificName: string
-  value: number
-}
-
-type AreaRow = {
-  area: string
-  values: number[]
+function formatNumber(value: number) {
+  return value.toLocaleString("id-ID")
 }
 
 function TabButton({
@@ -49,141 +54,72 @@ function TabButton({
   )
 }
 
-function formatNumber(value: number) {
-  return new Intl.NumberFormat("id-ID").format(value)
-}
+export default async function DatabasePohonPage() {
+  const pohonData = await getPohonData()
 
-function getAreaName(item: PohonRow) {
-  if (item.lokasi_penanaman_id) {
-    return `Lokasi ${item.lokasi_penanaman_id}`
+  const loading = false
+  const errorMessage = ""
+
+  const distributionMap = new Map<
+    string,
+    { nama_ilmiah: string | null; jumlah: number }
+  >()
+
+  for (const p of pohonData) {
+    const existing = distributionMap.get(p.nama_umum)
+
+    if (existing) {
+      existing.jumlah += p.jumlah
+    } else {
+      distributionMap.set(p.nama_umum, {
+        nama_ilmiah: p.nama_ilmiah,
+        jumlah: p.jumlah,
+      })
+    }
   }
 
-  return "Tanpa lokasi"
-}
+  const distributionRows = Array.from(distributionMap.entries())
+    .map(([nama_umum, v]) => ({
+      name: nama_umum,
+      scientificName: v.nama_ilmiah ?? "",
+      value: v.jumlah,
+    }))
+    .sort((a, b) => b.value - a.value)
 
-export default function DatabasePohonPage() {
-  const [pohonList, setPohonList] = useState<PohonRow[]>([])
-  const [loading, setLoading] = useState(true)
-  const [errorMessage, setErrorMessage] = useState("")
+  const lokasiMap = new Map<string, Map<string, number>>()
 
-  useEffect(() => {
-    const fetchPohon = async () => {
-      setLoading(true)
-      setErrorMessage("")
+  for (const p of pohonData) {
+    const lokasi = p.lokasi_penanaman?.[0]?.nama_lokasi ?? "Tidak diketahui"
 
-      const { data, error } = await supabase
-        .from("pohon")
-        .select(
-          "id, nama_umum, nama_ilmiah, jumlah, lokasi_penanaman_id, das_id, created_at, updated_at"
-        )
-        .order("id", { ascending: false })
-
-      if (error) {
-        console.error("FETCH POHON ERROR:", error.message)
-        setErrorMessage(error.message)
-        setLoading(false)
-        return
-      }
-
-      setPohonList((data || []) as PohonRow[])
-      setLoading(false)
+    if (!lokasiMap.has(lokasi)) {
+      lokasiMap.set(lokasi, new Map())
     }
 
-    fetchPohon()
-  }, [])
+    const jenisMasp = lokasiMap.get(lokasi)!
 
-  const distributionRows = useMemo<DistributionRow[]>((() => {
-    const grouped = new Map<string, DistributionRow>()
+    jenisMasp.set(p.nama_umum, (jenisMasp.get(p.nama_umum) ?? 0) + p.jumlah)
+  }
 
-    pohonList.forEach((item) => {
-      const name = item.nama_umum || "Tanpa nama"
-      const scientificName = item.nama_ilmiah || "-"
-      const key = `${name}-${scientificName}`
+  const tableHeaders = ["Area", ...distributionRows.map((d) => d.name)]
 
-      const current = grouped.get(key)
+  const tableRows = Array.from(lokasiMap.entries()).map(([area, jenisMap]) => ({
+    area,
+    values: distributionRows.map((d) => jenisMap.get(d.name) ?? 0),
+  }))
 
-      if (current) {
-        current.value += Number(item.jumlah || 0)
-      } else {
-        grouped.set(key, {
-          name,
-          scientificName,
-          value: Number(item.jumlah || 0),
-        })
-      }
-    })
-
-    return Array.from(grouped.values()).sort((a, b) => b.value - a.value)
-  }) as unknown as () => DistributionRow[], [pohonList])
-
-  const maxValue = useMemo(() => {
-    if (distributionRows.length === 0) return 1
-    return Math.max(...distributionRows.map((item) => item.value), 1)
-  }, [distributionRows])
-
-  const totalPohon = useMemo(() => {
-    return pohonList.reduce((sum, item) => sum + Number(item.jumlah || 0), 0)
-  }, [pohonList])
-
-  const jenisPohon = distributionRows.length
-  const jenisTerbanyak = distributionRows[0]?.name || "-"
-
-  const totalArea = useMemo(() => {
-    const areas = new Set(
-      pohonList
-        .map((item) => item.lokasi_penanaman_id)
-        .filter((id): id is number => Boolean(id))
-    )
-
-    return areas.size
-  }, [pohonList])
+  const totalPohon = distributionRows.reduce((sum, d) => sum + d.value, 0)
+  const jenisTerbanyak = distributionRows[0]?.name ?? "—"
+  const jumlahJenis = distributionRows.length
+  const jumlahLokasi = lokasiMap.size
 
   const stats = [
-    {
-      value: formatNumber(totalPohon),
-      label: "Pohon tercatat",
-    },
-    {
-      value: formatNumber(jenisPohon),
-      label: "Jenis pohon",
-    },
-    {
-      value: jenisTerbanyak,
-      label: "Jenis terbanyak",
-    },
-    {
-      value: formatNumber(totalArea),
-      label: "Area lokasi",
-    },
+    { value: totalPohon.toLocaleString("id-ID"), label: "Pohon tercatat" },
+    { value: String(jumlahJenis), label: "Jenis pohon" },
+    { value: jenisTerbanyak, label: "Jenis terbanyak" },
+    { value: String(jumlahLokasi), label: "Area lokasi" },
   ]
 
-  const tableHeaders = useMemo(() => {
-    return ["Area", ...distributionRows.map((item) => item.name)]
-  }, [distributionRows])
-
-  const tableRows = useMemo<AreaRow[]>(() => {
-    const areaMap = new Map<string, Map<string, number>>()
-
-    pohonList.forEach((item) => {
-      const area = getAreaName(item)
-      const jenis = item.nama_umum || "Tanpa nama"
-      const jumlah = Number(item.jumlah || 0)
-
-      if (!areaMap.has(area)) {
-        areaMap.set(area, new Map())
-      }
-
-      const jenisMap = areaMap.get(area)!
-      jenisMap.set(jenis, (jenisMap.get(jenis) || 0) + jumlah)
-    })
-
-    return Array.from(areaMap.entries())
-      .map(([area, jenisMap]) => ({
-        area,
-        values: distributionRows.map((jenis) => jenisMap.get(jenis.name) || 0),
-      }))
-      .sort((a, b) => a.area.localeCompare(b.area))
-  }, [pohonList, distributionRows])
+  const maxValue = Math.max(...distributionRows.map((d) => d.value), 1)
 
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
