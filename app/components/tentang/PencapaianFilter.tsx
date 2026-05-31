@@ -7,7 +7,7 @@ type Props = {
 const filters = [
   { key: "overview", label: "Overview", href: "/tentangkami/pencapaian" },
   { key: "penanaman", label: "Penanaman", href: "/tentangkami/pencapaian/penanaman" },
-  { key: "das", label: "DAS", href: "/tentangkami/pencapaian/das" },
+  { key: "das", label: "DAS", href: "/tentangkami/pencapaian/DAS" },
   { key: "kolaborasi", label: "Kolaborasi", href: "/tentangkami/pencapaian/kolaborasi" },
 ] as const
 
