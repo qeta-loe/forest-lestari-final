@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { Artikel } from "./artikel.service"
+import { Artikel, deleteArtikel } from "./artikel.service"
 
 type Props = {
   artikel: Artikel[]
@@ -12,6 +12,8 @@ type FilterStatus = "semua" | "published" | "draft"
 
 export default function ArtikelList({ artikel, onEdit }: Props) {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("semua")
+
+  const [loadingDelete, setLoadingDelete] = useState<number | null>(null)
 
   const filteredArtikel = useMemo(() => {
     if (filterStatus === "published") {
@@ -26,7 +28,27 @@ export default function ArtikelList({ artikel, onEdit }: Props) {
   }, [artikel, filterStatus])
 
   const totalPublished = artikel.filter((item) => !item.is_draft).length
-  const totalDraft = artikel.filter((item) => item.is_draft).length
+  const totalDraft = artikel.filter((item) => item.is_draft).length 
+  const handleDelete = async (
+    id: number,
+    judul: string
+  ) => {
+    const confirmDelete = window.confirm(
+      `Anda yakin ingin menghapus artikel "${judul}"?`
+    )
+
+    if (!confirmDelete) return
+    try {
+      setLoadingDelete(id)
+      await deleteArtikel(id)
+      alert("Artikel berhasil dihapus")
+      window.location.reload()
+    } catch (err: any) {
+      alert(err.message)
+    } finally {
+      setLoadingDelete(null)
+    }
+  }
 
   return (
     <div>
@@ -145,6 +167,15 @@ export default function ArtikelList({ artikel, onEdit }: Props) {
                     className="rounded bg-yellow-500 px-3 py-1 text-sm text-white transition hover:bg-yellow-600 active:scale-95"
                   >
                     {item.is_draft ? "Edit Draft" : "Edit Artikel"}
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(item.id, item.judul)}
+                    disabled={loadingDelete === item.id}
+                    className="rounded bg-red-600 px-3 py-2 text-sm text-white transition hover:bg-red-700 active:scale-95 disabled:opacity-50"
+                  >
+                    {loadingDelete === item.id
+                      ? "Menghapus..." : "Hapus"}
                   </button>
                 </div>
               </div>

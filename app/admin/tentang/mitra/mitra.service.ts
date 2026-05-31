@@ -4,6 +4,7 @@ export type Mitra = {
   id: number
   nama: string
   logo_url: string | null
+  is_draft: boolean
   created_at?: string
 }
 
@@ -19,7 +20,8 @@ export const fetchMitra = async (): Promise<Mitra[]> => {
 
 export const createMitra = async (
   nama: string,
-  logo: File
+  logo: File,
+  isDraft: boolean
 ): Promise<void> => {
   const fileName = `${Date.now()}-${logo.name.replaceAll(" ", "-")}`
 
@@ -31,7 +33,7 @@ export const createMitra = async (
 
   const logo_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/mitra/${fileName}`
 
-  const { error } = await supabase.from("mitra").insert([{ nama, logo_url }])
+  const { error } = await supabase.from("mitra").insert([{ nama, logo_url, is_draft: isDraft }])
   if (error) throw new Error(error.message)
 }
 
@@ -39,7 +41,8 @@ export const updateMitra = async (
   id: number,
   nama: string,
   logo: File | null,
-  currentLogoUrl: string | null
+  currentLogoUrl: string | null,
+  isDraft: boolean
 ): Promise<void> => {
   let logo_url = currentLogoUrl
 
@@ -55,7 +58,7 @@ export const updateMitra = async (
 
   const { error } = await supabase
     .from("mitra")
-    .update({ nama, logo_url })
+    .update({ nama, logo_url, is_draft: isDraft })
     .eq("id", id)
 
   if (error) throw new Error(error.message)

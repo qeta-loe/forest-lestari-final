@@ -1,14 +1,32 @@
 "use client"
 
 import { Das, deleteDas } from "./das.service"
+import { useMemo, useState } from "react"
 
 type Props = {
   dasList: Das[]
   onRefresh: () => void
   onEdit: (das: Das) => void
+  setMenu: (menu: "das") => void
 }
 
-export default function DasList({ dasList, onRefresh, onEdit }: Props) {
+type FilterStatus = "semua" | "published" | "draft"
+
+export default function DasList({ dasList, onRefresh, onEdit, setMenu }: Props) {
+  const [filterStatus, setFilterStatus] = useState<"semua" | "published" | "draft">("semua")
+
+  const filteredDas = useMemo(() => {
+    if (filterStatus === "published") {
+      return dasList.filter((item) => !item.is_draft)
+    }
+
+    if (filterStatus === "draft") {
+      return dasList.filter((item) => item.is_draft)
+    }
+
+    return dasList
+  }, [dasList, filterStatus])
+
   const handleDelete = async (das: Das) => {
     if (!confirm(`Yakin hapus ${das.nama_das}?`)) return
     try {
@@ -22,33 +40,82 @@ export default function DasList({ dasList, onRefresh, onEdit }: Props) {
 
   return (
     <div>
-      <h1 className="text-xl text-[#0F5139] font-semibold mb-6">Daftar DAS</h1>
+    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <h1 className="text-xl font-semibold text-[#0F5139]">
+        Daftar DAS
+      </h1>
 
-      {dasList.length === 0 ? (
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setFilterStatus("semua")}
+          className={`rounded-full border px-4 py-2 text-sm transition ${
+            filterStatus === "semua"
+              ? "border-[#0F5139] bg-[#0F5139] text-white"
+              : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+          }`}
+        >
+          Semua ({dasList.length})
+        </button>
+
+        <button
+          onClick={() => setFilterStatus("published")}
+          className={`rounded-full border px-4 py-2 text-sm transition ${
+            filterStatus === "published"
+              ? "border-[#0F5139] bg-[#0F5139] text-white"
+              : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+          }`}
+        >
+          Published ({dasList.filter((d) => !d.is_draft).length})
+        </button>
+
+        <button
+          onClick={() => setFilterStatus("draft")}
+          className={`rounded-full border px-4 py-2 text-sm transition ${
+            filterStatus === "draft"
+              ? "border-[#0F5139] bg-[#0F5139] text-white"
+              : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+          }`}
+        >
+          Draft ({dasList.filter((d) => d.is_draft).length})
+        </button>
+      </div>
+      </div>
+
+      {filteredDas.length === 0 ? (
         <p className="text-gray-500">Belum ada DAS yang ditambahkan.</p>
       ) : (
         <div className="space-y-4">
-          {dasList.map((item) => (
+          {filteredDas.map((item) => (
             <div
               key={item.id}
               className="rounded-xl border bg-white p-5 shadow-sm"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <h2 className="font-semibold text-lg text-[#0F5139]">
-                      {item.nama_das}
-                    </h2>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold text-[#0F5139]">
+                        {item.nama_das}
+                      </h2>
 
-                    <span
-                      className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${
-                        item.kondisi === "baik"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {item.kondisi}
-                    </span>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                          item.is_draft
+                            ? "bg-gray-200 text-gray-700"
+                            : "bg-green-100 text-green-700"
+                        }`}>
+                          {item.is_draft ? "Draft" : "Published"}
+                        </span>
+
+                        <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                          item.kondisi === "baik"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-red-100 text-red-700"
+                        }`}>
+                          {item.kondisi}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-x-8 gap-y-1 mt-2 text-sm text-gray-600">
@@ -70,7 +137,10 @@ export default function DasList({ dasList, onRefresh, onEdit }: Props) {
 
                 <div className="flex gap-2 shrink-0">
                   <button
-                    onClick={() => onEdit(item)}
+                    onClick={() => {
+                      onEdit(item)
+                      setMenu("das")
+                    }}
                     className="rounded-md bg-yellow-500 hover:bg-yellow-600 active:scale-95 transition-all px-4 py-2 text-sm text-white"
                   >
                     Edit

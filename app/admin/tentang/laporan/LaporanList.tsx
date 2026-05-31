@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { LaporanTahunan, deleteLaporan } from "./laporan.service"
 
 type Props = {
@@ -8,7 +9,20 @@ type Props = {
   onEdit: (l: LaporanTahunan) => void
 }
 
+type FilterStatus = "semua" | "published" | "draft"
+
 export default function LaporanList({ laporanList, onRefresh, onEdit }: Props) {
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("semua")
+  const filteredLaporan = laporanList.filter(
+    (item) => {
+      return filterStatus === "semua"
+        ? true
+        : filterStatus === "draft"
+        ? item.is_draft
+        : !item.is_draft
+    }
+  )
+
   const handleDelete = async (l: LaporanTahunan) => {
     if (!confirm(`Hapus laporan "${l.judul}"?`)) return
     try {
@@ -21,15 +35,56 @@ export default function LaporanList({ laporanList, onRefresh, onEdit }: Props) {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-[#0F5139] mb-6">
-        Daftar Laporan Tahunan
-      </h1>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-xl font-semibold text-[#0F5139]">
+          Daftar Laporan Tahunan
+        </h1>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterStatus("semua")}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              filterStatus === "semua"
+                ? "bg-[#0F5139] text-white"
+                : "border-[#0F5139] text-[#0F5139]"
+            }`}
+          >
+            Semua ({laporanList.length})
+          </button>
+
+          <button
+            onClick={() => setFilterStatus("published")}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              filterStatus === "published"
+                ? "bg-[#0F5139] text-white"
+                : "border-[#0F5139] text-[#0F5139]"
+            }`}
+          >
+            Published (
+            {laporanList.filter((x) => !x.is_draft).length}
+            )
+          </button>
+
+          <button
+            onClick={() => setFilterStatus("draft")}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              filterStatus === "draft"
+                ? "bg-[#0F5139] text-white"
+                : "border-[#0F5139] text-[#0F5139]"
+            }`}
+          >
+            Draft (
+            {laporanList.filter((x) => x.is_draft).length}
+            )
+          </button>
+        </div>
+      </div>
 
       {laporanList.length === 0 ? (
         <p className="text-gray-500">Belum ada laporan yang ditambahkan.</p>
       ) : (
         <div className="space-y-4">
-          {laporanList.map((item) => (
+          {filteredLaporan.map((item) => (
             <div
               key={item.id}
               className="rounded-xl border bg-white p-5 shadow-sm"
@@ -39,6 +94,15 @@ export default function LaporanList({ laporanList, onRefresh, onEdit }: Props) {
                   <div className="flex items-center gap-3 mb-1">
                     <span className="text-4xl font-bold text-[#0F5139]">
                       {item.tahun}
+                    </span>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                        item.is_draft
+                          ? "bg-gray-200 text-gray-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {item.is_draft ? "Draft" : "Published"}
                     </span>
                     <span className="text-xs bg-gray-600 text-white px-3 py-1 rounded-xl font-bold">
                       {new Date(item.tanggal_publikasi).getFullYear() === new Date().getFullYear()

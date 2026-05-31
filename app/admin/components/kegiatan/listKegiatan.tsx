@@ -1,24 +1,89 @@
 "use client"
 
-import { Kegiatan } from "./kegiatan.service"
+import { useMemo, useState } from "react"
+import { Kegiatan, deleteKegiatan } from "./kegiatan.service"
 
 type Props = {
   kegiatan: Kegiatan[]
   onEdit: (item: Kegiatan) => void
+  onDelete: (id: number) => void
 }
 
-export default function KegiatanList({ kegiatan, onEdit }: Props) {
+type FilterStatus = "semua" | "published" | "draft"
+
+export default function KegiatanList({ kegiatan, onEdit, onDelete }: Props) {
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("semua")
+
+  const filteredKegiatan = useMemo(() => {
+    if (filterStatus === "published") {
+      return kegiatan.filter((item) => !item.is_draft)
+    }
+
+    if (filterStatus === "draft") {
+      return kegiatan.filter((item) => item.is_draft)
+    }
+
+    return kegiatan
+  }, [kegiatan, filterStatus])
+
+  const totalPublished = kegiatan.filter(
+    (item) => !item.is_draft
+  ).length
+
+  const totalDraft = kegiatan.filter(
+    (item) => item.is_draft
+  ).length
+
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold text-[#0F5139]">
-        Daftar Kegiatan
-      </h1>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-xl font-semibold text-[#0F5139]">
+          Daftar Kegiatan
+        </h1>
 
-      {kegiatan.length === 0 ? (
-        <p className="text-gray-500">Belum ada kegiatan.</p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterStatus("semua")}
+            className={`rounded-full border px-4 py-2 text-sm transition ${
+              filterStatus === "semua"
+                ? "border-[#0F5139] bg-[#0F5139] text-white"
+                : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+            }`}
+          >
+            Semua ({kegiatan.length})
+          </button>
+
+          <button
+            onClick={() => setFilterStatus("published")}
+            className={`rounded-full border px-4 py-2 text-sm transition ${
+              filterStatus === "published"
+                ? "border-[#0F5139] bg-[#0F5139] text-white"
+                : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+            }`}
+          >
+            Published ({totalPublished})
+          </button>
+
+          <button
+            onClick={() => setFilterStatus("draft")}
+            className={`rounded-full border px-4 py-2 text-sm transition ${
+              filterStatus === "draft"
+                ? "border-[#0F5139] bg-[#0F5139] text-white"
+                : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+            }`}
+          >
+            Draft ({totalDraft})
+          </button>
+        </div>
+      </div>
+
+      {filteredKegiatan.length === 0 ? (
+        <p className="text-gray-500">
+          Belum ada kegiatan pada status ini.
+        </p>
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {kegiatan.map((item) => (
+          {filteredKegiatan.map((item) => (
             <div
               key={item.id}
               className="overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-md"
@@ -91,12 +156,19 @@ export default function KegiatanList({ kegiatan, onEdit }: Props) {
                   </p>
                 </div>
 
-                <div className="mt-5">
+                <div className="mt-5 flex gap-3">
                   <button
                     onClick={() => onEdit(item)}
                     className="rounded-lg bg-yellow-500 px-4 py-2 text-sm text-white transition hover:bg-yellow-600 active:scale-95"
                   >
                     Edit
+                  </button>
+
+                  <button
+                    onClick={() => onDelete(item.id)}
+                    className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white transition hover:bg-red-700 active:scale-95"
+                  >
+                    Hapus
                   </button>
                 </div>
               </div>

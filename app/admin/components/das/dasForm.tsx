@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect,useMemo } from "react"
+
 import {
   Das,
   DasInput,
@@ -37,7 +38,6 @@ export default function DasForm({ editingDas, onSuccess, onCancelEdit }: Props) 
   const [kemiringanMax, setKemiringanMax] = useState("")
   const [polygonPoints, setPolygonPoints] = useState<PolygonInputPoint[]>(emptyPoints)
 
-  // preview kalkulasi otomatis
   const tutupanPreview = hitungTutupan(Number(luasTutupanHa) || 0, Number(luasHa) || 0)
   const kondisiPreview =
     jenisTanah && kemiringanMax
@@ -92,7 +92,7 @@ export default function DasForm({ editingDas, onSuccess, onCancelEdit }: Props) 
     setPolygonPoints((prev) => prev.filter((_, i) => i !== index))
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (isDraft: boolean) => {
     if (!namaDas || !luasHa || !luasTutupanHa || !jenisTanah || !kemiringanMin || !kemiringanMax) {
       return alert("Semua field wajib diisi")
     }
@@ -121,16 +121,58 @@ export default function DasForm({ editingDas, onSuccess, onCancelEdit }: Props) 
       kemiringan_min: Number(kemiringanMin),
       kemiringan_max: Number(kemiringanMax),
       polygon_coordinates: parsedPoints,
+      is_draft: isDraft,
     }
 
     try {
       if (editingDas) {
         await updateDas(editingDas.id, input)
         alert("DAS berhasil diperbarui")
+        onCancelEdit()
       } else {
         await createDas(input)
-        alert("DAS berhasil ditambahkan")
       }
+      alert(
+        isDraft
+          ? "Draft berhasil disimpan"
+          : "DAS berhasil dipublish"
+      )
+      resetForm()
+      onSuccess()
+    } catch (err: any) {
+      alert(err.message)
+    }
+  }
+
+  const handleSaveDraft = async () => {
+    if (!namaDas || !luasHa || !luasTutupanHa || !jenisTanah || !kemiringanMin || !kemiringanMax) {
+      return alert("Semua field wajib diisi (minimal untuk draft)")
+    }
+
+    if (polygonPoints.length < 3) return alert("Polygon minimal 3 titik")
+
+    const parsedPoints: PolygonCoordinate[] = polygonPoints.map((p) => ({
+      lat: Number(p.lat),
+      lng: Number(p.lng),
+    }))
+
+    const input: DasInput = {
+      nama_das: namaDas,
+      koordinat_hulu: koordinatHulu,
+      koordinat_muara: koordinatMuara,
+      luas_ha: Number(luasHa),
+      luas_tutupan_ha: Number(luasTutupanHa),
+      panjang_sungai_km: panjangSungaiKm,
+      jenis_tanah: jenisTanah,
+      kemiringan_min: Number(kemiringanMin),
+      kemiringan_max: Number(kemiringanMax),
+      polygon_coordinates: parsedPoints,
+      is_draft: true,
+    }
+
+    try {
+      await createDas(input)
+      alert("DAS disimpan sebagai draft")
       resetForm()
       onSuccess()
     } catch (err: any) {
@@ -144,226 +186,194 @@ export default function DasForm({ editingDas, onSuccess, onCancelEdit }: Props) 
   const labelClass = "mb-2 block text-sm font-medium text-[#0F5139]"
 
   return (
-    <div>
-      <h1 className="text-xl text-[#0F5139] font-semibold mb-6">
-        {editingDas ? "Edit DAS" : "Tambah DAS"}
-      </h1>
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-[#0F5139]">
+          Tambah/Edit DAS
+        </h1>
+      </div>
 
-      <div className="rounded-2xl border border-[#0F5139]/10 bg-white p-6 space-y-5">
-
-        {/* Nama DAS */}
-        <div>
-          <label className={labelClass}>Nama DAS</label>
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div className="md:col-span-2">
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Nama DAS
+          </label>
           <input
-            type="text"
-            placeholder="Contoh: DAS Cisadane"
             value={namaDas}
             onChange={(e) => setNamaDas(e.target.value)}
-            className={inputClass}
+            className="w-full rounded-xl border p-3"
+            placeholder="Contoh: DAS Cisadane"
           />
         </div>
 
-        {/* Koordinat */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Koordinat Hulu</label>
-            <input
-              type="text"
-              placeholder="Contoh: 6.7050°S, 106.7317°E"
-              value={koordinatHulu}
-              onChange={(e) => setKoordinatHulu(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Koordinat Muara</label>
-            <input
-              type="text"
-              placeholder="Contoh: 6.0052°S, 106.6304°E"
-              value={koordinatMuara}
-              onChange={(e) => setKoordinatMuara(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
-
-        {/* Luas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Luas DAS (ha)</label>
-            <input
-              type="number"
-              step="any"
-              placeholder="Contoh: 153208"
-              value={luasHa}
-              onChange={(e) => setLuasHa(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Luas Tutupan Hutan (ha)</label>
-            <input
-              type="number"
-              step="any"
-              placeholder="Contoh: 32173"
-              value={luasTutupanHa}
-              onChange={(e) => setLuasTutupanHa(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
-
-        {/* Preview kalkulasi */}
-        <div className="rounded-xl bg-[#F8FAF8] border border-[#0F5139]/10 p-4 grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-xs text-gray-500 mb-1">Tutupan Hutan (auto)</p>
-            <p className="text-2xl font-bold text-[#0F5139]">
-              {tutupanPreview > 0 ? `${tutupanPreview}%` : "—"}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-xs text-gray-500 mb-1">Kondisi DAS (auto)</p>
-            <p
-              className={`text-2xl font-bold capitalize ${
-                kondisiPreview === "baik" ? "text-emerald-600" : 
-                kondisiPreview === "kritis" ? "text-red-600" : "text-gray-400"
-              }`}
-            >
-              {kondisiPreview}
-            </p>
-          </div>
-        </div>
-
-        {/* Panjang Sungai */}
         <div>
-          <label className={labelClass}>Panjang Sungai Utama (km)</label>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Koordinat Hulu
+            </label>
           <input
-            type="text"
-            placeholder="Contoh: 126 - 137,6"
-            value={panjangSungaiKm}
-            onChange={(e) => setPanjangSungaiKm(e.target.value)}
-            className={inputClass}
+            value={koordinatHulu}
+            onChange={(e) => setKoordinatHulu(e.target.value)}
+            className="w-full rounded-xl border p-3"
+            placeholder="Contoh: 6.7050°S"
           />
         </div>
 
-        {/* Jenis Tanah */}
         <div>
-          <label className={labelClass}>Jenis Tanah Dominan</label>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Koordinat Muara
+            </label>
           <input
-            type="text"
-            placeholder="Contoh: Latosol, andosol, regosol"
+            value={koordinatMuara}
+            onChange={(e) => setKoordinatMuara(e.target.value)}
+            className="w-full rounded-xl border p-3"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Luas DAS (ha)
+          </label>
+          <input
+            type="number"
+            value={luasHa}
+            onChange={(e) => setLuasHa(e.target.value)}
+            className="w-full rounded-xl border p-3"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Luas Tutupan (ha)
+          </label>
+          <input
+            type="number"
+            value={luasTutupanHa}
+            onChange={(e) => setLuasTutupanHa(e.target.value)}
+            className="w-full rounded-xl border p-3"
+          />
+        </div>
+
+        <div className="rounded-2xl border p-5">
+          <p className="text-sm text-gray-500">Tutupan Hutan</p>
+          <p className="text-2xl font-bold text-[#0F5139]">
+            {tutupanPreview ? `${tutupanPreview}%` : "—"}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border p-5">
+          <p className="text-sm text-gray-500">Kondisi DAS</p>
+          <p className="text-2xl font-bold text-[#0F5139] capitalize">
+            {kondisiPreview}
+          </p>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Jenis Tanah
+          </label>
+          <input
             value={jenisTanah}
             onChange={(e) => setJenisTanah(e.target.value)}
-            className={inputClass}
+            className="w-full rounded-xl border p-3"
           />
-          <p className="mt-1 text-xs text-gray-400">
-            Tanah tidak peka erosi: Latosol, Aluvial. Tanah peka: Regosol, Andosol, Grumosol, Litosol.
-          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2 mt-5">
+        <div>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Kemiringan Minimum (°)
+          </label>
+          <input
+            type="number"
+            value={kemiringanMin}
+            onChange={(e) => setKemiringanMin(e.target.value)}
+            className="w-full rounded-xl border p-3"
+          />
         </div>
 
-        {/* Kemiringan */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Kemiringan Minimum (°)</label>
-            <input
-              type="number"
-              step="any"
-              placeholder="Contoh: 0"
-              value={kemiringanMin}
-              onChange={(e) => setKemiringanMin(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Kemiringan Maksimum (°)</label>
-            <input
-              type="number"
-              step="any"
-              placeholder="Contoh: 1.7"
-              value={kemiringanMax}
-              onChange={(e) => setKemiringanMax(e.target.value)}
-              className={inputClass}
-            />
-            <p className="mt-1 text-xs text-gray-400">
-              Kondisi baik jika kemiringan max &lt; 14°
-            </p>
-          </div>
+        <div>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Kemiringan Maksimum (°)
+          </label>
+          <input
+            type="number"
+            value={kemiringanMax}
+            onChange={(e) => setKemiringanMax(e.target.value)}
+            className="w-full rounded-xl border p-3"
+          />
         </div>
+      </div>
 
-        {/* Polygon */}
-        <div className="rounded-xl border border-[#0F5139]/30 bg-white p-4">
-          <h2 className="mb-3 font-semibold text-[#0F5139]">Titik Polygon DAS</h2>
+      <div className="mt-10">
+        <h2 className="text-xl font-semibold text-[#0F5139]">
+          Titik Polygon DAS
+        </h2>
 
-          <div className="space-y-3">
-            {polygonPoints.map((point, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-1 gap-3 rounded-lg border border-gray-200 p-3 md:grid-cols-[1fr_1fr_auto]"
+        <div className="mt-4 space-y-4">
+          {polygonPoints.map((p, i) => (
+            <div key={i} className="grid grid-cols-3 gap-3">
+              <input
+                value={p.lat}
+                onChange={(e) => updatePoint(i, "lat", e.target.value)}
+                className="w-full rounded-xl border p-3"
+                placeholder="Latitude"
+              />
+              <input
+                value={p.lng}
+                onChange={(e) => updatePoint(i, "lng", e.target.value)}
+                className="w-full rounded-xl border p-3"
+                placeholder="Longitude"
+              />
+              <button
+                type="button"
+                onClick={() => removePoint(i)}
+                className="rounded-xl bg-red-600 text-white"
               >
-                <input
-                  type="number"
-                  step="any"
-                  placeholder={`Latitude titik ${index + 1}`}
-                  value={point.lat}
-                  onChange={(e) => updatePoint(index, "lat", e.target.value)}
-                  className="text-[#0F5139] block w-full rounded border border-[#0F5139] p-2"
-                />
+                Hapus
+              </button>
+            </div>
+          ))}
+        </div>
 
-                <input
-                  type="number"
-                  step="any"
-                  placeholder={`Longitude titik ${index + 1}`}
-                  value={point.lng}
-                  onChange={(e) => updatePoint(index, "lng", e.target.value)}
-                  className="text-[#0F5139] block w-full rounded border border-[#0F5139] p-2"
-                />
+        <button
+          type="button"
+          onClick={addPoint}
+          className="mt-4 rounded-xl bg-[#0F5139] px-5 py-3 text-white"
+        >
+          + Tambah Titik
+        </button>
+      </div>
 
-                <button
-                  type="button"
-                  onClick={() => removePoint(index)}
-                  className="rounded bg-red-600 px-3 py-2 text-sm text-white transition hover:bg-red-700 active:scale-95"
-                >
-                  Hapus
-                </button>
-              </div>
-            ))}
-          </div>
+      <div className="mt-10 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={handleSaveDraft}
+          className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
+        >
+          Simpan Draft
+        </button>
 
+        <button
+          type="button"
+          onClick={() => handleSubmit(false)}
+          className="rounded-xl bg-[#0F5139] px-6 py-3 text-white"
+        >
+          {editingDas ? "Publish Perubahan" : "Publish DAS"}
+        </button>
+
+        {editingDas && (
           <button
             type="button"
-            onClick={addPoint}
-            className="mt-3 rounded bg-[#0F5139] px-4 py-2 text-sm text-white transition hover:bg-[#0A3D2A] active:scale-95"
+            onClick={() => {
+              resetForm()
+              onCancelEdit()
+            }}
+            className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
           >
-            Tambah Titik
+            Batal
           </button>
-
-          <p className="mt-2 text-xs text-gray-500">
-            Minimal 3 titik. Urutan titik menentukan bentuk polygon.
-          </p>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3 pt-2">
-          <button
-            onClick={handleSubmit}
-            className="bg-emerald-900 hover:bg-emerald-950 active:bg-black active:scale-95 transition-all duration-150 text-white px-6 py-2 rounded-xl cursor-pointer"
-          >
-            {editingDas ? "Simpan Perubahan" : "Simpan DAS"}
-          </button>
-
-          {editingDas && (
-            <button
-              onClick={() => { resetForm(); onCancelEdit() }}
-              className="bg-gray-400 hover:bg-gray-500 active:scale-95 transition-all duration-150 text-white px-6 py-2 rounded-xl cursor-pointer"
-            >
-              Batal
-            </button>
-          )}
-        </div>
+        )}
       </div>
     </div>
   )

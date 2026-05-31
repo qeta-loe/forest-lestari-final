@@ -7,6 +7,7 @@ export type Pohon = {
   jumlah: number
   lokasi_penanaman_id: number | null
   das_id: number | null
+  is_draft: boolean
   created_at?: string
   updated_at?: string
 }
@@ -26,6 +27,7 @@ export type PohonInput = {
   jumlah: number
   lokasi_penanaman_id: number | null
   das_id: number | null
+  is_draft: boolean
 }
 
 type LokasiOption = {
@@ -42,7 +44,7 @@ export const fetchPohon = async (): Promise<PohonWithRelasi[]> => {
   const { data: pohonData, error: pohonError } = await supabase
     .from("pohon")
     .select(
-      "id, nama_umum, nama_ilmiah, jumlah, lokasi_penanaman_id, das_id, created_at, updated_at"
+      "id, nama_umum, nama_ilmiah, jumlah, lokasi_penanaman_id, das_id, is_draft, created_at, updated_at"
     )
     .order("id", { ascending: false })
 
@@ -99,11 +101,10 @@ export const fetchPohon = async (): Promise<PohonWithRelasi[]> => {
         : null,
     }
   })
-
   return result
 }
 
-export const createPohon = async (input: PohonInput): Promise<void> => {
+export const createPohon = async (input: PohonInput & { is_draft: boolean }): Promise<void> => {
   const { error } = await supabase.from("pohon").insert([
     {
       nama_umum: input.nama_umum,
@@ -111,6 +112,7 @@ export const createPohon = async (input: PohonInput): Promise<void> => {
       jumlah: input.jumlah,
       lokasi_penanaman_id: input.lokasi_penanaman_id,
       das_id: input.das_id,
+      is_draft: input.is_draft || false,
       updated_at: new Date().toISOString(),
     },
   ])
@@ -122,7 +124,7 @@ export const createPohon = async (input: PohonInput): Promise<void> => {
 
 export const updatePohon = async (
   id: number,
-  input: PohonInput
+  input: PohonInput & { is_draft: boolean }
 ): Promise<void> => {
   const { error } = await supabase
     .from("pohon")
@@ -132,6 +134,7 @@ export const updatePohon = async (
       jumlah: input.jumlah,
       lokasi_penanaman_id: input.lokasi_penanaman_id,
       das_id: input.das_id,
+      is_draft: input.is_draft || false,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)

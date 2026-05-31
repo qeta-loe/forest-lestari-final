@@ -1,4 +1,5 @@
 "use client"
+import { useMemo, useState } from "react"
 import { TonggakPencapaian, deleteTonggak } from "./tonggak.service"
 
 const KATEGORI_COLOR: Record<string, string> = {
@@ -13,7 +14,11 @@ type Props = {
   onEdit: (t: TonggakPencapaian) => void
 }
 
+type FilterStatus = "semua" | "published" | "draft"
+
 export default function TonggakList({ tonggakList, onRefresh, onEdit }: Props) {
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("semua")
+
   const handleDelete = async (t: TonggakPencapaian) => {
     if (!confirm(`Hapus "${t.judul}"?`)) return
     try {
@@ -22,15 +27,60 @@ export default function TonggakList({ tonggakList, onRefresh, onEdit }: Props) {
     } catch (err: any) { alert(err.message) }
   }
 
+  const filteredTonggak = useMemo(() => {
+    if (filterStatus === "published") return tonggakList.filter(t => !t.is_draft)
+    if (filterStatus === "draft") return tonggakList.filter(t => t.is_draft)
+    return tonggakList
+  }, [tonggakList, filterStatus])
+
   return (
     <div>
-      <h1 className="text-xl font-semibold text-[#0F5139] mb-6">Daftar Tonggak Pencapaian</h1>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <h1 className="text-xl font-semibold text-[#0F5139]">
+            Daftar Tonggak Pencapaian
+          </h1>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilterStatus("semua")}
+              className={`rounded-full border px-4 py-2 text-sm ${
+                filterStatus === "semua"
+                  ? "bg-[#0F5139] text-white"
+                  : "text-[#0F5139] border-[#0F5139]"
+              }`}
+            >
+              Semua ({tonggakList.length})
+            </button>
+
+            <button
+              onClick={() => setFilterStatus("published")}
+              className={`rounded-full border px-4 py-2 text-sm ${
+                filterStatus === "published"
+                  ? "bg-[#0F5139] text-white"
+                  : "text-[#0F5139] border-[#0F5139]"
+              }`}
+            >
+              Published ({tonggakList.filter(t => !t.is_draft).length})
+            </button>
+
+            <button
+              onClick={() => setFilterStatus("draft")}
+              className={`rounded-full border px-4 py-2 text-sm ${
+                filterStatus === "draft"
+                  ? "bg-[#0F5139] text-white"
+                  : "text-[#0F5139] border-[#0F5139]"
+              }`}
+            >
+              Draft ({tonggakList.filter(t => t.is_draft).length})
+            </button>
+          </div>
+        </div>
 
       {tonggakList.length === 0 ? (
         <p className="text-gray-500">Belum ada tonggak pencapaian.</p>
       ) : (
         <div className="space-y-3">
-          {tonggakList.map((item) => (
+          {filteredTonggak.map((item) => (
             <div key={item.id} className="rounded-xl border bg-white p-4 shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
@@ -38,6 +88,15 @@ export default function TonggakList({ tonggakList, onRefresh, onEdit }: Props) {
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${KATEGORI_COLOR[item.kategori] || "bg-gray-200 text-gray-700"}`}>
                       {item.kategori}
                     </span>
+
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      item.is_draft
+                        ? "bg-gray-200 text-gray-700"
+                        : "bg-green-100 text-green-700"
+                    }`}>
+                      {item.is_draft ? "Draft" : "Published"}
+                    </span>
+
                     <span className="text-xs text-gray-400">
                       {new Date(item.tanggal).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
                     </span>

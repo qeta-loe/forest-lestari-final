@@ -22,8 +22,6 @@ export type SectionWithAnggota = OrganisasiSection & {
   anggota: AnggotaOrganisasi[]
 }
 
-// ─── Section ────────────────────────────────────────────────
-
 export const fetchOrganisasi = async (): Promise<SectionWithAnggota[]> => {
   const { data: sections, error: sErr } = await supabase
     .from("organisasi_section")
@@ -95,7 +93,7 @@ export const deleteSection = async (id: number): Promise<void> => {
     .filter(Boolean) as string[]
 
   if (fotoPaths.length > 0) {
-    await supabase.storage.from("anggota").remove(fotoPaths)
+    await supabase.storage.from("anggota_organisasi").remove(fotoPaths)
   }
 
   await supabase.from("anggota_organisasi").delete().eq("section_id", id)
@@ -131,7 +129,7 @@ export const createAnggota = async (
 ): Promise<void> => {
   const fileName = `${Date.now()}-${foto.name.replaceAll(" ", "-")}`
   const { error: uploadError } = await supabase.storage
-    .from("anggota")
+    .from("anggota_organisasi")
     .upload(fileName, foto)
 
   if (uploadError) throw new Error(uploadError.message)
@@ -161,7 +159,7 @@ export const updateAnggota = async (
   if (foto) {
     const fileName = `${Date.now()}-${foto.name.replaceAll(" ", "-")}`
     const { error: uploadError } = await supabase.storage
-      .from("anggota")
+      .from("anggota_organisasi")
       .upload(fileName, foto)
 
     if (uploadError) throw new Error(uploadError.message)
@@ -182,7 +180,7 @@ export const deleteAnggota = async (
 ): Promise<void> => {
   if (foto_url) {
     const path = foto_url.split("/anggota/")[1]
-    if (path) await supabase.storage.from("anggota").remove([path])
+    if (path) await supabase.storage.from("anggota_organisasi").remove([path])
   }
 
   const { error } = await supabase

@@ -7,6 +7,7 @@ export type LaporanTahunan = {
   deskripsi: string | null
   tanggal_publikasi: string
   file_url: string
+  is_draft: boolean
   created_at?: string
 }
 
@@ -14,6 +15,13 @@ export type LaporanStats = {
   pohon_ditanam: number
   relawan_aktif: number
   program_berjalan: number
+}
+
+export type LaporanInput = {
+  tahun: number
+  judul: string
+  deskripsi: string | null
+  tanggal_publikasi: string
 }
 
 export const fetchLaporan = async (): Promise<LaporanTahunan[]> => {
@@ -27,7 +35,6 @@ export const fetchLaporan = async (): Promise<LaporanTahunan[]> => {
 }
 
 export const fetchStatsByTahun = async (tahun: number): Promise<LaporanStats> => {
-  // pohon ditanam: SUM jumlah pohon yang created_at di tahun tersebut
   const { data: pohonData } = await supabase
     .from("pohon")
     .select("jumlah, created_at")
@@ -36,14 +43,12 @@ export const fetchStatsByTahun = async (tahun: number): Promise<LaporanStats> =>
     .filter((p) => new Date(p.created_at).getFullYear() === tahun)
     .reduce((sum, p) => sum + (p.jumlah || 0), 0)
 
-  // relawan aktif: tahun_bergabung <= tahun AND status = aktif
   const { count: relawan_aktif } = await supabase
     .from("relawan")
     .select("*", { count: "exact", head: true })
     .lte("tahun_bergabung", tahun)
     .eq("status", "aktif")
 
-  // program berjalan di tahun tersebut
   const { count: program_berjalan } = await supabase
     .from("program")
     .select("*", { count: "exact", head: true })
@@ -58,8 +63,9 @@ export const fetchStatsByTahun = async (tahun: number): Promise<LaporanStats> =>
 }
 
 export const createLaporan = async (
-  input: Omit<LaporanTahunan, "id" | "file_url" | "created_at">,
-  file: File
+  input: LaporanInput,
+  file: File,
+  isDraft: boolean
 ): Promise<void> => {
   const fileName = `${Date.now()}-${file.name.replaceAll(" ", "-")}`
 
@@ -73,16 +79,17 @@ export const createLaporan = async (
 
   const { error } = await supabase
     .from("laporan_tahunan")
-    .insert([{ ...input, file_url }])
+    .insert([{ ...input, file_url, is_draft: isDraft, }])
 
   if (error) throw new Error(error.message)
 }
 
 export const updateLaporan = async (
   id: number,
-  input: Omit<LaporanTahunan, "id" | "file_url" | "created_at">,
+  input: LaporanInput,
   file: File | null,
-  currentFileUrl: string
+  currentFileUrl: string,
+  isDraft: boolean
 ): Promise<void> => {
   let file_url = currentFileUrl
 
@@ -98,7 +105,7 @@ export const updateLaporan = async (
 
   const { error } = await supabase
     .from("laporan_tahunan")
-    .update({ ...input, file_url })
+    .update({ ...input, file_url,is_draft: isDraft, })
     .eq("id", id)
 
   if (error) throw new Error(error.message)

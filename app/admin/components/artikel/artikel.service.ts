@@ -74,3 +74,12 @@ export const updateArtikel = async (
 
   if (error) throw new Error(error.message)
 }
+
+export const deleteArtikel = async (id: number): Promise<void> => {
+  const { error } = await supabase
+    .from("artikel")
+    .delete()
+    .eq("id", id)
+
+  if (error) throw new Error(error.message)
+}

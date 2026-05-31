@@ -1,16 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import {
-  createKegiatan,
-  Kegiatan,
-  updateKegiatan,
-  TargetKegiatan,
-} from "./kegiatan.service"
+import { createKegiatan, Kegiatan, updateKegiatan, TargetKegiatan } from "./kegiatan.service"
 
 type Props = {
   editingKegiatan: Kegiatan | null
   onSuccess: () => void
+  onCancel: () => void
 }
 
 const defaultTarget: TargetKegiatan = {
@@ -21,6 +17,7 @@ const defaultTarget: TargetKegiatan = {
 export default function KegiatanForm({
   editingKegiatan,
   onSuccess,
+  onCancel,
 }: Props) {
   const [namaKegiatan, setNamaKegiatan] = useState("")
   const [alamat, setAlamat] = useState("")
@@ -205,15 +202,10 @@ export default function KegiatanForm({
     <div className="mx-auto max-w-6xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#0F5139]">
-          Kelola Kegiatan
+          Tambah/Edit Kegiatan
         </h1>
-
-        <p className="mt-2 text-sm text-gray-500">
-          Upload kegiatan komunitas Forest Lestari.
-        </p>
       </div>
 
-      <div className="rounded-3xl border bg-white p-8 shadow-sm">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
             <label className="mb-2 block font-medium text-[#0F5139]">
@@ -224,7 +216,7 @@ export default function KegiatanForm({
               placeholder="Nama kegiatan"
               value={namaKegiatan}
               onChange={(e) => setNamaKegiatan(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
 
@@ -237,7 +229,7 @@ export default function KegiatanForm({
               onChange={(e) =>
                 setKategori(e.target.value as Kegiatan["kategori"])
               }
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             >
               <option value="">Pilih kategori</option>
               <option value="Penanaman">Penanaman</option>
@@ -256,7 +248,7 @@ export default function KegiatanForm({
               placeholder="Alamat"
               value={alamat}
               onChange={(e) => setAlamat(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
 
@@ -269,7 +261,7 @@ export default function KegiatanForm({
               placeholder="Kabupaten/Kota"
               value={kabupatenKota}
               onChange={(e) => setKabupatenKota(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
 
@@ -282,7 +274,7 @@ export default function KegiatanForm({
               placeholder="Provinsi"
               value={provinsi}
               onChange={(e) => setProvinsi(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
 
@@ -294,7 +286,7 @@ export default function KegiatanForm({
               type="date"
               value={tanggalMulai}
               onChange={(e) => setTanggalMulai(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
 
@@ -307,7 +299,7 @@ export default function KegiatanForm({
               placeholder="Jam mulai"
               value={jamMulai}
               onChange={(e) => setJamMulai(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
 
@@ -320,12 +312,11 @@ export default function KegiatanForm({
               placeholder="Jam selesai"
               value={jamSelesai}
               onChange={(e) => setJamSelesai(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
         </div>
 
-        {/* UPCOMING */}
         {statusKegiatan === "upcoming" && (
           <div className="mt-10 space-y-5">
             <label className="mb-2 block font-medium text-[#0F5139]">
@@ -335,7 +326,7 @@ export default function KegiatanForm({
               placeholder="Deskripsi kegiatan"
               value={deskripsiKegiatan}
               onChange={(e) => setDeskripsiKegiatan(e.target.value)}
-              className="min-h-32 w-full rounded-xl border p-4"
+              className="min-h-32 w-full rounded-xl border p-4 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
 
             <label className="mb-2 block font-medium text-[#0F5139]">
@@ -345,7 +336,7 @@ export default function KegiatanForm({
               placeholder="Tujuan kegiatan"
               value={tujuanKegiatan}
               onChange={(e) => setTujuanKegiatan(e.target.value)}
-              className="min-h-32 w-full rounded-xl border p-4"
+              className="min-h-32 w-full rounded-xl border p-4 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
 
             <label className="mb-2 block font-medium text-[#0F5139]">
@@ -356,7 +347,7 @@ export default function KegiatanForm({
               placeholder="Link pendaftaran"
               value={linkPendaftaran}
               onChange={(e) => setLinkPendaftaran(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
 
             <div>
@@ -366,7 +357,7 @@ export default function KegiatanForm({
                 <button
                   type="button"
                   onClick={addTarget}
-                  className="rounded-xl bg-[#0F5139] px-4 py-2 text-white"
+                  className="rounded-xl bg-[#0F5139] px-4 py-2 text-white transition-all duration-200 hover:bg-[#0A3D2A] active:scale-95"
                 >
                   + Tambah Target
                 </button>
@@ -374,7 +365,7 @@ export default function KegiatanForm({
 
               <div className="space-y-4">
                 {targets.map((target, index) => (
-                  <div key={index} className="rounded-2xl border p-5">
+                  <div key={index} className="rounded-2xl border p-5 transition duration-200 hover:shadow-sm">
                     <label className="mb-2 block font-medium text-[#0F5139]">
                       Nama Target
                     </label>
@@ -385,7 +376,7 @@ export default function KegiatanForm({
                       onChange={(e) =>
                         updateTarget(index, "nama_target", e.target.value)
                       }
-                      className="mb-3 w-full rounded-xl border p-3"
+                      className="mb-3 w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
                     />
 
                     <label className="mb-2 block font-medium text-[#0F5139]">
@@ -397,14 +388,14 @@ export default function KegiatanForm({
                       onChange={(e) =>
                         updateTarget(index, "isi_target", e.target.value)
                       }
-                      className="min-h-28 w-full rounded-xl border p-3"
+                      className="min-h-28 w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
                     />
 
                     {targets.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeTarget(index)}
-                        className="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm text-white"
+                        className="mt-3 rounded-lg bg-red-600 px-4 py-2 text-sm text-white transition-all duration-200 hover:bg-red-700 active:scale-95"
                       >
                         Hapus
                       </button>
@@ -416,7 +407,6 @@ export default function KegiatanForm({
           </div>
         )}
 
-        {/* COMPLETED */}
         {statusKegiatan === "completed" && (
           <div className="mt-10 space-y-5">
             <label className="mb-2 block font-medium text-[#0F5139]">
@@ -426,7 +416,7 @@ export default function KegiatanForm({
               placeholder="Hasil kegiatan"
               value={hasilKegiatan}
               onChange={(e) => setHasilKegiatan(e.target.value)}
-              className="min-h-32 w-full rounded-xl border p-4"
+              className="min-h-32 w-full rounded-xl border p-4 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
 
             <label className="mb-2 block font-medium text-[#0F5139]">
@@ -436,17 +426,16 @@ export default function KegiatanForm({
               placeholder="Press release"
               value={pressRelease}
               onChange={(e) => setPressRelease(e.target.value)}
-              className="min-h-64 w-full rounded-xl border p-4"
+              className="min-h-64 w-full rounded-xl border p-4 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
         )}
 
-        {/* THUMBNAIL */}
         <div className="mt-10">
           <label className="mb-2 block font-medium text-[#0F5139]">
             Thumbnail
           </label>
-          <label className="flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed">
+          <label className="flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all duration-200 hover:bg-[#F5F5F5]">
             <p className="font-semibold">Upload Thumbnail</p>
 
             <p className="mt-3 text-sm">
@@ -466,22 +455,36 @@ export default function KegiatanForm({
           </label>
         </div>
 
-        <div className="mt-10 flex gap-4">
+        <div className="mt-10 flex justify-end gap-4">
           <button
+            type="button"
             onClick={() => handleSubmit(true)}
-            className="rounded-xl bg-gray-200 px-6 py-3"
+            className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
           >
-            Simpan Draft
+            {editingKegiatan ? "Update Draft" : "Simpan Draft"}
           </button>
 
           <button
+            type="button"
             onClick={() => handleSubmit(false)}
-            className="rounded-xl bg-[#0F5139] px-6 py-3 text-white"
+            className="rounded-xl bg-[#0F5139] px-6 py-3 text-white transition hover:bg-[#0A3D2A] active:scale-95"
           >
-            {editingKegiatan ? "Update Kegiatan" : "Publish Kegiatan"}
+            {editingKegiatan ? "Update & Publish" : "Publish Kegiatan"}
           </button>
+
+          {editingKegiatan && (
+            <button
+              type="button"
+              onClick={() => {
+                resetForm()
+                onCancel()
+              }}
+              className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
+            >
+              Batal
+            </button>
+          )}
         </div>
-      </div>
     </div>
   )
 }

@@ -9,9 +9,26 @@ type Props = {
   onEdit: (p: Program) => void
 }
 
+type FilterStatus = "semua" | "published" | "draft"
+
 export default function ProgramList({ programList, onRefresh, onEdit }: Props) {
   const [filterTahun, setFilterTahun] = useState("")
-  const [filterStatus, setFilterStatus] = useState<"semua" | "berjalan" | "selesai">("semua")
+  const [showTahun, setShowTahun] = useState(false)
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("semua")
+
+  const filteredProgram = programList.filter((item) => {
+    const tahunOk =
+      !filterTahun || item.tahun === Number(filterTahun)
+
+    const draftOk =
+      filterStatus === "semua"
+        ? true
+        : filterStatus === "draft"
+        ? item.is_draft
+        : !item.is_draft
+
+    return tahunOk && draftOk
+  })
 
   const handleDelete = async (p: Program) => {
     if (!confirm(`Hapus program "${p.nama_program}"?`)) return
@@ -23,49 +40,107 @@ export default function ProgramList({ programList, onRefresh, onEdit }: Props) {
     }
   }
 
-  const filtered = programList.filter((p) => {
-    const tahunOk = !filterTahun || p.tahun === Number(filterTahun)
-    const statusOk = filterStatus === "semua" || p.status === filterStatus
-    return tahunOk && statusOk
-  })
-
   const tahunList = [...new Set(programList.map((p) => p.tahun))].sort(
     (a, b) => b - a
   )
 
   return (
-    <div>
-      <h1 className="text-xl font-semibold text-[#0F5139] mb-6">Daftar Program</h1>
+  <div>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-xl font-semibold text-[#0F5139]">
+          Daftar Program
+        </h1>
 
-      {/* Filter */}
-      <div className="flex gap-3 mb-4 flex-wrap items-center">
-        <select
-          value={filterTahun}
-          onChange={(e) => setFilterTahun(e.target.value)}
-          className="rounded-full border border-[#0F5139]/20 px-4 py-1.5 text-sm text-[#0F5139] outline-none"
-        >
-          <option value="">Semua tahun</option>
-          {tahunList.map((t) => (
-            <option key={t} value={t}>{t}</option>
-          ))}
-        </select>
+        <div className="flex flex-wrap gap-2">
 
-        {(["semua", "berjalan", "selesai"] as const).map((s) => (
+          <div className="relative">
+            <button
+              onClick={() => setShowTahun(!showTahun)}
+              className="rounded-full border border-[#0F5139] px-4 py-2 text-sm text-[#0F5139] bg-white flex items-center gap-2"
+            >
+              {filterTahun ? filterTahun : "Semua Tahun"}
+
+              <svg
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  showTahun ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {showTahun && (
+              <div className="absolute right-0 mt-2 w-40 rounded-xl border bg-white shadow-lg z-50 overflow-hidden">
+                <button
+                  onClick={() => {
+                    setFilterTahun("")
+                    setShowTahun(false)
+                  }}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                >
+                  Semua Tahun
+                </button>
+
+                {tahunList.map((tahun) => (
+                  <button
+                    key={tahun}
+                    onClick={() => {
+                      setFilterTahun(String(tahun))
+                      setShowTahun(false)
+                    }}
+                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                  >
+                    {tahun}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button
-            key={s}
-            onClick={() => setFilterStatus(s)}
-            className={`px-4 py-1.5 rounded-full text-sm capitalize transition ${
-              filterStatus === s
+            onClick={() => setFilterStatus("semua")}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              filterStatus === "semua"
                 ? "bg-[#0F5139] text-white"
-                : "bg-white border text-[#0F5139] hover:bg-gray-50"
+                : "text-[#0F5139] border-[#0F5139]"
             }`}
           >
-            {s}
+            Semua ({programList.length})
           </button>
-        ))}
+
+          <button
+            onClick={() => setFilterStatus("published")}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              filterStatus === "published"
+                ? "bg-[#0F5139] text-white"
+                : "text-[#0F5139] border-[#0F5139]"
+            }`}
+          >
+            Published ({programList.filter((p) => !p.is_draft).length})
+          </button>
+
+          <button
+            onClick={() => setFilterStatus("draft")}
+            className={`rounded-full border px-4 py-2 text-sm ${
+              filterStatus === "draft"
+                ? "bg-[#0F5139] text-white"
+                : "text-[#0F5139] border-[#0F5139]"
+            }`}
+          >
+            Draft ({programList.filter((p) => p.is_draft).length})
+          </button>
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {filteredProgram.length === 0 ? (
         <p className="text-gray-500">Tidak ada program ditemukan.</p>
       ) : (
         <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
@@ -82,7 +157,7 @@ export default function ProgramList({ programList, onRefresh, onEdit }: Props) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filtered.map((item) => (
+              {filteredProgram.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50 transition">
                   <td className="px-4 py-3 font-medium text-[#0F5139]">
                     {item.nama_program}
@@ -98,12 +173,14 @@ export default function ProgramList({ programList, onRefresh, onEdit }: Props) {
                   </td>
                   <td className="px-4 py-3 text-gray-500">{item.realisasi || "—"}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      item.status === "berjalan"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}>
-                      {item.status}
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full font-medium ${
+                        item.is_draft
+                          ? "bg-gray-200 text-gray-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
+                    >
+                      {item.is_draft ? "Draft" : "Published"}
                     </span>
                   </td>
                   <td className="px-4 py-3">

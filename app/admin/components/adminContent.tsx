@@ -18,7 +18,6 @@ import ArtikelForm from "./artikel/artikelForm"
 import ArtikelList from "./artikel/artikelList"
 import LokasiForm from "./lokasi/lokasiForm"
 import LokasiList from "./lokasi/lokasiList"
-import ProfilForm from "./profil/profilForm"
 import DasForm from "./das/dasForm"
 import DasList from "./das/dasList"
 import PohonForm from "./pohon/pohonForm"
@@ -51,6 +50,7 @@ type MenuKey =
   | "program" | "programList"
 
 type Props = {
+  adminEmail: string
   menu: MenuKey
   setMenu: (menu: MenuKey) => void
 
@@ -58,10 +58,17 @@ type Props = {
   editingKegiatan: Kegiatan | null
   onEditKegiatan: (k: Kegiatan | null) => void
   onRefreshKegiatan: () => void | Promise<void>
+  onDeleteKegiatan: (id: number) => void | Promise<void>
+  onCancelEditKegiatan: () => void
 
   artikel: Artikel[]
   lokasiPenanaman: LokasiPenanaman[]
   editingArtikel: Artikel | null
+  onCancelEditArtikel: () => void
+  editingLokasi: LokasiPenanaman | null 
+  onEditLokasi: (lokasi: LokasiPenanaman) => void 
+  onCancelEditLokasi: () => void
+  onDeleteLokasi: (id: number) => void
 
   onRefreshArtikel: () => void | Promise<void>
   onRefreshLokasi: () => void | Promise<void>
@@ -108,13 +115,21 @@ type Props = {
 }
 
 export default function AdminContent({
+  adminEmail,
   menu,
   setMenu,
   kegiatan,
   editingKegiatan,
+  onCancelEditKegiatan,
   artikel,
   lokasiPenanaman,
+  editingLokasi, 
+  onEditLokasi, 
+  onCancelEditLokasi,
+  onDeleteLokasi,
   editingArtikel,
+  onCancelEditArtikel,
+  onDeleteKegiatan,
   onRefreshKegiatan,
   onRefreshArtikel,
   onRefreshLokasi,
@@ -158,7 +173,8 @@ export default function AdminContent({
   onCancelEditProgram,
 }: Props) {
   return (
-    <div className="flex-1 p-8">
+     <div className="flex-1">
+        <div className="p-8">
       {menu === "upload" && (
         <KegiatanUpload
           editingKegiatan={editingKegiatan}
@@ -167,6 +183,7 @@ export default function AdminContent({
             onEditKegiatan(null)
             setMenu("list")
           }}
+          onCancel={onCancelEditKegiatan}
         />
       )}
 
@@ -177,24 +194,23 @@ export default function AdminContent({
             onEditKegiatan(item)
             setMenu("upload")
           }}
+          onDelete={onDeleteKegiatan}
         />
       )}
 
       {menu === "artikel" && (
         <ArtikelForm
           editingArtikel={editingArtikel}
-          onSuccess={() => {
-            onArtikelFormSuccess()
-            setMenu("artikelList")
-          }}
+          onSuccess={() => { onArtikelFormSuccess(); setMenu("artikelList") }}
+          onCancel={() => { onCancelEditArtikel(); setMenu("artikelList") }}
         />
       )}
 
       {menu === "artikelList" && (
         <ArtikelList
           artikel={artikel}
-          onEdit={(a: Artikel) => {
-            onEditArtikel(a)
+          onEdit={(item) => {
+            onEditArtikel(item)
             setMenu("artikel")
           }}
         />
@@ -203,11 +219,26 @@ export default function AdminContent({
       {menu === "database" && <div />}
 
       {menu === "lokasiPenanaman" && (
-        <LokasiForm onSuccess={onRefreshLokasi} />
+        <LokasiForm 
+          editingLokasi={editingLokasi}
+          onSuccess={() => {
+            onRefreshLokasi()
+            onCancelEditLokasi()
+            setMenu("daftarLokasiPenanaman")
+          }}
+          onCancelEdit={() => { onCancelEditLokasi(); setMenu("daftarLokasiPenanaman") }}
+        />
       )}
 
       {menu === "daftarLokasiPenanaman" && (
-        <LokasiList lokasiPenanaman={lokasiPenanaman} />
+        <LokasiList
+          lokasiPenanaman={lokasiPenanaman}
+          onEdit={(item) => { 
+            onEditLokasi(item)
+            setMenu("lokasiPenanaman")
+          }}
+          onDelete={onDeleteLokasi}
+        />
       )}
 
       {menu === "das" && (
@@ -217,7 +248,7 @@ export default function AdminContent({
             onRefreshDas()
             setMenu("daftarDas")
           }}
-          onCancelEdit={onCancelEditDas}
+          onCancelEdit={() => { onCancelEditDas(); setMenu("daftarDas") }}
         />
       )}
 
@@ -229,6 +260,7 @@ export default function AdminContent({
             onEditDas(das)
             setMenu("das")
           }}
+          setMenu={setMenu}
         />
       )}
 
@@ -239,7 +271,7 @@ export default function AdminContent({
             onRefreshPohon()
             setMenu("daftarPohon")
           }}
-          onCancelEdit={onCancelEditPohon}
+          onCancelEdit={() => { onCancelEditPohon(); setMenu("daftarPohon") }}
         />
       )}
 
@@ -251,16 +283,16 @@ export default function AdminContent({
             onEditPohon(pohon)
             setMenu("pohon")
           }}
+          setMenu={setMenu}
         />
       )}
 
-      {menu === "profil" && <ProfilForm />}
       {menu === "organisasi" && <OrganisasiManager />}
       {menu === "tonggak" && (
         <TonggakForm
           editingTonggak={editingTonggak}
           onSuccess={() => { onRefreshTonggak(); setMenu("tonggakList") }}
-          onCancel={() => { onCancelEditTonggak(); setMenu("tonggakList") }}
+          onCancelEdit={() => { onCancelEditTonggak(); setMenu("tonggakList") }}
         />
       )}
       {menu === "tonggakList" && (
@@ -274,7 +306,7 @@ export default function AdminContent({
         <MitraForm
           editingMitra={editingMitra}
           onSuccess={() => { onRefreshMitra(); setMenu("mitraList") }}
-          onCancel={() => { onCancelEditMitra(); setMenu("mitraList") }}
+          onCancelEdit={() => { onCancelEditMitra(); setMenu("mitraList") }}
         />
       )}
       {menu === "mitraList" && (
@@ -286,6 +318,7 @@ export default function AdminContent({
       )}
       {menu === "laporan" && (
         <LaporanForm
+          key={editingLaporan?.id ?? "new"}
           editingLaporan={editingLaporan}
           onSuccess={() => { onRefreshLaporan(); setMenu("laporanList") }}
           onCancel={() => { onCancelEditLaporan(); setMenu("laporanList") }}
@@ -326,6 +359,7 @@ export default function AdminContent({
           onEdit={(p) => { onEditProgram(p); setMenu("program") }}
         />
       )}
+    </div>
     </div>
   )
 }

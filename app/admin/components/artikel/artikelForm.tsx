@@ -6,11 +6,12 @@ import { Artikel, ArtikelSection, createArtikel, updateArtikel } from "./artikel
 type Props = {
   editingArtikel: Artikel | null
   onSuccess: () => void
+  onCancel: () => void
 }
 
 const defaultSection: ArtikelSection = { title: "", content: "", quote: "" }
 
-export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
+export default function ArtikelForm({ editingArtikel, onSuccess, onCancel }: Props) {
   const [judul, setJudul] = useState("")
   const [deskripsiSingkat, setDeskripsiSingkat] = useState("")
   const [kategori, setKategori] = useState("")
@@ -18,6 +19,15 @@ export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
   const [tanggalPublikasi, setTanggalPublikasi] = useState("")
   const [sections, setSections] = useState<ArtikelSection[]>([defaultSection])
   const [gambar, setGambar] = useState<File | null>(null)
+  const resetForm = () => {
+    setJudul("")
+    setDeskripsiSingkat("")
+    setKategori("")
+    setPenulis("")
+    setTanggalPublikasi("")
+    setSections([{ ...defaultSection }])
+    setGambar(null)
+  }
 
   useEffect(() => {
     if (editingArtikel) {
@@ -82,43 +92,45 @@ export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#0F5139]">Kelola Artikel</h1>
-        <p className="mt-2 text-sm text-gray-500">
-          Tambahkan artikel edukasi, berita komunitas, dan publikasi lingkungan.
-        </p>
+        <h1 className="text-3xl font-bold text-[#0F5139]">Tambah/Edit Artikel</h1>
       </div>
 
-      <div className="rounded-3xl border border-[#0F5139]/10 bg-white p-8 shadow-sm">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-[#0F5139]">Judul Artikel</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Judul Artikel
+            </label>
             <input
               type="text"
               placeholder="Masukkan judul artikel"
               value={judul}
               onChange={(e) => setJudul(e.target.value)}
-              className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+              className="w-full rounded-xl border p-3"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-[#0F5139]">Deskripsi Singkat</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Deskripsi Singkat
+            </label>
             <textarea
               placeholder="Tulis ringkasan artikel..."
               value={deskripsiSingkat}
               onChange={(e) => setDeskripsiSingkat(e.target.value)}
-              className="min-h-32 w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+              className="min-h-32 w-full rounded-xl border p-4"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#0F5139]">Kategori</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Kategori
+            </label>
             <select
               value={kategori}
               onChange={(e) => setKategori(e.target.value)}
-              className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+              className="w-full rounded-xl border p-3"
             >
               <option value="">Pilih kategori</option>
               <option value="Isu Lingkungan">Isu Lingkungan</option>
@@ -128,28 +140,31 @@ export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-[#0F5139]">Penulis</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Penulis
+            </label>
             <input
               type="text"
               placeholder="Nama penulis"
               value={penulis}
               onChange={(e) => setPenulis(e.target.value)}
-              className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+              className="w-full rounded-xl border p-3"
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-[#0F5139]">Tanggal Publikasi</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Tanggal Publikasi
+            </label>
             <input
               type="date"
               value={tanggalPublikasi}
               onChange={(e) => setTanggalPublikasi(e.target.value)}
-              className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+              className="w-full rounded-xl border p-3"
             />
           </div>
         </div>
 
-        {/* Sections */}
         <div className="mt-10">
           <div className="mb-4 flex items-center justify-between">
             <div>
@@ -160,7 +175,7 @@ export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
             <button
               type="button"
               onClick={addSection}
-              className="rounded-xl bg-[#0F5139] px-5 py-3 text-sm font-medium text-white transition hover:bg-[#0A3D2A] active:scale-95"
+              className="rounded-xl bg-[#0F5139] px-5 py-3 text-white transition hover:bg-[#0A3D2A] active:scale-95"
             >
               + Tambah Section
             </button>
@@ -168,7 +183,7 @@ export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
 
           <div className="space-y-5">
             {sections.map((section, index) => (
-              <div key={index} className="rounded-2xl border border-[#0F5139]/10 bg-[#F8FAF8] p-6">
+              <div key={index} className="rounded-2xl border p-5">
                 <div className="mb-5 flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-semibold text-[#0F5139]">Section {index + 1}</h3>
@@ -188,35 +203,39 @@ export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#0F5139]">Judul Section</label>
+                    <label className="mb-2 block font-medium text-[#0F5139]">
+                      Judul Section
+                    </label>
                     <input
                       type="text"
                       placeholder="Contoh: Dampak Perubahan Iklim"
                       value={section.title}
                       onChange={(e) => updateSection(index, "title", e.target.value)}
-                      className="w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                      className="w-full rounded-xl border p-3"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#0F5139]">Isi Section</label>
+                    <label className="mb-2 block font-medium text-[#0F5139]">
+                      Isi Section
+                    </label>
                     <textarea
                       placeholder="Tulis isi section artikel..."
                       value={section.content}
                       onChange={(e) => updateSection(index, "content", e.target.value)}
-                      className="min-h-40 w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                      className="min-h-40 w-full rounded-xl border p-3"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-[#0F5139]">
+                    <label className="mb-2 block font-medium text-[#0F5139]">
                       Kutipan Narasumber (Opsional)
                     </label>
                     <textarea
                       placeholder="Masukkan kutipan penting..."
                       value={section.quote}
                       onChange={(e) => updateSection(index, "quote", e.target.value)}
-                      className="min-h-24 w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+                      className="min-h-24 w-full rounded-xl border p-4"
                     />
                   </div>
                 </div>
@@ -225,10 +244,11 @@ export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
           </div>
         </div>
 
-        {/* Gambar */}
         <div className="mt-10">
-          <label className="mb-3 block text-sm font-medium text-[#0F5139]">Gambar Artikel</label>
-          <label className="flex h-56 w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#0F5139]/20 bg-[#F8FAF8] transition hover:bg-[#F1F5F2]">
+          <label className="mb-2 block font-medium text-[#0F5139]">
+              Gambar Cover Artikel
+            </label>
+          <label className="flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all duration-200 hover:bg-[#F5F5F5]">
             <div className="text-center">
               <p className="text-lg font-semibold text-[#0F5139]">Upload Cover Artikel</p>
               <p className="mt-1 text-sm text-gray-500">PNG, JPG, atau WEBP</p>
@@ -245,23 +265,36 @@ export default function ArtikelForm({ editingArtikel, onSuccess }: Props) {
           </label>
         </div>
 
-        {/* Buttons */}
-        <div className="mt-10 flex flex-wrap gap-4">
+        <div className="mt-10 flex justify-end gap-4">
           <button
+            type="button"
             onClick={() => handleSubmit(true)}
-            className="rounded-xl bg-gray-200 px-6 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-300 active:scale-95"
+            className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
           >
             {editingArtikel ? "Update Draft" : "Simpan Draft"}
           </button>
 
-          <button
+          <button 
+            type="button"
             onClick={() => handleSubmit(false)}
-            className="rounded-xl bg-[#0F5139] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#0A3D2A] active:scale-95"
+            className="rounded-xl bg-[#0F5139] px-6 py-3 text-white transition hover:bg-[#0A3D2A] active:scale-95"
           >
             {editingArtikel ? "Update & Publish" : "Publish Artikel"}
           </button>
+
+          {editingArtikel && (
+            <button
+              type="button"
+              onClick={() => {
+                resetForm()
+                onCancel()
+              }}
+              className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
+            >
+              Batal
+            </button>
+          )}
         </div>
-      </div>
     </div>
   )
 }

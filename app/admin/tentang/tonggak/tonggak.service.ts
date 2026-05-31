@@ -13,6 +13,7 @@ export type TonggakPencapaian = {
   kategori: string
   highlights: Highlight[]
   galeri_urls: string[]
+  is_draft: boolean
   created_at?: string
 }
 
@@ -32,6 +33,7 @@ export type TonggakInput = {
   tanggal: string
   kategori: string
   highlights: Highlight[]
+  is_draft: boolean
 }
 
 export const createTonggak = async (
@@ -54,7 +56,7 @@ export const createTonggak = async (
 
   const { error } = await supabase
     .from("tonggak_pencapaian")
-    .insert([{ ...input, galeri_urls }])
+    .insert([{ ...input, galeri_urls, is_draft: input.is_draft || false }])
 
   if (error) throw new Error(error.message)
 }
@@ -83,7 +85,7 @@ export const updateTonggak = async (
 
   const { error } = await supabase
     .from("tonggak_pencapaian")
-    .update({ ...input, galeri_urls })
+    .update({ ...input, galeri_urls, is_draft: input.is_draft || false })
     .eq("id", id)
 
   if (error) throw new Error(error.message)

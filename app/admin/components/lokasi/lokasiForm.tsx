@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { uploadLokasiPenanaman } from "./lokasi.service"
+import { useState, useEffect } from "react"
+import { LokasiPenanaman, uploadLokasiPenanaman, updateLokasiPenanaman } from "./lokasi.service"
 
 type PolygonInputPoint = { 
     lat: string; 
@@ -10,10 +10,14 @@ type PolygonInputPoint = {
 
 type Props = {
   onSuccess: () => void
+  editingLokasi: LokasiPenanaman | null
+  onCancelEdit: () => void
 }
 
 export default function LokasiForm({ 
-    onSuccess 
+    onSuccess ,
+    editingLokasi, 
+    onCancelEdit
 }: Props) {
   const [namaLokasi, setNamaLokasi] = useState("")
   const [statusLokasi, setStatusLokasi] =
@@ -34,6 +38,7 @@ export default function LokasiForm({
     { lat: "", lng: "" },
     { lat: "", lng: "" },
   ])
+  const [isDraft, setIsDraft] = useState(false)
 
   const updatePoint = (
     index: number, 
@@ -68,9 +73,45 @@ export default function LokasiForm({
       { lat: "", lng: "" },
       { lat: "", lng: "" },
     ])
+
+    setDeskripsi("")
+    setIsDraft(false)
   }
 
-  const handleSubmit = async () => {
+  useEffect(() => {
+    if (editingLokasi) {
+      setNamaLokasi(editingLokasi.nama_lokasi || "")
+      setStatusLokasi(
+        editingLokasi.status_lokasi as "aktif" | "tidak_aktif"
+      )
+
+      setProvinsi(editingLokasi.provinsi || "")
+      setKabupatenKota(editingLokasi.kabupaten_kota || "")
+      setAlamat(editingLokasi.alamat || "")
+      setLatitude(String(editingLokasi.latitude || ""))
+      setLongitude(String(editingLokasi.longitude || ""))
+      setLuasArea(String(editingLokasi.luas_area || ""))
+      setJumlahBibit(String(editingLokasi.jumlah_bibit || ""))
+      setTanggalTanam(editingLokasi.tanggal_tanam || "")
+      setIsDraft(editingLokasi.is_draft || false)
+
+      setPolygonPoints(
+        editingLokasi.polygon_coordinates?.map((point) => ({
+          lat: String(point.lat),
+          lng: String(point.lng),
+        })) || [
+          { lat: "", lng: "" },
+          { lat: "", lng: "" },
+          { lat: "", lng: "" },
+        ]
+      )
+    } else {
+      resetForm()
+    }
+  }, [editingLokasi])
+
+  const handleSubmit = async (draft: boolean) => {
+    setIsDraft(draft)
     if (
       !namaLokasi ||
       !provinsi ||
@@ -98,70 +139,62 @@ export default function LokasiForm({
     }
 
     try {
-      await uploadLokasiPenanaman({
+      const payload = {
         nama_lokasi: namaLokasi,
         status_lokasi: statusLokasi,
         provinsi,
-        kabupaten_kota:
-          kabupatenKota,
+        kabupaten_kota: kabupatenKota,
         alamat,
         latitude: Number(latitude),
         longitude: Number(longitude),
         luas_area: Number(luasArea),
-        jumlah_bibit:
-          Number(jumlahBibit),
-        tanggal_tanam:
-          tanggalTanam,
-        polygon_coordinates:
-          polygonPoints.map((point) => ({
-            lat: Number(point.lat),
-            lng: Number(point.lng),
-          })),
-      })
+        jumlah_bibit: Number(jumlahBibit),
+        tanggal_tanam: tanggalTanam,
+        is_draft: draft,
+        polygon_coordinates: polygonPoints.map((point) => ({
+          lat: Number(point.lat),
+          lng: Number(point.lng),
+        })),
+      }
 
-      alert(
-        "Lokasi penanaman berhasil ditambahkan"
-      )
+      if (editingLokasi) {
+        await updateLokasiPenanaman(editingLokasi.id, payload)
+        alert("Lokasi berhasil diupdate")
+        onCancelEdit()
+      } else {
+        await uploadLokasiPenanaman(payload)
+        alert("Lokasi penanaman berhasil ditambahkan")
+      }
 
-      resetForm()
-      onSuccess()
-    } catch (err: any) {
-      alert(err.message)
+        resetForm()
+        onSuccess()
+      } catch (err: any) {
+        alert(err.message)
+      }
     }
-  }
 
   return (
   <div className="mx-auto max-w-6xl">
-    {/* HEADER */}
     <div className="mb-8">
       <h1 className="text-3xl font-bold text-[#0F5139]">
-        Kelola Lokasi Penanaman
+        Tambah/Edit Lokasi Penanaman
       </h1>
-
-      <p className="mt-2 text-sm text-gray-500">
-        Tambahkan lokasi penanaman Forest Lestari.
-      </p>
     </div>
 
-    {/* FORM */}
-    <div className="rounded-3xl border bg-white p-8 shadow-sm">
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        {/* NAMA */}
         <div className="md:col-span-2">
           <label className="mb-2 block font-medium text-[#0F5139]">
             Nama Lokasi
           </label>
-
           <input
             type="text"
             placeholder="Nama lokasi penanaman"
             value={namaLokasi}
             onChange={(e) => setNamaLokasi(e.target.value)}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
 
-        {/* STATUS */}
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
             Status Lokasi
@@ -170,14 +203,13 @@ export default function LokasiForm({
           <select
             value={statusLokasi}
             onChange={(e) => setStatusLokasi(e.target.value as "aktif" | "tidak_aktif")}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           >
             <option value="aktif">Aktif</option>
             <option value="tidak_aktif">Tidak Aktif</option>
           </select>
         </div>
 
-        {/* TANGGAL */}
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
             Tanggal Tanam
@@ -187,11 +219,10 @@ export default function LokasiForm({
             type="date"
             value={tanggalTanam}
             onChange={(e) => setTanggalTanam(e.target.value)}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
 
-        {/* PROVINSI */}
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
             Provinsi
@@ -202,11 +233,10 @@ export default function LokasiForm({
             placeholder="Provinsi"
             value={provinsi}
             onChange={(e) => setProvinsi(e.target.value)}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
 
-        {/* KABUPATEN */}
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
             Kabupaten / Kota
@@ -217,11 +247,10 @@ export default function LokasiForm({
             placeholder="Kabupaten / Kota"
             value={kabupatenKota}
             onChange={(e) => setKabupatenKota(e.target.value)}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
 
-        {/* ALAMAT */}
         <div className="md:col-span-2">
           <label className="mb-2 block font-medium text-[#0F5139]">
             Alamat Lengkap
@@ -231,11 +260,10 @@ export default function LokasiForm({
             placeholder="Alamat lengkap lokasi"
             value={alamat}
             onChange={(e) => setAlamat(e.target.value)}
-            className="min-h-28 w-full rounded-xl border p-4"
+            className="min-h-28 w-full rounded-xl border p-4 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
 
-        {/* LATITUDE */}
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
             Latitude
@@ -247,11 +275,10 @@ export default function LokasiForm({
             placeholder="-6.12345"
             value={latitude}
             onChange={(e) => setLatitude(e.target.value)}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
 
-        {/* LONGITUDE */}
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
             Longitude
@@ -263,11 +290,10 @@ export default function LokasiForm({
             placeholder="106.12345"
             value={longitude}
             onChange={(e) => setLongitude(e.target.value)}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
 
-        {/* LUAS AREA */}
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
             Luas Area (ha)
@@ -279,11 +305,10 @@ export default function LokasiForm({
             placeholder="7.4"
             value={luasArea}
             onChange={(e) => setLuasArea(e.target.value)}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
 
-        {/* JUMLAH BIBIT */}
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
             Jumlah Bibit
@@ -294,12 +319,11 @@ export default function LokasiForm({
             placeholder="140"
             value={jumlahBibit}
             onChange={(e) => setJumlahBibit(e.target.value)}
-            className="w-full rounded-xl border p-3"
+            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
           />
         </div>
       </div>
 
-      {/* DESKRIPSI */}
       <div className="mt-10">
         <label className="mb-2 block font-medium text-[#0F5139]">
           Deskripsi Lokasi
@@ -309,11 +333,10 @@ export default function LokasiForm({
           placeholder="Deskripsi lokasi penanaman"
           value={deskripsi}
           onChange={(e) => setDeskripsi(e.target.value)}
-          className="min-h-40 w-full rounded-xl border p-4"
+          className="min-h-40 w-full rounded-xl border p-4 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
         />
       </div>
 
-      {/* POLYGON */}
       <div className="mt-10">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-[#0F5139]">
@@ -323,7 +346,7 @@ export default function LokasiForm({
           <button
             type="button"
             onClick={addPoint}
-            className="rounded-xl bg-[#0F5139] px-4 py-2 text-white"
+            className="rounded-xl bg-[#0F5139] px-4 py-2 text-white transition-all duration-200 hover:bg-[#0A3D2A] active:scale-95"
           >
             + Tambah Titik
           </button>
@@ -333,7 +356,7 @@ export default function LokasiForm({
           {polygonPoints.map((point, index) => (
             <div
               key={index}
-              className="rounded-2xl border p-5"
+              className="rounded-2xl border p-5 transition duration-200 hover:shadow-sm"
             >
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-semibold text-[#0F5139]">
@@ -344,7 +367,7 @@ export default function LokasiForm({
                   <button
                     type="button"
                     onClick={() => removePoint(index)}
-                    className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white"
+                    className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white transition-all duration-200 hover:bg-red-700 active:scale-95"
                   >
                     Hapus
                   </button>
@@ -365,7 +388,7 @@ export default function LokasiForm({
                     onChange={(e) =>
                       updatePoint(index, "lat", e.target.value)
                     }
-                    className="w-full rounded-xl border p-3"
+                    className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
                   />
                 </div>
 
@@ -382,7 +405,7 @@ export default function LokasiForm({
                     onChange={(e) =>
                       updatePoint(index, "lng", e.target.value)
                     }
-                    className="w-full rounded-xl border p-3"
+                    className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
                   />
                 </div>
               </div>
@@ -395,16 +418,36 @@ export default function LokasiForm({
         </p>
       </div>
 
-      {/* BUTTON */}
-      <div className="mt-10 flex gap-4">
-        <button
-          onClick={handleSubmit}
-          className="rounded-xl bg-[#0F5139] px-6 py-3 text-white"
-        >
-          Simpan Lokasi
-        </button>
-      </div>
+      <div className="mt-10 flex justify-end gap-4">
+          <button
+            type="button"
+            onClick={() => handleSubmit(true)}
+            className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
+          >
+            {editingLokasi ? "Update Draft" : "Simpan Draft"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSubmit(false)}
+            className="rounded-xl bg-[#0F5139] px-6 py-3 text-white transition hover:bg-[#0A3D2A] active:scale-95"
+          >
+            {editingLokasi ? "Update & Publish" : "Publish Lokasi"}
+          </button>
+
+          {editingLokasi && (
+          <button
+            type="button"
+            onClick={() => {
+              resetForm()
+              onCancelEdit()
+            }}
+            className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
+          >
+            Batal
+          </button>
+          )}
         </div>
-      </div>
+        </div>
     )
   }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Program, createProgram, updateProgram } from "./program.service"
+import { Program, ProgramInput, createProgram, updateProgram } from "./program.service"
 
 type Props = {
   editingProgram: Program | null
@@ -17,6 +17,17 @@ export default function ProgramForm({ editingProgram, onSuccess, onCancel }: Pro
   const [realisasi, setRealisasi] = useState("")
   const [status, setStatus] = useState("berjalan")
   const [tahun, setTahun] = useState("")
+  const [showStatus, setShowStatus] = useState(false)
+
+  const resetForm = () => {
+    setNamaProgram("")
+    setTanggal("")
+    setLokasi("")
+    setPenerimManfaat("")
+    setRealisasi("")
+    setStatus("berjalan")
+    setTahun("")
+  }
 
   useEffect(() => {
     if (editingProgram) {
@@ -28,27 +39,20 @@ export default function ProgramForm({ editingProgram, onSuccess, onCancel }: Pro
       setStatus(editingProgram.status)
       setTahun(String(editingProgram.tahun))
     } else {
-      setNamaProgram("")
-      setTanggal("")
-      setLokasi("")
-      setPenerimManfaat("")
-      setRealisasi("")
-      setStatus("berjalan")
-      setTahun("")
+      resetForm()
     }
   }, [editingProgram])
 
-  // auto-isi tahun dari tanggal
   useEffect(() => {
     if (tanggal) setTahun(String(new Date(tanggal).getFullYear()))
   }, [tanggal])
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (isDraft: boolean) => {
     if (!namaProgram || !tanggal || !tahun) {
       return alert("Nama program, tanggal, dan tahun wajib diisi")
     }
 
-    const input = {
+    const input: ProgramInput = {
       nama_program: namaProgram,
       tanggal,
       lokasi: lokasi || null,
@@ -56,6 +60,7 @@ export default function ProgramForm({ editingProgram, onSuccess, onCancel }: Pro
       realisasi: realisasi || null,
       status,
       tahun: Number(tahun),
+      is_draft: isDraft
     }
 
     try {
@@ -66,35 +71,46 @@ export default function ProgramForm({ editingProgram, onSuccess, onCancel }: Pro
         await createProgram(input)
         alert("Program berhasil ditambahkan")
       }
+      resetForm()
       onSuccess()
+
+      if (editingProgram) {
+        onCancel()
+      }
     } catch (err: any) {
       alert(err.message)
     }
   }
 
-  const inputClass =
-    "w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
-  const labelClass = "mb-2 block text-sm font-medium text-[#0F5139]"
+  const handleSaveDraft = async () => {
+    await handleSubmit(true)
+  }
+
+  const inputClass = "w-full rounded-xl border p-3"
+  const labelClass = "mb-2 block font-medium text-[#0F5139]"
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-[#0F5139] mb-6">
-        {editingProgram ? "Edit Program" : "Tambah Program"}
-      </h1>
-
-      <div className="rounded-2xl border border-[#0F5139]/10 bg-white p-6 space-y-5">
-        <div>
-          <label className={labelClass}>Nama Program</label>
-          <input
-            type="text"
-            placeholder="Contoh: Penanaman DAS Cisadane"
-            value={namaProgram}
-            onChange={(e) => setNamaProgram(e.target.value)}
-            className={inputClass}
-          />
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-[#0F5139]">
+            Tambah/Edit Program
+          </h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <label className={labelClass}>Nama Program</label>
+            <input
+              type="text"
+              placeholder="Contoh: Penanaman DAS Cisadane"
+              value={namaProgram}
+              onChange={(e) => setNamaProgram(e.target.value)}
+              className={inputClass}
+            />
+          </div>
+
           <div>
             <label className={labelClass}>Tanggal</label>
             <input
@@ -105,78 +121,138 @@ export default function ProgramForm({ editingProgram, onSuccess, onCancel }: Pro
             />
           </div>
 
-          <div>
-            <label className={labelClass}>
-              Tahun{" "}
-              <span className="text-xs text-gray-400">(otomatis dari tanggal)</span>
-            </label>
-            <input
-              type="number"
-              value={tahun}
-              onChange={(e) => setTahun(e.target.value)}
-              className={inputClass}
-            />
+            <div>
+              <label className={labelClass}>
+                Tahun{" "}
+                <span className="text-xs text-gray-400">(otomatis dari tanggal)</span>
+              </label>
+              <input
+                type="number"
+                value={tahun}
+                onChange={(e) => setTahun(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Lokasi</label>
+              <input
+                type="text"
+                placeholder="Contoh: Bogor, Jabar"
+                value={lokasi}
+                onChange={(e) => setLokasi(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Penerima Manfaat</label>
+              <input
+                type="text"
+                placeholder="Contoh: 3 Desa"
+                value={penerimManfaat}
+                onChange={(e) => setPenerimManfaat(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Realisasi</label>
+              <input
+                type="text"
+                placeholder="Contoh: 300 Pohon"
+                value={realisasi}
+                onChange={(e) => setRealisasi(e.target.value)}
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>Status</label>
+
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowStatus(!showStatus)}
+                  className={`${inputClass} flex items-center justify-between`}
+                >
+                  <span>
+                    {status === "berjalan" ? "Berjalan" : "Selesai"}
+                  </span>
+
+                  <svg
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                      showStatus ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {showStatus && (
+                  <div className="absolute left-0 right-0 mt-2 rounded-xl border bg-white shadow-lg z-50 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatus("berjalan")
+                        setShowStatus(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      Berjalan
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatus("selesai")
+                        setShowStatus(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      Selesai
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className={labelClass}>Lokasi (Opsional)</label>
-            <input
-              type="text"
-              placeholder="Contoh: Bogor, Jabar"
-              value={lokasi}
-              onChange={(e) => setLokasi(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Penerima Manfaat (Opsional)</label>
-            <input
-              type="text"
-              placeholder="Contoh: 3 Desa"
-              value={penerimManfaat}
-              onChange={(e) => setPenerimManfaat(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Realisasi (Opsional)</label>
-            <input
-              type="text"
-              placeholder="Contoh: 300 Pohon"
-              value={realisasi}
-              onChange={(e) => setRealisasi(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Status</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className={inputClass}
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              onClick={handleSaveDraft}
+              className="rounded-xl bg-gray-200 px-6 py-2 transition hover:bg-gray-300 active:scale-95"
             >
-              <option value="berjalan">Berjalan</option>
-              <option value="selesai">Selesai</option>
-            </select>
-          </div>
-        </div>
+              {editingProgram ? "Update Draft" : "Simpan Draft"}
+            </button>
 
-        <div className="flex gap-3 pt-2">
-          <button
-            onClick={handleSubmit}
-            className="bg-emerald-900 hover:bg-emerald-950 active:scale-95 transition text-white px-6 py-2 rounded-xl text-sm"
-          >
-            {editingProgram ? "Simpan Perubahan" : "Simpan Program"}
-          </button>
-          <button
-            onClick={onCancel}
-            className="bg-gray-300 hover:bg-gray-400 active:scale-95 transition text-gray-700 px-6 py-2 rounded-xl text-sm"
-          >
-            Batal
-          </button>
+            <button
+              onClick={() => handleSubmit(false)}
+              className="rounded-xl bg-emerald-900 px-6 py-2 text-white transition hover:bg-emerald-950 active:scale-95"
+            >
+              {editingProgram ? "Update & Publish" : "Publish Program"}
+            </button>
+
+            {editingProgram && (
+              <button
+                onClick={() => {
+                  resetForm()
+                  onCancel()
+                }}
+                className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
+              >
+                Batal
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

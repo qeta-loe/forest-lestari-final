@@ -12,17 +12,20 @@ import {
 type Props = {
   editingTonggak: TonggakPencapaian | null
   onSuccess: () => void
-  onCancel: () => void
+  onCancelEdit: () => void
 }
 
-export default function TonggakForm({ editingTonggak, onSuccess, onCancel }: Props) {
+const defaultHighlight: Highlight = { label: "", nilai: "" }
+
+export default function TonggakForm({ editingTonggak, onSuccess, onCancelEdit }: Props) {
   const [judul, setJudul] = useState("")
   const [ringkasan, setRingkasan] = useState("")
   const [tanggal, setTanggal] = useState("")
   const [kategori, setKategori] = useState("")
-  const [highlights, setHighlights] = useState<Highlight[]>([{ label: "", nilai: "" }])
+  const [highlights, setHighlights] = useState<Highlight[]>([defaultHighlight])
   const [galeriFiles, setGaleriFiles] = useState<File[]>([])
   const [existingUrls, setExistingUrls] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (editingTonggak) {
@@ -31,39 +34,47 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancel }: Pro
       setTanggal(editingTonggak.tanggal)
       setKategori(editingTonggak.kategori)
       setHighlights(
-        editingTonggak.highlights.length > 0
+        editingTonggak.highlights?.length 
           ? editingTonggak.highlights
-          : [{ label: "", nilai: "" }]
+          : [defaultHighlight]
       )
       setExistingUrls(editingTonggak.galeri_urls || [])
       setGaleriFiles([])
     } else {
-      setJudul("")
-      setRingkasan("")
-      setTanggal("")
-      setKategori("")
-      setHighlights([{ label: "", nilai: "" }])
-      setGaleriFiles([])
-      setExistingUrls([])
+      resetForm()
     }
   }, [editingTonggak])
 
+  const resetForm = () => {
+    setJudul("")
+    setRingkasan("")
+    setTanggal("")
+    setKategori("")
+    setHighlights([defaultHighlight])
+    setGaleriFiles([])
+    setExistingUrls([])
+  }
+
+  const inputClass = "w-full rounded-xl border p-3"
+  const labelClass = "mb-2 block font-medium text-[#0F5139]"
+ 
   const addHighlight = () => {
     if (highlights.length >= 3) return alert("Maksimal 3 highlight")
     setHighlights((prev) => [...prev, { label: "", nilai: "" }])
   }
 
-  const removeHighlight = (i: number) =>
-    setHighlights((prev) => prev.filter((_, idx) => idx !== i))
-
   const updateHighlight = (
     i: number,
     field: "label" | "nilai",
     value: string
-  ) =>
+  ) => {
     setHighlights((prev) =>
       prev.map((h, idx) => (idx === i ? { ...h, [field]: value } : h))
     )
+  }
+
+  const removeHighlight = (i: number) =>
+    setHighlights((prev) => prev.filter((_, idx) => idx !== i))
 
   const handleGaleriChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -78,58 +89,75 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancel }: Pro
   const removeNewFile = (i: number) =>
     setGaleriFiles((prev) => prev.filter((_, idx) => idx !== i))
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (isDraft: boolean) => {
     if (!judul || !ringkasan || !tanggal || !kategori) {
       return alert("Semua field wajib diisi")
     }
 
-    const validHighlights = highlights.filter((h) => h.label && h.nilai)
+    const validHighlights = highlights.filter(
+      (h) => h.label.trim() && h.nilai.trim()
+    )
 
-    const input: TonggakInput = {
+    const payload: TonggakInput = {
       judul,
       ringkasan,
       tanggal,
       kategori,
       highlights: validHighlights,
+      is_draft: isDraft,
     }
 
     try {
+      setLoading(true)
       if (editingTonggak) {
-        await updateTonggak(editingTonggak.id, input, galeriFiles, existingUrls)
+        await updateTonggak(editingTonggak.id, payload, galeriFiles, existingUrls)
         alert("Tonggak berhasil diperbarui")
+        onCancelEdit()
       } else {
-        await createTonggak(input, galeriFiles)
-        alert("Tonggak berhasil ditambahkan")
+        await createTonggak(payload, galeriFiles)
       }
+      alert(
+        isDraft
+          ? "Draft berhasil disimpan"
+          : "Tonggak berhasil dipublish"
+      )
+      resetForm()
       onSuccess()
     } catch (err: any) {
       alert(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const inputClass =
-    "w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
-  const labelClass = "mb-2 block text-sm font-medium text-[#0F5139]"
-
   return (
     <div>
-      <h1 className="text-xl font-semibold text-[#0F5139] mb-6">
-        {editingTonggak ? "Edit Tonggak Pencapaian" : "Tambah Tonggak Pencapaian"}
-      </h1>
-
-      <div className="rounded-2xl border border-[#0F5139]/10 bg-white p-6 space-y-5">
-        <div>
-          <label className={labelClass}>Judul</label>
-          <input type="text" value={judul} onChange={(e) => setJudul(e.target.value)}
-            placeholder="Contoh: Penanaman 300 Pohon di DAS Cisadane"
-            className={inputClass} />
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-[#0F5139]">
+            Tambah/Edit Tonggak Pencapaian
+          </h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Tanggal</label>
-            <input type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)}
+      <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <label className={labelClass}>Judul</label>
+            <input type="text" value={judul} onChange={(e) => setJudul(e.target.value)}
+              placeholder="Contoh: Penanaman 300 Pohon di DAS Cisadane"
               className={inputClass} />
+          </div>
+
+          <div>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Tanggal
+            </label>
+            <input
+              type="date"
+              value={tanggal}
+              onChange={(e) => setTanggal(e.target.value)}
+              className={inputClass}
+            />
           </div>
 
           <div>
@@ -151,11 +179,10 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancel }: Pro
             className={`${inputClass} min-h-28`} />
         </div>
 
-        {/* Highlights */}
-        <div className="rounded-xl border border-[#0F5139]/10 bg-[#F8FAF8] p-4">
+        <div className="rounded-2xl border p-5">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm font-semibold text-[#0F5139]">Highlights</p>
+              <p className="text-md font-semibold text-[#0F5139]">Highlights</p>
               <p className="text-xs text-gray-400">Maksimal 3 highlight</p>
             </div>
             {highlights.length < 3 && (
@@ -194,13 +221,11 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancel }: Pro
           </div>
         </div>
 
-        {/* Galeri */}
         <div>
           <label className={labelClass}>
             Galeri Foto ({existingUrls.length + galeriFiles.length}/10)
           </label>
 
-          {/* Existing photos */}
           {existingUrls.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {existingUrls.map((url) => (
@@ -215,7 +240,6 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancel }: Pro
             </div>
           )}
 
-          {/* New files preview */}
           {galeriFiles.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {galeriFiles.map((f, i) => (
@@ -235,7 +259,7 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancel }: Pro
           )}
 
           {existingUrls.length + galeriFiles.length < 10 && (
-            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-[#0F5139]/20 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+            <label className="flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all duration-200 hover:bg-[#F5F5F5]">
               <span className="text-sm text-[#0F5139]">+ Tambah Foto</span>
               <span className="text-xs text-gray-400">PNG, JPG, WEBP</span>
               <input type="file" accept="image/*" multiple onChange={handleGaleriChange}
@@ -244,17 +268,36 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancel }: Pro
           )}
         </div>
 
-        <div className="flex gap-3 pt-2">
-          <button onClick={handleSubmit}
-            className="bg-emerald-900 hover:bg-emerald-950 active:scale-95 transition text-white px-6 py-2 rounded-xl text-sm">
-            {editingTonggak ? "Simpan Perubahan" : "Simpan Tonggak"}
+        <div className="flex justify-end gap-3 pt-5">
+          <button
+            onClick={() => handleSubmit(true)}
+            className="rounded-xl bg-gray-300 px-6 py-3 transition active:scale-95 hover:bg-gray-400"
+          >
+            {editingTonggak ? "Update Draft" : "Simpan Draft"}
           </button>
-          <button onClick={onCancel}
-            className="bg-gray-300 hover:bg-gray-400 active:scale-95 transition text-gray-700 px-6 py-2 rounded-xl text-sm">
-            Batal
+
+          <button
+            onClick={() => handleSubmit(false)}
+            className="rounded-xl bg-[#0F5139] px-6 py-3 text-white transition active:scale-95 hover:bg-[#0A3D2A]"
+          >
+            {editingTonggak ? "Update & Publish" : "Publish Tonggak"}
           </button>
+
+          {editingTonggak && (
+            <button
+              type="button"
+              onClick={() => {
+                resetForm()
+                onCancelEdit()
+              }}
+              className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
+            >
+              Batal
+            </button>
+          )}
         </div>
       </div>
+    </div>
     </div>
   )
 }

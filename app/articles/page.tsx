@@ -286,12 +286,9 @@ export default function ArticlesPage() {
                     <div className="flex items-center justify-between gap-3 text-xs text-white">
                       <span>👤 {item.penulis || "Admin"}</span>
 
-                      <Link
-                        href={`/articles/${item.id}`}
-                        className="flex items-center gap-2 hover:underline"
-                      >
-                        Read More <span>→</span>
-                      </Link>
+                      <div className="flex items-center gap-2 cursor-pointer hover:underline">
+                        Baca selengkapnya →
+                      </div>
                     </div>
                   </div>
                 </Link>

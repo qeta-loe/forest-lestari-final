@@ -9,6 +9,7 @@ export type Program = {
   realisasi: string | null
   status: string
   tahun: number
+  is_draft: boolean
   created_at?: string
 }
 
@@ -22,8 +23,19 @@ export const fetchProgram = async (): Promise<Program[]> => {
   return (data || []) as Program[]
 }
 
+export type ProgramInput = {
+  nama_program: string
+  tanggal: string
+  lokasi: string | null
+  penerima_manfaat: string | null
+  realisasi: string | null
+  status: string
+  tahun: number
+  is_draft: boolean
+}
+
 export const createProgram = async (
-  input: Omit<Program, "id" | "created_at">
+  input: ProgramInput
 ): Promise<void> => {
   const { error } = await supabase.from("program").insert([input])
   if (error) throw new Error(error.message)
@@ -31,7 +43,7 @@ export const createProgram = async (
 
 export const updateProgram = async (
   id: number,
-  input: Omit<Program, "id" | "created_at">
+  input: ProgramInput
 ): Promise<void> => {
   const { error } = await supabase.from("program").update(input).eq("id", id)
   if (error) throw new Error(error.message)

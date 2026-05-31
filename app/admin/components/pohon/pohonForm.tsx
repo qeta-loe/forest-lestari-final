@@ -25,6 +25,7 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
 
   const [lokasiOptions, setLokasiOptions] = useState<{ id: number; nama_lokasi: string }[]>([])
   const [dasOptions, setDasOptions] = useState<{ id: number; nama_das: string }[]>([])
+  const [isDraft, setIsDraft] = useState(false)
 
   useEffect(() => {
     fetchLokasiOptions().then(setLokasiOptions).catch(console.error)
@@ -38,6 +39,7 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
       setJumlah(String(editingPohon.jumlah))
       setLokasiId(editingPohon.lokasi_penanaman_id ? String(editingPohon.lokasi_penanaman_id) : "")
       setDasId(editingPohon.das_id ? String(editingPohon.das_id) : "")
+      setIsDraft(editingPohon.is_draft || false)
     } else {
       resetForm()
     }
@@ -51,9 +53,37 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
     setDasId("")
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (isDraft: boolean) => {
     if (!namaUmum || !jumlah) return alert("Nama umum dan jumlah wajib diisi")
     if (!lokasiId && !dasId) return alert("Pilih minimal satu relasi: Lokasi Penanaman atau DAS")
+
+    const input: PohonInput & { is_draft: boolean } = {
+      nama_umum: namaUmum,
+      nama_ilmiah: namaIlmiah,
+      jumlah: Number(jumlah),
+      lokasi_penanaman_id: lokasiId ? Number(lokasiId) : null,
+      das_id: dasId ? Number(dasId) : null,
+      is_draft: isDraft,
+    }
+
+    try {
+      if (editingPohon) {
+        await updatePohon(editingPohon.id, input)
+        alert("Pohon berhasil diperbarui")
+        onCancelEdit()
+      } else {
+        await createPohon(input)
+        alert(isDraft ? "Draft berhasil disimpan" : "Pohon berhasil dipublish")
+      }
+      resetForm()
+      onSuccess()
+    } catch (err: any) {
+      alert(err.message)
+    }
+  }
+
+  const handleSaveDraft = async () => {
+    if (!namaUmum || !jumlah) return alert("Nama umum dan jumlah wajib diisi")
 
     const input: PohonInput = {
       nama_umum: namaUmum,
@@ -61,12 +91,14 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
       jumlah: Number(jumlah),
       lokasi_penanaman_id: lokasiId ? Number(lokasiId) : null,
       das_id: dasId ? Number(dasId) : null,
+      is_draft: true,
     }
 
     try {
       if (editingPohon) {
         await updatePohon(editingPohon.id, input)
         alert("Pohon berhasil diperbarui")
+        onCancelEdit()
       } else {
         await createPohon(input)
         alert("Pohon berhasil ditambahkan")
@@ -79,22 +111,24 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
   }
 
   const inputClass =
-    "w-full rounded-xl border border-[#0F5139]/20 bg-white px-4 py-3 text-[#0F5139] outline-none transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
+    "w-full rounded-xl border p-3"
 
   const labelClass = "mb-2 block text-sm font-medium text-[#0F5139]"
 
   return (
-    <div>
-      <h1 className="text-xl text-[#0F5139] font-semibold mb-6">
-        {editingPohon ? "Edit Pohon" : "Tambah Pohon"}
-      </h1>
+    <div className="mx-auto max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-[#0F5139]">
+          Tambah/Edit Pohon
+        </h1>
+      </div>
 
-      <div className="rounded-2xl border border-[#0F5139]/10 bg-white p-6 space-y-5">
-
-        {/* Nama */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div>
-            <label className={labelClass}>Nama Umum</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Nama Umum
+            </label>
             <input
               type="text"
               placeholder="Contoh: Meranti Merah"
@@ -105,7 +139,9 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
           </div>
 
           <div>
-            <label className={labelClass}>Nama Ilmiah </label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Nama Ilmiah 
+              </label>
             <input
               type="text"
               placeholder="Contoh: Shorea sp."
@@ -116,9 +152,10 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
           </div>
         </div>
 
-        {/* Jumlah */}
         <div>
-          <label className={labelClass}>Jumlah Individu</label>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Jumlah Individu
+            </label>
           <input
             type="number"
             min="0"
@@ -129,17 +166,18 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
           />
         </div>
 
-        {/* Relasi */}
-        <div className="rounded-xl border border-[#0F5139]/10 bg-[#F8FAF8] p-4 space-y-4">
+        <div className="mt-2 rounded-xl border border-[#0F5139]/10 bg-[#F8FAF8] p-4 space-y-4">
           <div>
-            <p className="text-sm font-semibold text-[#0F5139] mb-1">Relasi</p>
+            <p className="text-md font-semibold text-[#0F5139] mb-1">Relasi</p>
             <p className="text-xs text-gray-400 mb-3">
               Pilih minimal satu. Pohon bisa berelasi ke Lokasi Penanaman, DAS, atau keduanya.
             </p>
           </div>
 
           <div>
-            <label className={labelClass}>Lokasi Penanaman</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Lokasi Penanaman
+              </label>
             <select
               value={lokasiId}
               onChange={(e) => setLokasiId(e.target.value)}
@@ -155,11 +193,13 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
           </div>
 
           <div>
-            <label className={labelClass}>DAS</label>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              DAS
+            </label>
             <select
               value={dasId}
               onChange={(e) => setDasId(e.target.value)}
-              className={inputClass}
+              className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
             >
               <option value="">— Tidak dipilih —</option>
               {dasOptions.map((d) => (
@@ -171,25 +211,35 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-3 pt-2">
+        <div className="flex justify-end gap-3 pt-2">
           <button
-            onClick={handleSubmit}
-            className="bg-emerald-900 hover:bg-emerald-950 active:bg-black active:scale-95 transition-all duration-150 text-white px-6 py-2 rounded-xl cursor-pointer"
+            onClick={() => handleSaveDraft()}
+            className="rounded-xl bg-gray-200 px-6 py-2 transition hover:bg-gray-300 active:scale-95 transition"
           >
-            {editingPohon ? "Simpan Perubahan" : "Simpan Pohon"}
+            {editingPohon ? "Update Draft" : "Simpan Draft"}
+          </button>
+
+          <button
+            onClick={() => handleSubmit(false)}
+            className="rounded-xl bg-emerald-900 px-6 py-2 text-white transition hover:bg-emerald-950 active:scale-95"
+          >
+            {editingPohon ? "Update & Publish" : "Publish Pohon"}
           </button>
 
           {editingPohon && (
-            <button
-              onClick={() => { resetForm(); onCancelEdit() }}
-              className="bg-gray-400 hover:bg-gray-500 active:scale-95 transition-all duration-150 text-white px-6 py-2 rounded-xl cursor-pointer"
-            >
-              Batal
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => {
+              resetForm()
+              onCancelEdit()
+            }}
+            className="rounded-xl bg-gray-200 px-6 py-3 transition hover:bg-gray-300 active:scale-95"
+          >
+            Batal
+          </button>
+        )}
         </div>
       </div>
-    </div>
+      </div>
   )
 }

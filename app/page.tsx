@@ -23,6 +23,12 @@ type KegiatanTerbaru = {
   is_draft: boolean | null
 }
 
+type BerandaStats = {
+  kegiatan_selesai: number
+  das_terdokumentasi: number
+  mitra_instansi: number
+}
+
 type PolygonPoint = {
   lat: number
   lng: number
@@ -258,18 +264,16 @@ function PetaLokasiPenanaman() {
 }
 
 export default function BerandaPage() {
-  const stats = [
-    { value: "48", label: "Kegiatan Selesai" },
-    { value: "12", label: "DAS Terdokumentasi" },
-    { value: "37", label: "Spesies Endemik" },
-    { value: "3", label: "Mitra Instansi" },
-  ]
-
   const [articles, setArticles] = useState<Artikel[]>([])
   const [loadingArticles, setLoadingArticles] = useState(true)
 
   const [latestKegiatan, setLatestKegiatan] = useState<KegiatanTerbaru[]>([])
   const [loadingKegiatan, setLoadingKegiatan] = useState(true)
+  const [berandaStats, setBerandaStats] = useState<BerandaStats>({
+    kegiatan_selesai: 0,
+    das_terdokumentasi: 0,
+    mitra_instansi: 0,
+  })
 
   const fetchLatestArticles = async () => {
     setLoadingArticles(true)
@@ -314,9 +318,31 @@ export default function BerandaPage() {
     setLoadingKegiatan(false)
   }
 
+  const fetchStats = async () => {
+    const [kegiatanRes, dasRes, mitraRes] = await Promise.all([
+      supabase
+        .from("kegiatan")
+        .select("id", { count: "exact", head: true })
+        .eq("is_draft", false),
+      supabase
+        .from("das")
+        .select("id", { count: "exact", head: true }),
+      supabase
+        .from("mitra")
+        .select("id", { count: "exact", head: true }),
+    ])
+
+    setBerandaStats({
+      kegiatan_selesai: kegiatanRes.count ?? 0,
+      das_terdokumentasi: dasRes.count ?? 0,
+      mitra_instansi: mitraRes.count ?? 0,
+    })
+  }
+
   useEffect(() => {
     fetchLatestArticles()
     fetchLatestKegiatan()
+    fetchStats()
   }, [])
 
   const formatDate = (date?: string | null) => {
@@ -381,11 +407,15 @@ export default function BerandaPage() {
 
         {/* Statistik */}
         <section className="border-y border-black/10 py-6">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:divide-x md:divide-black/10">
-            {stats.map((item) => (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:divide-x md:divide-black/10">
+            {[
+              { value: berandaStats.kegiatan_selesai, label: "Kegiatan Selesai" },
+              { value: berandaStats.das_terdokumentasi, label: "DAS Terdokumentasi" },
+              { value: berandaStats.mitra_instansi, label: "Mitra Instansi" },
+            ].map((item) => (
               <div key={item.label} className="px-4 py-4 text-center">
                 <p className="text-4xl font-bold text-emerald-900 sm:text-5xl">
-                  {item.value}
+                  {item.value.toLocaleString("id-ID")}
                 </p>
                 <p className="mt-2 text-xs text-emerald-900 sm:text-sm">
                   {item.label}

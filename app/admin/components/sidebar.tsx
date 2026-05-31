@@ -19,9 +19,20 @@ type Props = {
   menu: MenuKey
   setMenu: (menu: MenuKey) => void
   onLogout: () => void
+
+  setEditingKegiatan: (value: any) => void
+  setEditingArtikel: (value: any) => void
+  setEditingLokasi: (value: any) => void
+  setEditingDas: (value: any) => void
+  setEditingPohon: (value: any) => void
+  setEditingTonggak: (value: any) => void
+  setEditingMitra: (value: any) => void
+  setEditingLaporan: (value: any) => void
+  setEditingRelawan: (value: any) => void
+  setEditingProgram: (value: any) => void
 }
 
-export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
+export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiatan, setEditingArtikel, setEditingLokasi, setEditingDas, setEditingPohon, setEditingTonggak, setEditingMitra, setEditingLaporan, setEditingRelawan, setEditingProgram }: Props) {
   const isKegiatanActive = menu === "upload" || menu === "list"
   const isArtikelActive = menu === "artikel" || menu === "artikelList"
   const isDatabaseActive = ["database","lokasiPenanaman","daftarLokasiPenanaman","das","daftarDas","pohon","daftarPohon"].includes(menu)
@@ -61,12 +72,23 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
   ]
 
   return (
-    <div className="w-[250px] bg-white border-r p-4">
-      <h2 className="text-[#0F5139] font-bold mb-6">Admin Panel</h2>
+    <div className="min-h-[calc(100vh-88px)] w-[260px] border-r bg-[#F7F6EF] p-4">
+      <button
+        onClick={() => {
+          setEditingKegiatan(null)
+          setMenu("upload")
+        }}
+        className={`${mainMenuClass(isKegiatanActive)} flex items-center gap-2`}
+      >
+        <span
+          className={`transition-transform duration-200 ${
+            isKegiatanActive ? "rotate-90" : ""
+          }`}
+        >
+          ▶
+        </span>
 
-      {/* Kegiatan */}
-      <button onClick={() => setMenu("upload")} className={`${mainMenuClass(isKegiatanActive)} flex items-center gap-2`}>
-        <span>▶</span><span>Upload Kegiatan</span>
+        <span>Kelola Kegiatan</span>
       </button>
       {isKegiatanActive && (
         <button onClick={() => setMenu("list")} className={subMenuClass(menu === "list")}>
@@ -74,9 +96,21 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
         </button>
       )}
 
-      {/* Artikel */}
-      <button onClick={() => setMenu("artikel")} className={`${mainMenuClass(isArtikelActive)} flex items-center gap-2`}>
-        <span>▶</span><span>Upload Artikel</span>
+      <button
+        onClick={() => {
+          setEditingArtikel(null)
+          setMenu("artikel")
+        }}
+        className={`${mainMenuClass(isArtikelActive)} flex items-center gap-2`}
+      >
+        <span
+          className={`transition-transform duration-200 ${
+            isArtikelActive ? "rotate-90" : ""
+          }`}
+        >
+          ▶
+        </span>
+        <span>Kelola Artikel</span>
       </button>
       {isArtikelActive && (
         <button onClick={() => setMenu("artikelList")} className={subMenuClass(menu === "artikelList")}>
@@ -84,13 +118,34 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
         </button>
       )}
 
-      {/* Database */}
-      <button onClick={() => setMenu("database")} className={`${mainMenuClass(isDatabaseActive)} flex items-center gap-2`}>
-        <span>▶</span><span>Upload Database</span>
+      <button
+        onClick={() => {
+          setEditingLokasi(null)
+          setMenu("database")
+        }}
+        className={`${mainMenuClass(isDatabaseActive)} flex items-center gap-2`}
+      >
+        <span
+          className={`transition-transform duration-200 ${
+            isDatabaseActive ? "rotate-90" : ""
+          }`}
+        >
+          ▶
+        </span>
+        <span>Kelola Database</span>
       </button>
       {isDatabaseActive && (
         <>
-          <button onClick={() => setMenu("lokasiPenanaman")} className={subMenuClass(menu === "lokasiPenanaman" || menu === "daftarLokasiPenanaman")}>
+          <button
+            onClick={() => {
+              setEditingLokasi(null)
+              setMenu("lokasiPenanaman")
+            }}
+            className={subMenuClass(
+              menu === "lokasiPenanaman" ||
+              menu === "daftarLokasiPenanaman"
+            )}
+          >
             Lokasi Penanaman
           </button>
           {(menu === "lokasiPenanaman" || menu === "daftarLokasiPenanaman") && (
@@ -99,7 +154,13 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
             </button>
           )}
 
-          <button onClick={() => setMenu("das")} className={subMenuClass(menu === "das" || menu === "daftarDas")}>
+          <button
+            onClick={() => {
+              setEditingDas(null)
+              setMenu("das")
+            }}
+            className={subMenuClass(menu === "das" || menu === "daftarDas")}
+          >
             DAS
           </button>
           {(menu === "das" || menu === "daftarDas") && (
@@ -108,7 +169,13 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
             </button>
           )}
 
-          <button onClick={() => setMenu("pohon")} className={subMenuClass(menu === "pohon" || menu === "daftarPohon")}>
+          <button
+            onClick={() => {
+              setEditingPohon(null)
+              setMenu("pohon")
+            }}
+            className={subMenuClass(menu === "pohon" || menu === "daftarPohon")}
+          >
             Pohon
           </button>
           {(menu === "pohon" || menu === "daftarPohon") && (
@@ -119,25 +186,48 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
         </>
       )}
 
-      {/* Tentang Kami */}
       <button
         onClick={() => setMenu("organisasi")}
-        className={mainMenuClass(isTentangActive)}
+        className={`${mainMenuClass(isTentangActive)} flex items-center gap-2`}
       >
-        <span className={`text-xs transition-transform duration-200 ${isTentangActive ? "rotate-90" : ""}`}>▶</span>
-        <span>Tentang Kami</span>
+        <span
+          className={`transition-transform duration-200 ${
+            isTentangActive ? "rotate-90" : ""
+          }`}
+        >
+          ▶
+        </span>
+        <span>Kelola Tentang Kami</span>
       </button>
       {isTentangActive && tentangSubmenus.map((item) => {
         const isSubActive = menu === item.key || menu === item.listKey
         return (
           <div key={item.key}>
             <button
-              onClick={() => setMenu(item.key)}
+              onClick={() => {
+                if (item.key === "tonggak") {
+                  setEditingTonggak(null)
+                }
+                if (item.key === "mitra") {
+                  setEditingMitra(null)
+                }
+                if (item.key === "laporan") {
+                  setEditingLaporan(null)
+                }
+                if (item.key === "relawan") {
+                  setEditingRelawan(null)
+                }
+                if (item.key === "program") {
+                  setEditingProgram(null)
+                }
+
+                setMenu(item.key)
+              }}
               className={subMenuClass(isSubActive)}
             >
               {item.label}
             </button>
-            {/* Sub-list untuk yang punya daftar terpisah */}
+
             {item.key !== "organisasi" && isSubActive && (
               <button
                 onClick={() => setMenu(item.listKey)}
@@ -149,11 +239,6 @@ export default function AdminSidebar({ menu, setMenu, onLogout }: Props) {
           </div>
         )
       })}
-
-      {/* Profil */}
-      <button onClick={() => setMenu("profil")} className={mainMenuClass(menu === "profil")}>
-        Kelola Profil Komunitas
-      </button>
 
       <button
         onClick={onLogout}

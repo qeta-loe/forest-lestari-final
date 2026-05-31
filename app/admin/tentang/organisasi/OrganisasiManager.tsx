@@ -355,8 +355,6 @@ function SortableSectionCard({
   )
 }
 
-// ─── Sortable Anggota Row ────────────────────────────────────
-
 function SortableAnggotaRow({
   anggota,
   onEdit,

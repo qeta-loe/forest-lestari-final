@@ -172,3 +172,34 @@ export const updateKegiatan = async (
     throw new Error(error.message)
   }
 }
+
+export const deleteKegiatan = async (id: number) => {
+  const { data: kegiatan, error: fetchError } = await supabase
+    .from("kegiatan")
+    .select("thumbnail_url")
+    .eq("id", id)
+    .single()
+
+  if (fetchError) {
+    throw new Error(fetchError.message)
+  }
+
+  const { error } = await supabase
+    .from("kegiatan")
+    .delete()
+    .eq("id", id)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  if (kegiatan?.thumbnail_url) {
+    const fileName = kegiatan.thumbnail_url.split("/").pop()
+
+    if (fileName) {
+      await supabase.storage
+        .from(BUCKET_NAME)
+        .remove([fileName])
+    }
+  }
+}

@@ -1,14 +1,28 @@
 "use client"
 
+import { useState, useMemo } from "react"
 import { PohonWithRelasi, deletePohon } from "./pohon.service"
 
 type Props = {
   pohonList: PohonWithRelasi[]
   onRefresh: () => void
   onEdit: (pohon: PohonWithRelasi) => void
+  setMenu: (menu: "pohon") => void
 }
 
-export default function PohonList({ pohonList, onRefresh, onEdit }: Props) {
+type FilterStatus = "semua" | "published" | "draft"
+
+export default function PohonList({ pohonList, onRefresh, onEdit, setMenu }: Props) {
+  const [filterStatus, setFilterStatus] = useState<"semua" | "published" | "draft">("semua")
+  const filteredList = useMemo(() => {
+  if (filterStatus === "published") return pohonList.filter(p => !p.is_draft)
+  if (filterStatus === "draft") return pohonList.filter(p => p.is_draft)
+  return pohonList
+}, [filterStatus, pohonList])
+
+  const totalDraft = pohonList.filter(p => p.is_draft).length
+  const totalPublished = pohonList.filter(p => !p.is_draft).length
+  
   const handleDelete = async (pohon: PohonWithRelasi) => {
     if (!confirm(`Yakin hapus ${pohon.nama_umum}?`)) return
 
@@ -35,11 +49,60 @@ export default function PohonList({ pohonList, onRefresh, onEdit }: Props) {
     null
   )
 
+  const filteredPohon = useMemo(() => {
+    if (filterStatus === "published") {
+      return pohonList.filter((p) => !p.is_draft)
+    }
+
+    if (filterStatus === "draft") {
+      return pohonList.filter((p) => p.is_draft)
+    }
+
+    return pohonList
+  }, [pohonList, filterStatus])
+
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold text-[#0F5139]">
-        Daftar Pohon
-      </h1>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-xl font-semibold text-[#0F5139]">
+          Daftar Pohon
+        </h1>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterStatus("semua")}
+            className={`rounded-full border px-4 py-2 text-sm transition ${
+              filterStatus === "semua"
+                ? "border-[#0F5139] bg-[#0F5139] text-white"
+                : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+            }`}
+          >
+            Semua ({pohonList.length})
+          </button>
+
+          <button
+            onClick={() => setFilterStatus("published")}
+            className={`rounded-full border px-4 py-2 text-sm transition ${
+              filterStatus === "published"
+                ? "border-[#0F5139] bg-[#0F5139] text-white"
+                : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+            }`}
+          >
+            Published ({pohonList.filter(p => !p.is_draft).length})
+          </button>
+
+          <button
+            onClick={() => setFilterStatus("draft")}
+            className={`rounded-full border px-4 py-2 text-sm transition ${
+              filterStatus === "draft"
+                ? "border-[#0F5139] bg-[#0F5139] text-white"
+                : "border-[#0F5139] bg-white text-[#0F5139] hover:bg-[#0F5139]/10"
+            }`}
+          >
+            Draft ({pohonList.filter(p => p.is_draft).length})
+          </button>
+        </div>
+      </div>
 
       {pohonList.length === 0 ? (
         <p className="text-gray-500">Belum ada pohon yang ditambahkan.</p>
@@ -95,10 +158,18 @@ export default function PohonList({ pohonList, onRefresh, onEdit }: Props) {
               </thead>
 
               <tbody className="divide-y divide-gray-100">
-                {pohonList.map((item) => (
+                {filteredPohon.map((item) => (
                   <tr key={item.id} className="transition hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-[#0F5139]">
                       {item.nama_umum}
+
+                      <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
+                        item.is_draft
+                          ? "bg-gray-200 text-gray-700"
+                          : "bg-green-100 text-green-700"
+                      }`}>
+                        {item.is_draft ? "Draft" : "Published"}
+                      </span>
                     </td>
 
                     <td className="px-4 py-3 italic text-gray-500">
@@ -122,7 +193,10 @@ export default function PohonList({ pohonList, onRefresh, onEdit }: Props) {
                     <td className="px-4 py-3">
                       <div className="flex justify-center gap-2">
                         <button
-                          onClick={() => onEdit(item)}
+                          onClick={() => {
+                          onEdit(item)
+                          setMenu("pohon")
+                        }}
                           className="rounded bg-yellow-500 px-3 py-1 text-xs text-white transition hover:bg-yellow-600 active:scale-95"
                         >
                           Edit

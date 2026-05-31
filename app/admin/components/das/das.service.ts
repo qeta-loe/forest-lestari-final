@@ -19,11 +19,10 @@ export type Das = {
   kemiringan_max: number
   kondisi: string
   polygon_coordinates: PolygonCoordinate[] | null
+  is_draft: boolean
   created_at?: string
   updated_at?: string
 }
-
-// ─── Helpers ────────────────────────────────────────────────
 
 const TANAH_TIDAK_PEKA = ["latosol", "aluvial"]
 const TANAH_PEKA = ["regosol", "andosol", "grumosol", "litosol"]
@@ -53,8 +52,6 @@ export const hitungKondisi = (
   return tutupanOk && kemiringanOk && tanahAman ? "baik" : "kritis"
 }
 
-// ─── CRUD ───────────────────────────────────────────────────
-
 export const fetchDas = async (): Promise<Das[]> => {
   const { data, error } = await supabase
     .from("das")
@@ -76,6 +73,7 @@ export type DasInput = {
   kemiringan_min: number
   kemiringan_max: number
   polygon_coordinates: PolygonCoordinate[]
+  is_draft: boolean
 }
 
 export const createDas = async (input: DasInput): Promise<void> => {
@@ -87,6 +85,7 @@ export const createDas = async (input: DasInput): Promise<void> => {
       ...input,
       tutupan_hutan_persen,
       kondisi,
+      is_draft: input.is_draft || false,
     },
   ])
 
@@ -99,7 +98,7 @@ export const updateDas = async (id: number, input: DasInput): Promise<void> => {
 
   const { error } = await supabase
     .from("das")
-    .update({ ...input, tutupan_hutan_persen, kondisi })
+    .update({ ...input, tutupan_hutan_persen, kondisi, is_draft: input.is_draft || false })
     .eq("id", id)
 
   if (error) throw new Error(error.message)
