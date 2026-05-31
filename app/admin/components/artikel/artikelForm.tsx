@@ -59,13 +59,13 @@ export default function ArtikelForm({ editingArtikel, onSuccess, onCancel }: Pro
 
   const handleSubmit = async (isDraft: boolean) => {
     if (!judul || !deskripsiSingkat || !kategori || !penulis || !tanggalPublikasi) {
-      return alert("Semua field wajib diisi")
+      return alert("Semua tabel wajib diisi")
     }
 
     const invalidSection = sections.some((s) => !s.title || !s.content)
     if (invalidSection) return alert("Semua section wajib memiliki judul dan isi")
 
-    if (!editingArtikel && !gambar) return alert("Semua field wajib diisi")
+    if (!editingArtikel && !gambar) return alert("Semua tabel wajib diisi")
 
     const payload = {
       judul,
@@ -80,10 +80,10 @@ export default function ArtikelForm({ editingArtikel, onSuccess, onCancel }: Pro
     try {
       if (editingArtikel) {
         await updateArtikel(editingArtikel.id, payload, gambar)
-        alert("Artikel berhasil diupdate")
+        alert("Artikel berhasil diperbarui")
       } else {
         await createArtikel(payload, gambar!)
-        alert("Artikel berhasil disimpan")
+        alert("Artikel berhasil ditambahkan")
       }
       onSuccess()
     } catch (err: any) {

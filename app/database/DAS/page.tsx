@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import Link from "next/link"
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
 import { supabase } from "@/lib/supabase"
 
 type PolygonPoint = {
@@ -22,7 +23,7 @@ type DasRow = {
   kemiringan_min: number | null
   kemiringan_max: number | null
   kondisi: string | null
-  polygon_coordinates: PolygonPoint[] | string | null
+  polygon_coordinates: unknown | null
   created_at: string | null
   updated_at: string | null
   luas_tutupan_ha: number | null
@@ -64,6 +65,17 @@ function escapeHtml(value: string | number | null | undefined) {
     .replaceAll("'", "&#039;")
 }
 
+function isValidLatLng(lat: number, lng: number) {
+  return (
+    !Number.isNaN(lat) &&
+    !Number.isNaN(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180
+  )
+}
+
 function parsePoint(value: unknown): PolygonPoint | null {
   if (!value) return null
 
@@ -74,7 +86,7 @@ function parsePoint(value: unknown): PolygonPoint | null {
     } catch {
       const parts = value.split(",").map((item) => Number(item.trim()))
 
-      if (parts.length >= 2 && !Number.isNaN(parts[0]) && !Number.isNaN(parts[1])) {
+      if (parts.length >= 2 && isValidLatLng(parts[0], parts[1])) {
         return {
           lat: parts[0],
           lng: parts[1],
@@ -85,13 +97,24 @@ function parsePoint(value: unknown): PolygonPoint | null {
     }
   }
 
+  if (Array.isArray(value)) {
+    const lat = Number(value[0])
+    const lng = Number(value[1])
+
+    if (isValidLatLng(lat, lng)) {
+      return { lat, lng }
+    }
+
+    return null
+  }
+
   if (typeof value === "object" && value !== null) {
     const item = value as Record<string, unknown>
 
     const lat = Number(item.lat ?? item.latitude)
     const lng = Number(item.lng ?? item.longitude)
 
-    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+    if (isValidLatLng(lat, lng)) {
       return { lat, lng }
     }
   }
@@ -104,47 +127,225 @@ function getPolygonPoints(item: DasRow): PolygonPoint[] {
 
   if (typeof polygonData === "string") {
     try {
-      polygonData = JSON.parse(polygonData) as PolygonPoint[]
+      polygonData = JSON.parse(polygonData)
     } catch {
+      console.log("Polygon gagal diparse:", item.nama_das, polygonData)
       return []
     }
   }
 
-  if (!Array.isArray(polygonData)) return []
+  if (!Array.isArray(polygonData)) {
+    console.log("Polygon bukan array:", item.nama_das, polygonData)
+    return []
+  }
 
-  return polygonData
-    .map((point) => ({
-      lat: Number(point.lat),
-      lng: Number(point.lng),
-    }))
-    .filter((point) => !Number.isNaN(point.lat) && !Number.isNaN(point.lng))
+  const points = polygonData
+    .map((point) => parsePoint(point))
+    .filter((point): point is PolygonPoint => Boolean(point))
+
+  console.log("Polygon points:", item.nama_das, points)
+
+  return points
+}
+
+function formatCoordinate(point: PolygonPoint | null, label: string) {
+  if (!point) return `${label}: -`
+
+  const latDirection = point.lat < 0 ? "S" : "N"
+  const lngDirection = point.lng < 0 ? "W" : "E"
+
+  return `${Math.abs(point.lat).toFixed(4)}°${latDirection}, ${Math.abs(
+    point.lng
+  ).toFixed(4)}°${lngDirection} (${label})`
 }
 
 function popupContent(item: DasRow) {
+  const huluPoint = parsePoint(item.koordinat_hulu)
+  const muaraPoint = parsePoint(item.koordinat_muara)
+
+  const luasDas = item.luas_ha ? formatNumber(Number(item.luas_ha)) : "-"
+  const panjangSungai = item.panjang_sungai_km
+    ? `${item.panjang_sungai_km} km`
+    : "-"
+
+  const kemiringan =
+    item.kemiringan_min !== null && item.kemiringan_max !== null
+      ? `${item.kemiringan_min}° - ${item.kemiringan_max}°`
+      : "-"
+
+  const tutupanPersen = Number(item.tutupan_hutan_persen || 0)
+  const tutupanText = item.tutupan_hutan_persen
+    ? `${item.tutupan_hutan_persen}%`
+    : "-"
+
   return `
-    <div style="min-width: 240px; font-family: Arial, sans-serif;">
-      <strong>${escapeHtml(item.nama_das || "DAS")}</strong>
-      <br />
-      <span>Kondisi: ${escapeHtml(item.kondisi || "-")}</span>
-      <br />
-      <span>Luas: ${escapeHtml(item.luas_ha ?? 0)} ha</span>
-      <br />
-      <span>Luas tutupan hutan: ${escapeHtml(item.luas_tutupan_hutan ?? item.luas_tutupan_ha ?? 0)} ha</span>
-      <br />
-      <span>Tutupan hutan: ${escapeHtml(item.tutupan_hutan_persen ?? 0)}%</span>
-      <br />
-      <span>Panjang sungai: ${escapeHtml(item.panjang_sungai_km ?? 0)} km</span>
-      <br />
-      <span>Jenis tanah: ${escapeHtml(item.jenis_tanah || "-")}</span>
-      <br />
-      <span>Kemiringan: ${escapeHtml(item.kemiringan_min ?? 0)} - ${escapeHtml(item.kemiringan_max ?? 0)}</span>
+    <div style="
+      width: 330px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #0F5139;
+      color: #F7F6EF;
+      font-family: Inter, Arial, sans-serif;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+    ">
+      <div style="padding: 22px 22px 18px;">
+        <div style="
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 14px;
+          margin-bottom: 14px;
+        ">
+          <div>
+            <div style="
+              font-size: 20px;
+              line-height: 1.25;
+              font-weight: 800;
+              color: #F7F6EF;
+            ">
+              ${escapeHtml(item.nama_das || "DAS Lestari")}
+            </div>
+
+            <div style="
+              margin-top: 8px;
+              font-size: 12px;
+              line-height: 1.6;
+              color: rgba(247,246,239,0.86);
+            ">
+              ${escapeHtml(formatCoordinate(huluPoint, "Hulu"))}<br/>
+              ${escapeHtml(formatCoordinate(muaraPoint, "Muara"))}
+            </div>
+          </div>
+
+          <div style="
+            flex-shrink: 0;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #F7F6EF;
+          ">
+            ${escapeHtml(item.kondisi || "Terdokumentasi")}
+          </div>
+        </div>
+
+        <div style="
+          height: 1px;
+          background: rgba(247,246,239,0.25);
+          margin: 12px 0 16px;
+        "></div>
+
+        <div style="display: grid; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; gap: 18px;">
+            <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+              Luas DAS
+            </span>
+            <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+              ${escapeHtml(luasDas)} ha
+            </strong>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; gap: 18px;">
+            <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+              Panjang sungai utama
+            </span>
+            <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+              ${escapeHtml(panjangSungai)}
+            </strong>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; gap: 18px;">
+            <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+              Jenis tanah dominan
+            </span>
+            <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+              ${escapeHtml(item.jenis_tanah || "-")}
+            </strong>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; gap: 18px;">
+            <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+              Kemiringan rata-rata
+            </span>
+            <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+              ${escapeHtml(kemiringan)}
+            </strong>
+          </div>
+
+          <div style="margin-top: 4px;">
+            <div style="
+              display: flex;
+              justify-content: space-between;
+              gap: 18px;
+              margin-bottom: 8px;
+            ">
+              <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+                Tutupan hutan
+              </span>
+              <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+                ${escapeHtml(tutupanText)}
+              </strong>
+            </div>
+
+            <div style="
+              height: 8px;
+              overflow: hidden;
+              border-radius: 999px;
+              background: rgba(247,246,239,0.22);
+            ">
+              <div style="
+                height: 100%;
+                width: ${Math.max(0, Math.min(tutupanPersen, 100))}%;
+                border-radius: 999px;
+                background: #F7F6EF;
+              "></div>
+            </div>
+
+            <div style="
+              margin-top: 6px;
+              font-size: 10px;
+              font-weight: 700;
+              color: rgba(247,246,239,0.72);
+            ">
+              ${escapeHtml(tutupanText)} dari luas DAS
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `
 }
 
+function createMarkerContent(color: string, label: string) {
+  const wrapper = document.createElement("div")
+
+  wrapper.innerHTML = `
+    <div style="
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      background: ${color};
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      font-family: Arial, sans-serif;
+    ">
+      ${label}
+    </div>
+  `
+
+  return wrapper
+}
+
 function DasMap({ dasList }: { dasList: DasRow[] }) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null)
-  const mapInstanceRef = useRef<any>(null)
+  const mapInstanceRef = useRef<google.maps.Map | null>(null)
 
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
@@ -157,64 +358,40 @@ function DasMap({ dasList }: { dasList: DasRow[] }) {
         setLoading(true)
         setErrorMessage("")
 
-        const L = await import("leaflet")
+        setOptions({
+          key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+          v: "weekly",
+        })
+
+        const { Map, Polygon, Polyline, InfoWindow } =
+          (await importLibrary("maps")) as google.maps.MapsLibrary
+
+        const { LatLngBounds } =
+          (await importLibrary("core")) as google.maps.CoreLibrary
+
+        const { AdvancedMarkerElement } =
+          (await importLibrary("marker")) as google.maps.MarkerLibrary
 
         if (!mapContainerRef.current || cancelled) return
 
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.remove()
-          mapInstanceRef.current = null
+        const defaultCenter = {
+          lat: -6.5971,
+          lng: 106.806,
         }
 
-        const defaultCenter: [number, number] = [-6.5971, 106.806]
-
-        const map = L.map(mapContainerRef.current, {
+        const map = new Map(mapContainerRef.current, {
           center: defaultCenter,
           zoom: 9,
-          scrollWheelZoom: true,
-          zoomControl: true,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
         })
 
         mapInstanceRef.current = map
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: "&copy; OpenStreetMap contributors",
-        }).addTo(map)
-
-        const huluIcon = L.divIcon({
-          className: "custom-leaflet-marker",
-          html: `
-            <div style="
-              width: 18px;
-              height: 18px;
-              border-radius: 9999px;
-              background: #0F5139;
-              border: 3px solid white;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-            "></div>
-          `,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
+        const bounds = new LatLngBounds()
+        const infoWindow = new InfoWindow({
+          maxWidth: 360,
         })
 
-        const muaraIcon = L.divIcon({
-          className: "custom-leaflet-marker",
-          html: `
-            <div style="
-              width: 18px;
-              height: 18px;
-              border-radius: 9999px;
-              background: #B91C1C;
-              border: 3px solid white;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-            "></div>
-          `,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
-        })
-
-        const bounds = L.latLngBounds([])
         let hasBounds = false
 
         dasList.forEach((item) => {
@@ -222,90 +399,110 @@ function DasMap({ dasList }: { dasList: DasRow[] }) {
           const huluPoint = parsePoint(item.koordinat_hulu)
           const muaraPoint = parsePoint(item.koordinat_muara)
 
+          console.log("DAS item:", {
+            nama_das: item.nama_das,
+            polygonPoints,
+            huluPoint,
+            muaraPoint,
+          })
+
           if (polygonPoints.length >= 3) {
-            const points = polygonPoints.map(
-              (point) => [point.lat, point.lng] as [number, number]
-            )
-
-            L.polygon(points, {
-              color: "#0F5139",
-              weight: 2,
-              opacity: 0.9,
+            const polygon = new Polygon({
+              paths: polygonPoints,
+              strokeColor: "#0F5139",
+              strokeOpacity: 1,
+              strokeWeight: 3,
               fillColor: "#0F5139",
-              fillOpacity: 0.25,
+              fillOpacity: 0.28,
+              clickable: true,
             })
-              .addTo(map)
-              .bindPopup(popupContent(item))
 
-            points.forEach((point) => {
+            polygon.setMap(map)
+
+            polygonPoints.forEach((point) => {
               bounds.extend(point)
               hasBounds = true
             })
+
+            polygon.addListener("click", (event: google.maps.MapMouseEvent) => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(event.latLng || polygonPoints[0])
+              infoWindow.open({
+                map,
+              })
+            })
+          } else {
+            console.log(
+              `Polygon ${item.nama_das} tidak digambar karena titik valid kurang dari 3`
+            )
           }
 
           if (huluPoint) {
-            const huluPosition: [number, number] = [huluPoint.lat, huluPoint.lng]
+            const huluMarker = new AdvancedMarkerElement({
+              map,
+              position: huluPoint,
+              title: `Hulu ${item.nama_das}`,
+              content: createMarkerContent("#0F5139", "H"),
+            })
 
-            bounds.extend(huluPosition)
+            bounds.extend(huluPoint)
             hasBounds = true
 
-            L.marker(huluPosition, { icon: huluIcon })
-              .addTo(map)
-              .bindPopup(`
-                <div>
-                  <strong>Hulu ${escapeHtml(item.nama_das)}</strong><br/>
-                  ${popupContent(item)}
-                </div>
-              `)
+            huluMarker.addListener("click", () => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(huluPoint)
+              infoWindow.open({
+                map,
+              })
+            })
           }
 
           if (muaraPoint) {
-            const muaraPosition: [number, number] = [muaraPoint.lat, muaraPoint.lng]
+            const muaraMarker = new AdvancedMarkerElement({
+              map,
+              position: muaraPoint,
+              title: `Muara ${item.nama_das}`,
+              content: createMarkerContent("#B91C1C", "M"),
+            })
 
-            bounds.extend(muaraPosition)
+            bounds.extend(muaraPoint)
             hasBounds = true
 
-            L.marker(muaraPosition, { icon: muaraIcon })
-              .addTo(map)
-              .bindPopup(`
-                <div>
-                  <strong>Muara ${escapeHtml(item.nama_das)}</strong><br/>
-                  ${popupContent(item)}
-                </div>
-              `)
+            muaraMarker.addListener("click", () => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(muaraPoint)
+              infoWindow.open({
+                map,
+              })
+            })
           }
 
           if (huluPoint && muaraPoint) {
-            const riverLine: [number, number][] = [
-              [huluPoint.lat, huluPoint.lng],
-              [muaraPoint.lat, muaraPoint.lng],
-            ]
+            const riverLine = new Polyline({
+              path: [huluPoint, muaraPoint],
+              geodesic: true,
+              strokeColor: "#2563EB",
+              strokeOpacity: 0.85,
+              strokeWeight: 3,
+            })
 
-            L.polyline(riverLine, {
-              color: "#2563EB",
-              weight: 3,
-              opacity: 0.85,
-              dashArray: "8 8",
-            }).addTo(map)
+            riverLine.setMap(map)
           }
         })
 
         if (hasBounds) {
-          map.fitBounds(bounds, {
-            padding: [40, 40],
-            maxZoom: 13,
-          })
+          map.fitBounds(bounds)
         }
-
-        setTimeout(() => {
-          map.invalidateSize()
-        }, 250)
 
         setLoading(false)
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Gagal memuat peta DAS"
 
+        console.error("ERROR PETA DAS:", message)
         setErrorMessage(message)
         setLoading(false)
       }
@@ -315,11 +512,7 @@ function DasMap({ dasList }: { dasList: DasRow[] }) {
 
     return () => {
       cancelled = true
-
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
-        mapInstanceRef.current = null
-      }
+      mapInstanceRef.current = null
     }
   }, [dasList])
 
@@ -391,10 +584,12 @@ export default function DatabaseDasPage() {
         .order("id", { ascending: false })
 
       if (error) {
-        console.error(error.message)
+        console.error("FETCH DAS ERROR:", error.message)
         setLoading(false)
         return
       }
+
+      console.log("DATA DAS DARI SUPABASE:", data)
 
       setDasList((data || []) as DasRow[])
       setLoading(false)
@@ -406,199 +601,37 @@ export default function DatabaseDasPage() {
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
       <style jsx global>{`
-        .leaflet-container {
-          width: 100%;
-          height: 100%;
-          position: relative;
-          overflow: hidden;
-          background: #ddd;
-          outline: 0;
-          font-family: inherit;
-          z-index: 1;
+        .gm-style .gm-style-iw-c {
+          padding: 0 !important;
+          border-radius: 24px !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          overflow: visible !important;
         }
 
-        .leaflet-pane,
-        .leaflet-tile,
-        .leaflet-marker-icon,
-        .leaflet-marker-shadow,
-        .leaflet-tile-container,
-        .leaflet-pane > svg,
-        .leaflet-pane > canvas,
-        .leaflet-zoom-box,
-        .leaflet-image-layer,
-        .leaflet-layer {
-          position: absolute;
-          left: 0;
-          top: 0;
+        .gm-style .gm-style-iw-d {
+          overflow: hidden !important;
         }
 
-        .leaflet-container img.leaflet-tile {
-          max-width: none !important;
-          max-height: none !important;
-          width: 256px !important;
-          height: 256px !important;
+        .gm-style .gm-style-iw-tc::after {
+          background: #0f5139 !important;
         }
 
-        .leaflet-tile {
-          filter: inherit;
-          visibility: hidden;
+        .gm-ui-hover-effect {
+          top: 8px !important;
+          right: 8px !important;
+          width: 28px !important;
+          height: 28px !important;
+          border-radius: 999px !important;
+          background: rgba(255, 255, 255, 0.16) !important;
         }
 
-        .leaflet-tile-loaded {
-          visibility: inherit;
-        }
-
-        .leaflet-zoom-animated {
-          transform-origin: 0 0;
-        }
-
-        .leaflet-interactive {
-          cursor: pointer;
-        }
-
-        .leaflet-control {
-          position: relative;
-          z-index: 800;
-          pointer-events: auto;
-        }
-
-        .leaflet-top,
-        .leaflet-bottom {
-          position: absolute;
-          z-index: 1000;
-          pointer-events: none;
-        }
-
-        .leaflet-top {
-          top: 0;
-        }
-
-        .leaflet-right {
-          right: 0;
-        }
-
-        .leaflet-bottom {
-          bottom: 0;
-        }
-
-        .leaflet-left {
-          left: 0;
-        }
-
-        .leaflet-control {
-          float: left;
-          clear: both;
-        }
-
-        .leaflet-right .leaflet-control {
-          float: right;
-        }
-
-        .leaflet-top .leaflet-control {
-          margin-top: 10px;
-        }
-
-        .leaflet-bottom .leaflet-control {
-          margin-bottom: 10px;
-        }
-
-        .leaflet-left .leaflet-control {
-          margin-left: 10px;
-        }
-
-        .leaflet-right .leaflet-control {
-          margin-right: 10px;
-        }
-
-        .leaflet-control-zoom a {
-          display: block;
-          width: 30px;
-          height: 30px;
-          line-height: 30px;
-          text-align: center;
-          text-decoration: none;
-          color: #0f5139;
-          background: white;
-          border-bottom: 1px solid #ccc;
-          font-size: 18px;
-          font-weight: bold;
-        }
-
-        .leaflet-control-zoom {
-          border: 2px solid rgba(0, 0, 0, 0.2);
-          border-radius: 6px;
-          overflow: hidden;
-        }
-
-        .leaflet-popup {
-          position: absolute;
-          text-align: center;
-          margin-bottom: 20px;
-        }
-
-        .leaflet-popup-content-wrapper {
-          padding: 8px;
-          text-align: left;
-          border-radius: 12px;
-          background: white;
-          box-shadow: 0 3px 14px rgba(0, 0, 0, 0.25);
-        }
-
-        .leaflet-popup-content {
-          margin: 8px;
-          line-height: 1.5;
-          font-size: 13px;
-        }
-
-        .leaflet-popup-tip-container {
-          width: 40px;
-          height: 20px;
-          position: absolute;
-          left: 50%;
-          margin-left: -20px;
-          overflow: hidden;
-          pointer-events: none;
-        }
-
-        .leaflet-popup-tip {
-          width: 17px;
-          height: 17px;
-          padding: 1px;
-          margin: -10px auto 0;
-          transform: rotate(45deg);
-          background: white;
-          box-shadow: 0 3px 14px rgba(0, 0, 0, 0.25);
-        }
-
-        .leaflet-popup-close-button {
-          position: absolute;
-          top: 0;
-          right: 0;
-          padding: 6px 8px;
-          text-align: center;
-          width: 24px;
-          height: 24px;
-          font: 16px/24px Tahoma, Verdana, sans-serif;
-          color: #555;
-          text-decoration: none;
-          font-weight: bold;
-          background: transparent;
-          border: none;
-        }
-
-        .leaflet-marker-icon,
-        .leaflet-marker-shadow {
-          display: block;
-        }
-
-        .custom-leaflet-marker {
-          background: transparent;
-          border: none;
+        .gm-ui-hover-effect span {
+          background-color: #f7f6ef !important;
         }
       `}</style>
 
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-10">
-        {/* Tabs */}
         <section className="flex flex-wrap gap-3 border-b border-black/10 pb-8">
           <TabButton href="/database/peta">Peta Lestari</TabButton>
 
@@ -609,7 +642,6 @@ export default function DatabaseDasPage() {
           </TabButton>
         </section>
 
-        {/* Stats */}
         <section className="grid gap-4 border-b border-black/10 pb-8 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((item) => (
             <div key={item.label} className="p-6 text-center">
@@ -622,7 +654,6 @@ export default function DatabaseDasPage() {
           ))}
         </section>
 
-        {/* Area Konten DAS */}
         <section className="rounded-3xl border border-black bg-stone-50 p-6 sm:p-8 lg:p-10">
           {loading ? (
             <div className="flex min-h-[320px] items-center justify-center rounded-3xl bg-gray-400 text-sm font-semibold text-white sm:min-h-[520px] lg:min-h-[720px]">

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import Link from "next/link"
+import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
 import { supabase } from "@/lib/supabase"
 
 type PolygonPoint = {
@@ -54,6 +55,17 @@ function TabButton({
   )
 }
 
+function isValidLatLng(lat: number, lng: number) {
+  return (
+    !Number.isNaN(lat) &&
+    !Number.isNaN(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180
+  )
+}
+
 function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
   let polygonData = item.polygon_coordinates
 
@@ -68,11 +80,13 @@ function getPolygonPoints(item: LokasiPenanaman): PolygonPoint[] {
   if (!Array.isArray(polygonData)) return []
 
   return polygonData
-    .map((point) => ({
-      lat: Number(point.lat),
-      lng: Number(point.lng),
-    }))
-    .filter((point) => !Number.isNaN(point.lat) && !Number.isNaN(point.lng))
+    .map((point) => {
+      const lat = Number(point.lat)
+      const lng = Number(point.lng)
+
+      return { lat, lng }
+    })
+    .filter((point) => isValidLatLng(point.lat, point.lng))
 }
 
 function escapeHtml(value: string | number | null | undefined) {
@@ -84,29 +98,158 @@ function escapeHtml(value: string | number | null | undefined) {
     .replaceAll("'", "&#039;")
 }
 
-function popupContent(item: LokasiPenanaman) {
-  return `
-    <div style="min-width: 220px; font-family: Arial, sans-serif;">
-      <strong>${escapeHtml(item.nama_lokasi || "Lokasi Penanaman")}</strong>
-      <br />
-      <span>Status: ${escapeHtml(item.status_lokasi || "-")}</span>
-      <br />
-      <span>Alamat: ${escapeHtml(item.alamat || "-")}</span>
-      <br />
-      <span>${escapeHtml(item.kabupaten_kota || "-")}, ${escapeHtml(item.provinsi || "-")}</span>
-      <br />
-      <br />
-      <span>Jumlah bibit: ${escapeHtml(item.jumlah_bibit ?? 0)}</span>
-      <br />
-      <span>Luas area: ${escapeHtml(item.luas_area ?? 0)} ha</span>
-    </div>
-  `
-}
-
 function formatNumber(value: number): string {
   return value % 1 === 0
     ? value.toLocaleString("id-ID")
     : value.toLocaleString("id-ID", { maximumFractionDigits: 1 })
+}
+
+function formatDate(value: string | null) {
+  if (!value) return "-"
+
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) return "-"
+
+  return date.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
+
+function formatCoordinate(item: LokasiPenanaman) {
+  const lat = Number(item.latitude)
+  const lng = Number(item.longitude)
+
+  if (!isValidLatLng(lat, lng)) return "-"
+
+  const latDirection = lat < 0 ? "S" : "N"
+  const lngDirection = lng < 0 ? "W" : "E"
+
+  return `${Math.abs(lat).toFixed(4)}°${latDirection}, ${Math.abs(
+    lng
+  ).toFixed(4)}°${lngDirection}`
+}
+
+function popupContent(item: LokasiPenanaman) {
+  const status = item.status_lokasi || "Terdokumentasi"
+  const wilayah = [item.kabupaten_kota, item.provinsi]
+    .filter(Boolean)
+    .join(", ")
+
+  const jumlahBibit =
+    item.jumlah_bibit !== null && item.jumlah_bibit !== undefined
+      ? formatNumber(Number(item.jumlah_bibit))
+      : "0"
+
+  const luasArea =
+    item.luas_area !== null && item.luas_area !== undefined
+      ? `${formatNumber(Number(item.luas_area))} ha`
+      : "-"
+
+  const tanggalTanam = formatDate(item.tanggal_tanam)
+  const koordinat = formatCoordinate(item)
+
+  return `
+    <div style="
+      width: 330px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #0F5139;
+      color: #F7F6EF;
+      font-family: Inter, Arial, sans-serif;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.28);
+    ">
+      <div style="padding: 22px 22px 18px;">
+        <div style="
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 14px;
+          margin-bottom: 14px;
+        ">
+          <div>
+            <div style="
+              font-size: 20px;
+              line-height: 1.25;
+              font-weight: 800;
+              color: #F7F6EF;
+            ">
+              ${escapeHtml(item.nama_lokasi || "Lokasi Penanaman")}
+            </div>
+
+            <div style="
+              margin-top: 8px;
+              font-size: 12px;
+              line-height: 1.6;
+              color: rgba(247,246,239,0.86);
+            ">
+              ${escapeHtml(item.alamat || "-")}<br/>
+              ${escapeHtml(wilayah || "-")}
+            </div>
+          </div>
+
+          <div style="
+            flex-shrink: 0;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            padding: 6px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #F7F6EF;
+            white-space: nowrap;
+          ">
+            ${escapeHtml(status)}
+          </div>
+        </div>
+
+        <div style="
+          height: 1px;
+          background: rgba(247,246,239,0.25);
+          margin: 12px 0 16px;
+        "></div>
+
+        <div style="display: grid; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; gap: 18px;">
+            <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+              Tanggal tanam
+            </span>
+            <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+              ${escapeHtml(tanggalTanam)}
+            </strong>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; gap: 18px;">
+            <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+              Jumlah bibit
+            </span>
+            <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+              ${escapeHtml(jumlahBibit)}
+            </strong>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; gap: 18px;">
+            <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+              Luas area
+            </span>
+            <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+              ${escapeHtml(luasArea)}
+            </strong>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; gap: 18px;">
+            <span style="font-size: 14px; color: rgba(247,246,239,0.8);">
+              Koordinat
+            </span>
+            <strong style="font-size: 14px; color: #F7F6EF; text-align: right;">
+              ${escapeHtml(koordinat)}
+            </strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
 }
 
 function StatsSection() {
@@ -119,7 +262,7 @@ function StatsSection() {
         .from("lokasi_penanaman")
         .select("status_lokasi, jumlah_bibit, luas_area")
 
-        if (error || !data) {
+      if (error || !data) {
         setLoading(false)
         return
       }
@@ -127,7 +270,7 @@ function StatsSection() {
       const lokasi_aktif = data.filter(
         (item) =>
           item.status_lokasi?.toLowerCase() === "aktif" ||
-          item.status_lokasi === null // hitung semua jika status tidak diset
+          item.status_lokasi === null
       ).length
 
       const total_bibit = data.reduce(
@@ -158,8 +301,8 @@ function StatsSection() {
         { value: "—", label: "Total bibit ditanam" },
         { value: "—", label: "Total luas (ha)" },
       ]
-    
-    return (
+
+  return (
     <section className="grid gap-4 border-b border-black/10 pb-8 sm:grid-cols-3">
       {items.map((item) => (
         <div key={item.label} className="p-6 text-center">
@@ -177,9 +320,34 @@ function StatsSection() {
   )
 }
 
+function createMarkerContent(color = "#0F5139", label = "P") {
+  const wrapper = document.createElement("div")
+
+  wrapper.innerHTML = `
+    <div style="
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      background: ${color};
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      font-family: Arial, sans-serif;
+    ">
+      ${label}
+    </div>
+  `
+
+  return wrapper
+}
+
 function PetaLestari() {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null)
-  const mapInstanceRef = useRef<any>(null)
+  const mapRef = useRef<HTMLDivElement | null>(null)
 
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState("")
@@ -187,12 +355,10 @@ function PetaLestari() {
   useEffect(() => {
     let cancelled = false
 
-    async function loadMap() {
+    const loadMap = async () => {
       try {
         setLoading(true)
         setErrorMessage("")
-
-        const L = await import("leaflet")
 
         const { data, error } = await supabase
           .from("lokasi_penanaman")
@@ -207,111 +373,151 @@ function PetaLestari() {
           return
         }
 
-        if (!mapContainerRef.current || cancelled) return
-
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.remove()
-          mapInstanceRef.current = null
-        }
-
         const lokasi = (data || []) as LokasiPenanaman[]
 
-        const defaultCenter: [number, number] = [-6.5971, 106.806]
+        const defaultCenter = {
+          lat: -6.5971,
+          lng: 106.806,
+        }
 
-        const map = L.map(mapContainerRef.current, {
-          center: defaultCenter,
-          zoom: 11,
-          scrollWheelZoom: true,
-          zoomControl: true,
+        const firstPolygon = lokasi
+          .map((item) => getPolygonPoints(item))
+          .find((points) => points.length >= 3)
+
+        const firstValidMarker = lokasi.find((item) => {
+          const lat = Number(item.latitude)
+          const lng = Number(item.longitude)
+
+          return isValidLatLng(lat, lng)
         })
 
-        mapInstanceRef.current = map
+        const center = firstPolygon?.[0]
+          ? firstPolygon[0]
+          : firstValidMarker
+            ? {
+                lat: Number(firstValidMarker.latitude),
+                lng: Number(firstValidMarker.longitude),
+              }
+            : defaultCenter
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 19,
-          attribution: "&copy; OpenStreetMap contributors",
-        }).addTo(map)
-
-        const markerIcon = L.divIcon({
-          className: "custom-leaflet-marker",
-          html: `
-            <div style="
-              width: 18px;
-              height: 18px;
-              border-radius: 9999px;
-              background: #0F5139;
-              border: 3px solid white;
-              box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-            "></div>
-          `,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
+        setOptions({
+          key: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+          v: "weekly",
         })
 
-        const bounds = L.latLngBounds([])
+        const { Map, Polygon, InfoWindow } = (await importLibrary(
+          "maps"
+        )) as google.maps.MapsLibrary
+
+        const { LatLngBounds } = (await importLibrary(
+          "core"
+        )) as google.maps.CoreLibrary
+
+        const { AdvancedMarkerElement } = (await importLibrary(
+          "marker"
+        )) as google.maps.MarkerLibrary
+
+        if (!mapRef.current || cancelled) return
+
+        const map = new Map(mapRef.current, {
+          center,
+          zoom: lokasi.length > 0 ? 12 : 10,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || undefined,
+        })
+
+        const bounds = new LatLngBounds()
+        const infoWindow = new InfoWindow({
+          maxWidth: 360,
+        })
+
         let hasBounds = false
 
         lokasi.forEach((item) => {
           const polygonPoints = getPolygonPoints(item)
 
           if (polygonPoints.length >= 3) {
-            const points = polygonPoints.map(
-              (point) => [point.lat, point.lng] as [number, number]
-            )
-
-            L.polygon(points, {
-              color: "#0F5139",
-              weight: 2,
-              opacity: 0.9,
-              fillColor: "#0F5139",
-              fillOpacity: 0.25,
-            })
-              .addTo(map)
-              .bindPopup(popupContent(item))
-
-            points.forEach((point) => {
+            polygonPoints.forEach((point) => {
               bounds.extend(point)
               hasBounds = true
             })
 
-            L.marker(points[0], { icon: markerIcon })
-              .addTo(map)
-              .bindPopup(popupContent(item))
+            const polygon = new Polygon({
+              paths: polygonPoints,
+              strokeColor: "#0F5139",
+              strokeOpacity: 1,
+              strokeWeight: 3,
+              fillColor: "#0F5139",
+              fillOpacity: 0.28,
+              clickable: true,
+            })
+
+            polygon.setMap(map)
+
+            polygon.addListener("click", (event: google.maps.MapMouseEvent) => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(event.latLng || polygonPoints[0])
+              infoWindow.open({
+                map,
+              })
+            })
+
+            const marker = new AdvancedMarkerElement({
+              map,
+              position: polygonPoints[0],
+              title: item.nama_lokasi,
+              content: createMarkerContent("#0F5139", "P"),
+            })
+
+            marker.addListener("click", () => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(polygonPoints[0])
+              infoWindow.open({
+                map,
+              })
+            })
 
             return
           }
 
-          const lat = Number(item.latitude)
-          const lng = Number(item.longitude)
+          const markerPosition = {
+            lat: Number(item.latitude),
+            lng: Number(item.longitude),
+          }
 
-          if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
-            const position: [number, number] = [lat, lng]
-
-            bounds.extend(position)
+          if (isValidLatLng(markerPosition.lat, markerPosition.lng)) {
+            bounds.extend(markerPosition)
             hasBounds = true
 
-            L.marker(position, { icon: markerIcon })
-              .addTo(map)
-              .bindPopup(popupContent(item))
+            const marker = new AdvancedMarkerElement({
+              map,
+              position: markerPosition,
+              title: item.nama_lokasi,
+              content: createMarkerContent("#0F5139", "P"),
+            })
+
+            marker.addListener("click", () => {
+              infoWindow.close()
+              infoWindow.setContent(popupContent(item))
+              infoWindow.setPosition(markerPosition)
+              infoWindow.open({
+                map,
+              })
+            })
           }
         })
 
         if (hasBounds) {
-          map.fitBounds(bounds, {
-            padding: [40, 40],
-            maxZoom: 16,
-          })
+          map.fitBounds(bounds)
         }
-
-        setTimeout(() => {
-          map.invalidateSize()
-        }, 250)
 
         setLoading(false)
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Gagal memuat peta"
 
+        console.error("ERROR PETA LESTARI:", message)
         setErrorMessage(message)
         setLoading(false)
       }
@@ -321,17 +527,12 @@ function PetaLestari() {
 
     return () => {
       cancelled = true
-
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove()
-        mapInstanceRef.current = null
-      }
     }
   }, [])
 
   return (
     <div className="relative h-[420px] w-full overflow-hidden rounded-3xl bg-gray-400 sm:h-[560px] lg:h-[720px]">
-      <div ref={mapContainerRef} className="h-full w-full" />
+      <div ref={mapRef} className="h-full w-full" />
 
       {loading && (
         <div className="absolute inset-0 z-[999] flex items-center justify-center bg-gray-400 text-sm font-semibold text-white">
@@ -352,194 +553,33 @@ export default function DatabasePetaPage() {
   return (
     <main className="min-h-screen bg-[#F7F6EF] px-4 py-10 text-[#113522] sm:px-6 lg:px-10">
       <style jsx global>{`
-        .leaflet-container {
-          width: 100%;
-          height: 100%;
-          position: relative;
-          overflow: hidden;
-          background: #ddd;
-          outline: 0;
-          font-family: inherit;
-          z-index: 1;
+        .gm-style .gm-style-iw-c {
+          padding: 0 !important;
+          border-radius: 24px !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          overflow: visible !important;
         }
 
-        .leaflet-pane,
-        .leaflet-tile,
-        .leaflet-marker-icon,
-        .leaflet-marker-shadow,
-        .leaflet-tile-container,
-        .leaflet-pane > svg,
-        .leaflet-pane > canvas,
-        .leaflet-zoom-box,
-        .leaflet-image-layer,
-        .leaflet-layer {
-          position: absolute;
-          left: 0;
-          top: 0;
+        .gm-style .gm-style-iw-d {
+          overflow: hidden !important;
         }
 
-        .leaflet-container img.leaflet-tile {
-          max-width: none !important;
-          max-height: none !important;
-          width: 256px !important;
-          height: 256px !important;
+        .gm-style .gm-style-iw-tc::after {
+          background: #0f5139 !important;
         }
 
-        .leaflet-tile {
-          filter: inherit;
-          visibility: hidden;
+        .gm-ui-hover-effect {
+          top: 8px !important;
+          right: 8px !important;
+          width: 28px !important;
+          height: 28px !important;
+          border-radius: 999px !important;
+          background: rgba(255, 255, 255, 0.16) !important;
         }
 
-        .leaflet-tile-loaded {
-          visibility: inherit;
-        }
-
-        .leaflet-zoom-animated {
-          transform-origin: 0 0;
-        }
-
-        .leaflet-interactive {
-          cursor: pointer;
-        }
-
-        .leaflet-control {
-          position: relative;
-          z-index: 800;
-          pointer-events: auto;
-        }
-
-        .leaflet-top,
-        .leaflet-bottom {
-          position: absolute;
-          z-index: 1000;
-          pointer-events: none;
-        }
-
-        .leaflet-top {
-          top: 0;
-        }
-
-        .leaflet-right {
-          right: 0;
-        }
-
-        .leaflet-bottom {
-          bottom: 0;
-        }
-
-        .leaflet-left {
-          left: 0;
-        }
-
-        .leaflet-control {
-          float: left;
-          clear: both;
-        }
-
-        .leaflet-right .leaflet-control {
-          float: right;
-        }
-
-        .leaflet-top .leaflet-control {
-          margin-top: 10px;
-        }
-
-        .leaflet-bottom .leaflet-control {
-          margin-bottom: 10px;
-        }
-
-        .leaflet-left .leaflet-control {
-          margin-left: 10px;
-        }
-
-        .leaflet-right .leaflet-control {
-          margin-right: 10px;
-        }
-
-        .leaflet-control-zoom a {
-          display: block;
-          width: 30px;
-          height: 30px;
-          line-height: 30px;
-          text-align: center;
-          text-decoration: none;
-          color: #0f5139;
-          background: white;
-          border-bottom: 1px solid #ccc;
-          font-size: 18px;
-          font-weight: bold;
-        }
-
-        .leaflet-control-zoom {
-          border: 2px solid rgba(0, 0, 0, 0.2);
-          border-radius: 6px;
-          overflow: hidden;
-        }
-
-        .leaflet-popup {
-          position: absolute;
-          text-align: center;
-          margin-bottom: 20px;
-        }
-
-        .leaflet-popup-content-wrapper {
-          padding: 8px;
-          text-align: left;
-          border-radius: 12px;
-          background: white;
-          box-shadow: 0 3px 14px rgba(0, 0, 0, 0.25);
-        }
-
-        .leaflet-popup-content {
-          margin: 8px;
-          line-height: 1.5;
-          font-size: 13px;
-        }
-
-        .leaflet-popup-tip-container {
-          width: 40px;
-          height: 20px;
-          position: absolute;
-          left: 50%;
-          margin-left: -20px;
-          overflow: hidden;
-          pointer-events: none;
-        }
-
-        .leaflet-popup-tip {
-          width: 17px;
-          height: 17px;
-          padding: 1px;
-          margin: -10px auto 0;
-          transform: rotate(45deg);
-          background: white;
-          box-shadow: 0 3px 14px rgba(0, 0, 0, 0.25);
-        }
-
-        .leaflet-popup-close-button {
-          position: absolute;
-          top: 0;
-          right: 0;
-          padding: 6px 8px;
-          text-align: center;
-          width: 24px;
-          height: 24px;
-          font: 16px/24px Tahoma, Verdana, sans-serif;
-          color: #555;
-          text-decoration: none;
-          font-weight: bold;
-          background: transparent;
-          border: none;
-        }
-
-        .leaflet-marker-icon,
-        .leaflet-marker-shadow {
-          display: block;
-        }
-
-        .custom-leaflet-marker {
-          background: transparent;
-          border: none;
+        .gm-ui-hover-effect span {
+          background-color: #f7f6ef !important;
         }
       `}</style>
 
@@ -552,7 +592,7 @@ export default function DatabasePetaPage() {
 
           <TabButton href="/database/pohon">Pohon Lestari</TabButton>
 
-          <TabButton href="/database/das">DAS Lestari</TabButton>
+          <TabButton href="/database/DAS">DAS Lestari</TabButton>
         </section>
 
         {/* Stats */}

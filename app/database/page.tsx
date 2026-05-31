@@ -86,10 +86,10 @@ function DatabaseCard({
 }) {
   return (
     <Link href={href} className="block">
-      <article className="group flex min-h-96 flex-col justify-between rounded-3xl bg-gray-400 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+      <article className="group flex min-h-96 flex-col justify-between rounded-3xl bg-emerald-900/50 p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
         <div>
           <div className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-300 text-xl text-emerald-900">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-900/50 text-xl text-emerald-900">
               {icon}
             </div>
 
@@ -347,7 +347,7 @@ export default function DatabasePage() {
         </section>
 
         {/* Cards */}
-        <section className="grid gap-8 md:grid-cols-2 xl:grid-cols-2">
+        <section className="grid gap-8 md:grid-cols-2 xl:grid-cols-2 ">
           {databaseCards.map((card) => (
             <DatabaseCard
               key={card.title}

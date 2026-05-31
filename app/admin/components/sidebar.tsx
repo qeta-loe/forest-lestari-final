@@ -1,19 +1,29 @@
 "use client"
 
 type MenuKey =
-  | "upload" | "list"
-  | "artikel" | "artikelList"
+  | "upload"
+  | "list"
+  | "artikel"
+  | "artikelList"
   | "database"
-  | "lokasiPenanaman" | "daftarLokasiPenanaman"
-  | "das" | "daftarDas"
-  | "pohon" | "daftarPohon"
+  | "lokasiPenanaman"
+  | "daftarLokasiPenanaman"
+  | "das"
+  | "daftarDas"
+  | "pohon"
+  | "daftarPohon"
   | "profil"
   | "organisasi"
-  | "tonggak" | "tonggakList"
-  | "mitra" | "mitraList"
-  | "laporan" | "laporanList"
-  | "relawan" | "relawanList"
-  | "program" | "programList"
+  | "tonggak"
+  | "tonggakList"
+  | "mitra"
+  | "mitraList"
+  | "laporan"
+  | "laporanList"
+  | "relawan"
+  | "relawanList"
+  | "program"
+  | "programList"
 
 type Props = {
   menu: MenuKey
@@ -34,16 +44,33 @@ type Props = {
 
 export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiatan, setEditingArtikel, setEditingLokasi, setEditingDas, setEditingPohon, setEditingTonggak, setEditingMitra, setEditingLaporan, setEditingRelawan, setEditingProgram }: Props) {
   const isKegiatanActive = menu === "upload" || menu === "list"
-  const isArtikelActive = menu === "artikel" || menu === "artikelList"
-  const isDatabaseActive = ["database","lokasiPenanaman","daftarLokasiPenanaman","das","daftarDas","pohon","daftarPohon"].includes(menu)
+
+  const isArtikelActive =
+    menu === "artikel" || menu === "artikelList"
+
+  const isDatabaseActive = [
+    "database",
+    "lokasiPenanaman",
+    "daftarLokasiPenanaman",
+    "das",
+    "daftarDas",
+    "pohon",
+    "daftarPohon",
+  ].includes(menu)
+
   const isTentangActive = [
     "organisasi",
-    "tonggak", "tonggakList",
-    "mitra", "mitraList",
-    "laporan", "laporanList",
-    "relawan", "relawanList",
-    "program", "programList",
-  ].includes(menu) 
+    "tonggak",
+    "tonggakList",
+    "mitra",
+    "mitraList",
+    "laporan",
+    "laporanList",
+    "relawan",
+    "relawanList",
+    "program",
+    "programList",
+  ].includes(menu)
 
   const mainMenuClass = (active: boolean) =>
     `w-full text-left px-4 py-2 rounded-md mb-2 transition-all duration-150 cursor-pointer active:scale-95 ${
@@ -54,21 +81,53 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
 
   const subMenuClass = (active: boolean) =>
     `ml-4 w-[calc(100%-1rem)] text-left px-4 py-2 rounded-md mb-2 text-sm transition-all duration-150 cursor-pointer active:scale-95 ${
-      active ? "bg-[#0F5139]/10 text-[#0F5139] font-semibold" : "text-[#0F5139] hover:bg-gray-100"
+      active
+        ? "bg-[#0F5139]/10 text-[#0F5139] font-semibold"
+        : "text-[#0F5139] hover:bg-gray-100"
     }`
 
   const subSubMenuClass = (active: boolean) =>
     `ml-8 w-[calc(100%-2rem)] text-left px-4 py-2 rounded-md mb-2 text-sm transition-all duration-150 cursor-pointer active:scale-95 ${
-      active ? "bg-[#0F5139]/10 text-[#0F5139] font-semibold" : "text-[#0F5139] hover:bg-gray-100"
+      active
+        ? "bg-[#0F5139]/10 text-[#0F5139] font-semibold"
+        : "text-[#0F5139] hover:bg-gray-100"
     }`
 
-  const tentangSubmenus: { key: MenuKey; listKey: MenuKey; label: string }[] = [
-    { key: "organisasi", listKey: "organisasi", label: "Struktur Organisasi" },
-    { key: "tonggak", listKey: "tonggakList", label: "Tonggak Pencapaian" },
-    { key: "mitra", listKey: "mitraList", label: "Jaringan & Mitra" },
-    { key: "laporan", listKey: "laporanList", label: "Laporan Tahunan" },
-    { key: "relawan", listKey: "relawanList", label: "Relawan" },
-    { key: "program", listKey: "programList", label: "Program" },
+  const tentangSubmenus: {
+    key: MenuKey
+    listKey: MenuKey
+    label: string
+  }[] = [
+    {
+      key: "organisasi",
+      listKey: "organisasi",
+      label: "Struktur Organisasi",
+    },
+    {
+      key: "tonggak",
+      listKey: "tonggakList",
+      label: "Tonggak Pencapaian",
+    },
+    {
+      key: "mitra",
+      listKey: "mitraList",
+      label: "Jaringan & Mitra",
+    },
+    {
+      key: "laporan",
+      listKey: "laporanList",
+      label: "Laporan Tahunan",
+    },
+    {
+      key: "relawan",
+      listKey: "relawanList",
+      label: "Relawan",
+    },
+    {
+      key: "program",
+      listKey: "programList",
+      label: "Program",
+    },
   ]
 
   return (
@@ -90,8 +149,12 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
 
         <span>Kelola Kegiatan</span>
       </button>
+
       {isKegiatanActive && (
-        <button onClick={() => setMenu("list")} className={subMenuClass(menu === "list")}>
+        <button
+          onClick={() => setMenu("list")}
+          className={subMenuClass(menu === "list")}
+        >
           Daftar Kegiatan
         </button>
       )}
@@ -112,8 +175,12 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
         </span>
         <span>Kelola Artikel</span>
       </button>
+
       {isArtikelActive && (
-        <button onClick={() => setMenu("artikelList")} className={subMenuClass(menu === "artikelList")}>
+        <button
+          onClick={() => setMenu("artikelList")}
+          className={subMenuClass(menu === "artikelList")}
+        >
           Daftar Artikel
         </button>
       )}
@@ -134,6 +201,7 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
         </span>
         <span>Kelola Database</span>
       </button>
+
       {isDatabaseActive && (
         <>
           <button
@@ -148,8 +216,15 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
           >
             Lokasi Penanaman
           </button>
-          {(menu === "lokasiPenanaman" || menu === "daftarLokasiPenanaman") && (
-            <button onClick={() => setMenu("daftarLokasiPenanaman")} className={subSubMenuClass(menu === "daftarLokasiPenanaman")}>
+
+          {(menu === "lokasiPenanaman" ||
+            menu === "daftarLokasiPenanaman") && (
+            <button
+              onClick={() => setMenu("daftarLokasiPenanaman")}
+              className={subSubMenuClass(
+                menu === "daftarLokasiPenanaman"
+              )}
+            >
               Daftar Lokasi Penanaman
             </button>
           )}
@@ -163,8 +238,12 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
           >
             DAS
           </button>
+
           {(menu === "das" || menu === "daftarDas") && (
-            <button onClick={() => setMenu("daftarDas")} className={subSubMenuClass(menu === "daftarDas")}>
+            <button
+              onClick={() => setMenu("daftarDas")}
+              className={subSubMenuClass(menu === "daftarDas")}
+            >
               Daftar DAS
             </button>
           )}
@@ -178,8 +257,12 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
           >
             Pohon
           </button>
+
           {(menu === "pohon" || menu === "daftarPohon") && (
-            <button onClick={() => setMenu("daftarPohon")} className={subSubMenuClass(menu === "daftarPohon")}>
+            <button
+              onClick={() => setMenu("daftarPohon")}
+              className={subSubMenuClass(menu === "daftarPohon")}
+            >
               Daftar Pohon
             </button>
           )}
@@ -199,53 +282,43 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
         </span>
         <span>Kelola Tentang Kami</span>
       </button>
-      {isTentangActive && tentangSubmenus.map((item) => {
-        const isSubActive = menu === item.key || menu === item.listKey
-        return (
-          <div key={item.key}>
-            <button
-              onClick={() => {
-                if (item.key === "tonggak") {
-                  setEditingTonggak(null)
-                }
-                if (item.key === "mitra") {
-                  setEditingMitra(null)
-                }
-                if (item.key === "laporan") {
-                  setEditingLaporan(null)
-                }
-                if (item.key === "relawan") {
-                  setEditingRelawan(null)
-                }
-                if (item.key === "program") {
-                  setEditingProgram(null)
-                }
-
-                setMenu(item.key)
-              }}
-              className={subMenuClass(isSubActive)}
-            >
-              {item.label}
-            </button>
-
-            {item.key !== "organisasi" && isSubActive && (
+      {isTentangActive &&
+        tentangSubmenus.map((item) => {
+          const isSubActive = menu === item.key || menu === item.listKey
+          return (
+            <div key={item.key}>
               <button
-                onClick={() => setMenu(item.listKey)}
-                className={subSubMenuClass(menu === item.listKey)}
-              >
-                Daftar {item.label}
-              </button>
-            )}
-          </div>
-        )
-      })}
+                onClick={() => {
+                  if (item.key === "tonggak") setEditingTonggak(null)
+                  if (item.key === "mitra") setEditingMitra(null)
+                  if (item.key === "laporan") setEditingLaporan(null)
+                  if (item.key === "relawan") setEditingRelawan(null)
+                  if (item.key === "program") setEditingProgram(null)
 
-      <button
-        onClick={onLogout}
-        className="mt-6 w-full rounded-md bg-red-600 px-4 py-2 text-left text-white transition hover:bg-red-700 active:scale-95"
-      >
-        Logout
-      </button>
+                  setMenu(item.key)
+                }}
+                className={subMenuClass(isSubActive)}
+              >
+                {item.label}
+              </button>
+
+              {isSubActive && (
+                <button
+                  onClick={() => setMenu(item.listKey)}
+                  className={subSubMenuClass(menu === item.listKey)}
+                >
+                  Daftar {item.label}
+                </button>
+              )}
+            </div>
+          )
+        })}
+        <button
+          onClick={onLogout}
+          className="mt-6 w-full rounded-md bg-red-600 px-4 py-2 text-left text-white transition hover:bg-red-700 active:scale-95"
+        >
+          Logout
+        </button>
     </div>
   )
 }
