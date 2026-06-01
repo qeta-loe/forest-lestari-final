@@ -6,7 +6,6 @@ export const dynamic = "force-dynamic"
 export default async function LaporanPage() {
   const laporanList = await getLaporanTahunan()
 
-  // fetch stats untuk tiap laporan secara paralel
   const statsPerLaporan = await Promise.all(
     laporanList.map((l) => getStatsByTahun(l.tahun))
   )

@@ -6,6 +6,36 @@ import StatsBar from "@/components/tentang/StatsBar"
 
 export const dynamic = "force-dynamic"
 
+function getTonggakImage(item: any) {
+  const imageSource =
+    item.galeri_urls ||
+    item.image_url ||
+    item.thumbnail_url ||
+    item.gambar_url
+
+  if (!imageSource) return null
+
+  if (Array.isArray(imageSource)) {
+    return imageSource[0] || null
+  }
+
+  if (typeof imageSource === "string") {
+    try {
+      const parsed = JSON.parse(imageSource)
+
+      if (Array.isArray(parsed)) {
+        return parsed[0] || null
+      }
+
+      return imageSource
+    } catch {
+      return imageSource
+    }
+  }
+
+  return null
+}
+
 export default async function TentangKamiPage() {
   const [sections, tonggakAll, stats] = await Promise.all([
     getOrganisasi(),
@@ -21,7 +51,7 @@ export default async function TentangKamiPage() {
       {/* HERO */}
       <section className="relative h-[500px] overflow-hidden lg:h-[620px]">
         <img
-          src="https://placehold.co/1440x620"
+          
           alt="hero tentang kami"
           className="absolute inset-0 h-full w-full object-cover"
         />
@@ -66,12 +96,12 @@ export default async function TentangKamiPage() {
           </div>
 
           <div className="aspect-[4/3] overflow-hidden rounded-[32px] bg-zinc-300 lg:aspect-auto lg:h-[420px]">
-            <img
-              src="https://placehold.co/600x420"
-              alt="tujuan strategis"
-              className="h-full w-full object-cover"
-            />
-          </div>
+          <img
+            src="/images/hutan2.jpg"
+            alt="tujuan strategis"
+            className="h-full w-full object-cover"
+          />
+        </div>
         </div>
       </section>
 
@@ -110,73 +140,84 @@ export default async function TentangKamiPage() {
 
   <div className="mt-10 grid gap-8 lg:grid-cols-[1.65fr_1fr]">
     {/* CARD RIWAYAT DARI SUPABASE */}
-    {tonggakPreview.length > 0 ? (
-      tonggakPreview.map((item: any) => (
-        <article
-          key={item.id}
-          className="overflow-hidden rounded-3xl bg-gray-400 shadow-sm"
-        >
-          <div className="grid min-h-[320px] md:grid-cols-[260px_1fr]">
-            <div className="min-h-[260px] bg-zinc-300 md:min-h-[320px]">
+ {/* CARD RIWAYAT DARI SUPABASE */}
+{tonggakPreview.length > 0 ? (
+  tonggakPreview.map((item: any) => {
+    const imageSrc = getTonggakImage(item)
+
+    return (
+      <article
+        key={item.id}
+        className="overflow-hidden rounded-3xl bg-emerald-900/50 shadow-sm"
+      >
+        <div className="grid min-h-[320px] md:grid-cols-[260px_1fr]">
+          <div className="min-h-[260px] bg-zinc-300 md:min-h-[320px]">
+            {imageSrc ? (
               <img
-                src={
-                  item.image_url ||
-                  item.thumbnail_url ||
-                  item.gambar_url ||
-                  "https://placehold.co/300x400"
+                src={imageSrc}
+                alt={
+                  item.judul ||
+                  item.title ||
+                  item.nama_tonggak ||
+                  "Riwayat pencapaian"
                 }
-                alt={item.judul || item.title || item.nama_tonggak || "Riwayat pencapaian"}
                 className="h-full w-full object-cover"
               />
-            </div>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-zinc-300 text-sm text-emerald-900">
+                Gambar belum tersedia
+              </div>
+            )}
+          </div>
 
-            <div className="flex flex-col justify-center p-7 text-white sm:p-8">
-              <p className="text-xs font-bold text-white">
-                {item.tanggal
-                  ? new Date(item.tanggal).toLocaleDateString("id-ID", {
+          <div className="flex flex-col justify-center p-7 text-white sm:p-8">
+            <p className="text-xs font-bold text-white">
+              {item.tanggal
+                ? new Date(item.tanggal).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : item.created_at
+                  ? new Date(item.created_at).toLocaleDateString("id-ID", {
                       day: "numeric",
                       month: "long",
                       year: "numeric",
                     })
-                  : item.created_at
-                    ? new Date(item.created_at).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                    : "Tanggal belum tersedia"}
-              </p>
+                  : "Tanggal belum tersedia"}
+            </p>
 
-              <h3 className="mt-4 text-xl font-bold leading-tight text-emerald-900 sm:text-2xl">
-                {item.judul ||
-                  item.title ||
-                  item.nama_tonggak ||
-                  "Riwayat Pencapaian"}
-              </h3>
+            <h3 className="mt-4 text-xl font-bold leading-tight text-emerald-900 sm:text-2xl">
+              {item.judul ||
+                item.title ||
+                item.nama_tonggak ||
+                "Riwayat Pencapaian"}
+            </h3>
 
-              <p className="mt-5 max-w-xl text-xs leading-6 text-white sm:text-sm">
-                {item.deskripsi ||
-                  item.description ||
-                  item.ringkasan ||
-                  "Deskripsi pencapaian belum tersedia."}
-              </p>
+            <p className="mt-5 max-w-xl text-xs leading-6 text-white sm:text-sm">
+              {item.deskripsi ||
+                item.description ||
+                item.ringkasan ||
+                "Deskripsi pencapaian belum tersedia."}
+            </p>
 
-              <Link
-                href="/tentangkami/pencapaian"
-                className="mt-7 flex w-fit items-center gap-3 text-xs text-white transition hover:underline"
-              >
-                Lihat detail
-                <span className="inline-block h-0 w-4 border-2 border-white" />
-              </Link>
-            </div>
+            <Link
+              href="/tentangkami/pencapaian"
+              className="mt-7 flex w-fit items-center gap-3 text-xs text-white transition hover:underline"
+            >
+              Lihat detail
+              <span className="text-base leading-none">→</span>
+            </Link>
           </div>
-        </article>
-      ))
-    ) : (
-      <div className="flex min-h-[320px] items-center justify-center rounded-3xl bg-gray-400 p-8 text-center text-sm font-semibold text-white">
-        Belum ada riwayat pencapaian.
-      </div>
-    )}
+        </div>
+      </article>
+    )
+  })
+) : (
+  <div className="rounded-3xl bg-zinc-200 p-8 text-center text-emerald-900">
+    Belum ada riwayat pencapaian.
+  </div>
+)}
 
     {/* KOTAK STATISTIK DARI SUPABASE */}
     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">

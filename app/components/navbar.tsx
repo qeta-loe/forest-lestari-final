@@ -10,9 +10,13 @@ export default function Navbar() {
             href="/"
             className="flex items-center gap-3 transition hover:opacity-80"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-950 text-sm font-bold text-white">
-              FL
-            </div>
+            <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg">
+            <img
+              src="/images/logo.png"
+              alt="Forest Lestari"
+              className="h-full w-full object-cover"
+            />
+          </div>
 
             <span className="text-sm font-semibold uppercase tracking-[0.15em] text-emerald-900">
               Forest Lestari
