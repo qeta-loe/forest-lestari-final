@@ -1,7 +1,5 @@
 import { supabase } from "@/lib/supabase"
 
-// ─── Types ──────────────────────────────────────────────────
-
 export type OrganisasiSection = {
   id: number
   nama_section: string
@@ -53,8 +51,6 @@ export type GlobalStats = {
   area_ha: number
   das_aktif: number
 }
-
-// ─── Queries ────────────────────────────────────────────────
 
 export async function getOrganisasi(): Promise<SectionWithAnggota[]> {
   const { data: sections, error: sErr } = await supabase
@@ -129,18 +125,21 @@ export async function getLaporanByTahun(
 
 export async function getGlobalStats(): Promise<GlobalStats> {
   const [pohonRes, relawanRes, lokasiRes, dasRes] = await Promise.all([
-    supabase.from("pohon").select("jumlah"),
-    supabase.from("relawan").select("id", { count: "exact", head: true }),
-    supabase.from("lokasi_penanaman").select("luas_area"),
-    supabase.from("das").select("id", { count: "exact", head: true }),
-  ])
+  supabase.from("pohon").select("jumlah"),
+  supabase.from("relawan").select("jumlah_relawan"),
+  supabase.from("lokasi_penanaman").select("luas_area"),
+  supabase.from("das").select("id", { count: "exact", head: true }),
+])
 
   const pohon_ditanam = (pohonRes.data || []).reduce(
     (sum, p) => sum + (p.jumlah || 0),
     0
   )
 
-  const total_relawan = relawanRes.count || 0
+  const total_relawan = (relawanRes.data || []).reduce(
+    (sum, r) => sum + (r.jumlah_relawan || 0),
+    0
+  )
 
   const area_ha = (lokasiRes.data || []).reduce(
     (sum, l) => sum + (l.luas_area || 0),
@@ -157,7 +156,7 @@ export async function getStatsByTahun(tahun: number) {
     supabase.from("pohon").select("jumlah, created_at"),
     supabase
       .from("relawan")
-      .select("id", { count: "exact", head: true })
+      .select("jumlah_relawan")
       .lte("tahun_bergabung", tahun)
       .eq("status", "aktif"),
     supabase

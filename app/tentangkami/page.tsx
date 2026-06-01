@@ -48,7 +48,6 @@ export default async function TentangKamiPage() {
         </div>
       </section>
 
-      {/* TUJUAN STRATEGIS */}
       <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
@@ -76,7 +75,6 @@ export default async function TentangKamiPage() {
         </div>
       </section>
 
-      {/* STRUKTUR ORGANISASI */}
       <section className="border-y border-black/10 py-16">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <h2 className="mb-16 text-center text-3xl font-bold">
@@ -86,14 +84,12 @@ export default async function TentangKamiPage() {
         </div>
       </section>
 
-      {/* STATS */}
       <section className="border-b border-black/10">
         <div className="mx-auto max-w-7xl">
           <StatsBar stats={stats} />
         </div>
       </section>
 
-{/* RIWAYAT PENCAPAIAN PREVIEW */}
 <section className="mx-auto max-w-7xl px-6 py-16 lg:px-10">
   <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#315B47]">
     Jejak Langkah

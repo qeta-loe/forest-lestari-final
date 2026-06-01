@@ -26,6 +26,8 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
   const [lokasiOptions, setLokasiOptions] = useState<{ id: number; nama_lokasi: string }[]>([])
   const [dasOptions, setDasOptions] = useState<{ id: number; nama_das: string }[]>([])
   const [isDraft, setIsDraft] = useState(false)
+  const [showLokasi, setShowLokasi] = useState(false)
+  const [showDas, setShowDas] = useState(false)
 
   useEffect(() => {
     fetchLokasiOptions().then(setLokasiOptions).catch(console.error)
@@ -175,39 +177,139 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
           </div>
 
           <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">
-              Lokasi Penanaman
+            <div>
+              <label className="mb-2 block font-medium text-[#0F5139]">
+                Lokasi Penanaman
               </label>
-            <select
-              value={lokasiId}
-              onChange={(e) => setLokasiId(e.target.value)}
-              className={inputClass}
-            >
-              <option value="">— Tidak dipilih —</option>
-              {lokasiOptions.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.nama_lokasi}
-                </option>
-              ))}
-            </select>
+
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowLokasi(!showLokasi)}
+                  className="flex w-full items-center justify-between rounded-xl border p-3 transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
+                >
+                  <span>
+                    {lokasiId
+                      ? lokasiOptions.find((l) => l.id === Number(lokasiId))?.nama_lokasi
+                      : "— Tidak dipilih —"}
+                  </span>
+
+                  <svg
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                      showLokasi ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {showLokasi && (
+                  <div className="absolute left-0 right-0 z-50 mt-2 max-h-60 overflow-auto rounded-xl border bg-white shadow-lg">
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLokasiId("")
+                        setShowLokasi(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      — Tidak dipilih —
+                    </button>
+
+                    {lokasiOptions.map((l) => (
+                      <button
+                        key={l.id}
+                        type="button"
+                        onClick={() => {
+                          setLokasiId(String(l.id))
+                          setShowLokasi(false)
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                      >
+                        {l.nama_lokasi}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">
-              DAS
-            </label>
-            <select
-              value={dasId}
-              onChange={(e) => setDasId(e.target.value)}
-              className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
-            >
-              <option value="">— Tidak dipilih —</option>
-              {dasOptions.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.nama_das}
-                </option>
-              ))}
-            </select>
+            <div>
+              <label className="mb-2 block font-medium text-[#0F5139]">
+                DAS
+              </label>
+
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowDas(!showDas)}
+                  className="flex w-full items-center justify-between rounded-xl border p-3 transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
+                >
+                  <span>
+                    {dasId
+                      ? dasOptions.find((d) => d.id === Number(dasId))?.nama_das
+                      : "— Tidak dipilih —"}
+                  </span>
+
+                  <svg
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                      showDas ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {showDas && (
+                  <div className="absolute left-0 right-0 z-50 mt-2 max-h-60 overflow-auto rounded-xl border bg-white shadow-lg">
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDasId("")
+                        setShowDas(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      — Tidak dipilih —
+                    </button>
+
+                    {dasOptions.map((d) => (
+                      <button
+                        key={d.id}
+                        type="button"
+                        onClick={() => {
+                          setDasId(String(d.id))
+                          setShowDas(false)
+                        }}
+                        className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                      >
+                        {d.nama_das}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

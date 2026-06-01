@@ -128,8 +128,10 @@ export default function LaporanForm({ editingLaporan, onSuccess, onCancel }: Pro
             </label>
 
             {editingLaporan && !file && (
-              <div className="mb-3 flex items-center gap-2">
-                <span className="text-xs text-gray-400">File saat ini:</span>
+              <div className="mb-4 flex justify-center">
+                <p className="mb-2 text-xs text-gray-400">
+                  FIle saat ini
+                </p>
                 <a
                   href={editingLaporan.file_url}
                   target="_blank"
@@ -141,17 +143,20 @@ export default function LaporanForm({ editingLaporan, onSuccess, onCancel }: Pro
               </div>
             )}
 
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#0F5139]/20 rounded-xl cursor-pointer hover:bg-gray-50 transition">
-              <span className="text-sm text-[#0F5139]">
-                {file ? file.name : "Klik untuk pilih file PDF"}
-              </span>
-              <span className="text-xs text-gray-400 mt-1">Hanya file .pdf</span>
-              <input
-                type="file"
-                accept=".pdf,application/pdf"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
-                className="hidden"
-              />
+            <label className="flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all duration-200 hover:bg-[#F5F5F5]">
+              <div className="text-center">
+                <p className="text-lg font-semibold text-[#0F5139]">
+                  Upload Laporan Tahunan
+                </p>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  Hanya file .pdf
+                </p>
+
+                <p className="mt-1 text-sm font-medium text-[#0F5139]">
+                  {file ? file.name : "Klik untuk memilih file PDF"}
+                </p>
+              </div>
             </label>
           </div>
 

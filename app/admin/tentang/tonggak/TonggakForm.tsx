@@ -26,6 +26,7 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancelEdit }:
   const [galeriFiles, setGaleriFiles] = useState<File[]>([])
   const [existingUrls, setExistingUrls] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
+  const [showKategori, setShowKategori] = useState(false)
 
   useEffect(() => {
     if (editingTonggak) {
@@ -161,14 +162,78 @@ export default function TonggakForm({ editingTonggak, onSuccess, onCancelEdit }:
           </div>
 
           <div>
-            <label className={labelClass}>Kategori</label>
-            <select value={kategori} onChange={(e) => setKategori(e.target.value)}
-              className={inputClass}>
-              <option value="">Pilih kategori</option>
-              <option value="penanaman">Penanaman</option>
-              <option value="das">DAS</option>
-              <option value="kolaborasi">Kolaborasi</option>
-            </select>
+            <div>
+              <label className={labelClass}>
+                Kategori
+                </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowKategori(!showKategori)}
+                  className={`${inputClass} flex items-center justify-between`}
+                >
+                  <span>
+                    {kategori
+                      ? kategori.charAt(0).toUpperCase() + kategori.slice(1)
+                      : "Pilih kategori"}
+                  </span>
+
+                  <svg
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                      showKategori ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {showKategori && (
+                  <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg">
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setKategori("penanaman")
+                        setShowKategori(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      Penanaman
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setKategori("das")
+                        setShowKategori(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      DAS
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setKategori("kolaborasi")
+                        setShowKategori(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      Kolaborasi
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

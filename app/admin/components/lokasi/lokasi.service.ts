@@ -1,10 +1,5 @@
 import { supabase } from "@/lib/supabase"
 
-export type PolygonCoordinate = {
-  lat: number
-  lng: number
-}
-
 export type LokasiPenanaman = {
   id: number
   nama_lokasi: string
@@ -18,10 +13,6 @@ export type LokasiPenanaman = {
   jumlah_bibit: number
   tanggal_tanam: string
   is_draft: boolean
-  polygon_coordinates: {
-    lat: number
-    lng: number
-  }[]
   created_at: string
 }
 
@@ -46,25 +37,7 @@ export const uploadLokasiPenanaman = async (data: {
   jumlah_bibit: number
   tanggal_tanam: string
   is_draft: boolean
-  polygon_coordinates: PolygonCoordinate[]
 }): Promise<void> => {
-  if (data.polygon_coordinates.length < 3) {
-    throw new Error("Polygon minimal harus memiliki 3 titik")
-  }
-
-  const hasInvalidCoordinate =
-    data.polygon_coordinates.some(
-      (point) =>
-        isNaN(point.lat) ||
-        isNaN(point.lng)
-    )
-
-  if (hasInvalidCoordinate) {
-    throw new Error(
-      "Latitude dan longitude polygon harus berupa angka"
-    )
-  }
-
   const { error } = await supabase
     .from("lokasi_penanaman")
     .insert([
@@ -78,7 +51,7 @@ export const uploadLokasiPenanaman = async (data: {
         luas_area: data.luas_area,
         jumlah_bibit: data.jumlah_bibit,
         tanggal_tanam: data.tanggal_tanam,
-        polygon_coordinates: data.polygon_coordinates,
+        is_draft: data.is_draft,
       },
     ])
 
@@ -100,7 +73,6 @@ export const updateLokasiPenanaman = async (
     jumlah_bibit: number
     tanggal_tanam: string
     is_draft: boolean
-    polygon_coordinates: PolygonCoordinate[]
   }
 ): Promise<void> => {
   const { error } = await supabase
@@ -116,7 +88,6 @@ export const updateLokasiPenanaman = async (
       jumlah_bibit: data.jumlah_bibit,
       tanggal_tanam: data.tanggal_tanam,
       is_draft: data.is_draft,
-      polygon_coordinates: data.polygon_coordinates,
     })
     .eq("id", id)
 

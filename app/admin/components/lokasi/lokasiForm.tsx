@@ -2,11 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { LokasiPenanaman, uploadLokasiPenanaman, updateLokasiPenanaman } from "./lokasi.service"
-
-type PolygonInputPoint = { 
-    lat: string; 
-    lng: string 
-}
+import { parseKMLFile } from "@/lib/kml/parser"
 
 type Props = {
   onSuccess: () => void
@@ -33,27 +29,40 @@ export default function LokasiForm({
   const [jumlahBibit, setJumlahBibit] = useState("")
   const [tanggalTanam, setTanggalTanam] = useState("")
   const [deskripsi, setDeskripsi] = useState("")
-  const [polygonPoints, setPolygonPoints] = useState<PolygonInputPoint[]>([
-    { lat: "", lng: "" },
-    { lat: "", lng: "" },
-    { lat: "", lng: "" },
-  ])
   const [isDraft, setIsDraft] = useState(false)
+  const [showStatusLokasi, setShowStatusLokasi] = useState(false)
+  const [inputMode, setInputMode] = useState<"manual" | "kml" | "">("")
+  const [showInputMode, setShowInputMode] = useState(false)
+  const [kmlFileName, setKmlFileName] = useState("")
 
-  const updatePoint = (
-    index: number, 
-    field: "lat" | "lng", 
-    value: string
-    ) =>
-    setPolygonPoints((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
+  const handleKmlUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0]
+
+    if (!file) return
+
+    setKmlFileName(file.name)
+
+    const text = await file.text()
+
+    const match = text.match(
+      /<coordinates>([\s\S]*?)<\/coordinates>/
     )
 
-  const addPoint = () => setPolygonPoints((prev) => [...prev, { lat: "", lng: "" }])
+    if (!match) {
+      alert("Koordinat tidak ditemukan dalam file KML")
+      return
+    }
 
-  const removePoint = (index: number) => {
-    if (polygonPoints.length <= 3) return alert("Polygon minimal harus memiliki 3 titik")
-    setPolygonPoints((prev) => prev.filter((_, i) => i !== index))
+    const firstCoordinate = match[1]
+      .trim()
+      .split(/\s+/)[0]
+
+    const [lng, lat] = firstCoordinate.split(",")
+
+    setLatitude(lat)
+    setLongitude(lng)
   }
 
   const resetForm = () => {
@@ -68,11 +77,8 @@ export default function LokasiForm({
     setJumlahBibit("")
     setTanggalTanam("")
 
-    setPolygonPoints([
-      { lat: "", lng: "" },
-      { lat: "", lng: "" },
-      { lat: "", lng: "" },
-    ])
+    setInputMode("")
+    setKmlFileName("")
 
     setDeskripsi("")
     setIsDraft(false)
@@ -95,20 +101,14 @@ export default function LokasiForm({
       setTanggalTanam(editingLokasi.tanggal_tanam || "")
       setIsDraft(editingLokasi.is_draft || false)
 
-      setPolygonPoints(
-        editingLokasi.polygon_coordinates?.map((point) => ({
-          lat: String(point.lat),
-          lng: String(point.lng),
-        })) || [
-          { lat: "", lng: "" },
-          { lat: "", lng: "" },
-          { lat: "", lng: "" },
-        ]
-      )
     } else {
       resetForm()
     }
   }, [editingLokasi])
+
+  useEffect(() => {
+    setKmlFileName("")
+  }, [inputMode])
 
   const handleSubmit = async (draft: boolean) => {
     setIsDraft(draft)
@@ -127,17 +127,6 @@ export default function LokasiForm({
       )
     }
 
-    const hasEmpty =
-      polygonPoints.some(
-        (p) => !p.lat || !p.lng
-      )
-
-    if (hasEmpty) {
-      return alert(
-        "Semua titik polygon harus diisi"
-      )
-    }
-
     try {
       const payload = {
         nama_lokasi: namaLokasi,
@@ -151,10 +140,6 @@ export default function LokasiForm({
         jumlah_bibit: Number(jumlahBibit),
         tanggal_tanam: tanggalTanam,
         is_draft: draft,
-        polygon_coordinates: polygonPoints.map((point) => ({
-          lat: Number(point.lat),
-          lng: Number(point.lng),
-        })),
       }
 
       if (editingLokasi) {
@@ -181,6 +166,7 @@ export default function LokasiForm({
       </h1>
     </div>
 
+    <div className="space-y-5">
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <div className="md:col-span-2">
           <label className="mb-2 block font-medium text-[#0F5139]">
@@ -196,18 +182,71 @@ export default function LokasiForm({
         </div>
 
         <div>
-          <label className="mb-2 block font-medium text-[#0F5139]">
-            Status Lokasi
-          </label>
+          <div>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Status Lokasi
+            </label>
 
-          <select
-            value={statusLokasi}
-            onChange={(e) => setStatusLokasi(e.target.value as "aktif" | "tidak_aktif")}
-            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
-          >
-            <option value="aktif">Aktif</option>
-            <option value="tidak_aktif">Tidak Aktif</option>
-          </select>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowStatusLokasi(!showStatusLokasi)}
+                className="flex w-full items-center justify-between rounded-xl border p-3 transition focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
+              >
+                <span>
+                  {statusLokasi === "aktif"
+                    ? "Aktif"
+                    : statusLokasi === "tidak_aktif"
+                    ? "Tidak Aktif"
+                    : "Pilih status"}
+                </span>
+
+                <svg
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    showStatusLokasi ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {showStatusLokasi && (
+                <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg">
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusLokasi("aktif")
+                      setShowStatusLokasi(false)
+                    }}
+                    className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                  >
+                    Aktif
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusLokasi("tidak_aktif")
+                      setShowStatusLokasi(false)
+                    }}
+                    className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                  >
+                    Tidak Aktif
+                  </button>
+
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         <div>
@@ -266,36 +305,6 @@ export default function LokasiForm({
 
         <div>
           <label className="mb-2 block font-medium text-[#0F5139]">
-            Latitude
-          </label>
-
-          <input
-            type="number"
-            step="any"
-            placeholder="-6.12345"
-            value={latitude}
-            onChange={(e) => setLatitude(e.target.value)}
-            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
-          />
-        </div>
-
-        <div>
-          <label className="mb-2 block font-medium text-[#0F5139]">
-            Longitude
-          </label>
-
-          <input
-            type="number"
-            step="any"
-            placeholder="106.12345"
-            value={longitude}
-            onChange={(e) => setLongitude(e.target.value)}
-            className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
-          />
-        </div>
-
-        <div>
-          <label className="mb-2 block font-medium text-[#0F5139]">
             Luas Area (ha)
           </label>
 
@@ -335,44 +344,104 @@ export default function LokasiForm({
           onChange={(e) => setDeskripsi(e.target.value)}
           className="min-h-40 w-full rounded-xl border p-4 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
         />
-      </div>
 
-      <div className="mt-10">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-[#0F5139]">
-            Titik Polygon
-          </h2>
+        <div>
+          <label className="mb-2 block font-medium text-[#0F5139]">
+            Metode Input
+          </label>
 
-          <button
-            type="button"
-            onClick={addPoint}
-            className="rounded-xl bg-[#0F5139] px-4 py-2 text-white transition-all duration-200 hover:bg-[#0A3D2A] active:scale-95"
-          >
-            + Tambah Titik
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowInputMode(!showInputMode)}
+              className="flex w-full items-center justify-between rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
+            >
+              <span>
+                {inputMode === "manual"
+                  ? "Input Manual"
+                  : inputMode === "kml"
+                  ? "Upload KML"
+                  : "Pilih metode input"}
+              </span>
+
+              <svg
+                className={`h-4 w-4 transition-transform duration-200 ${
+                  showInputMode ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {showInputMode && (
+              <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg">
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setInputMode("manual")
+                    setShowInputMode(false)
+                  }}
+                  className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                >
+                  Input Manual
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setInputMode("kml")
+                    setShowInputMode(false)
+                  }}
+                  className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                >
+                  Upload KML
+                </button>
+
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="space-y-4">
-          {polygonPoints.map((point, index) => (
-            <div
-              key={index}
-              className="rounded-2xl border p-5 transition duration-200 hover:shadow-sm"
-            >
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-[#0F5139]">
-                  Titik {index + 1}
-                </h3>
+        {inputMode === "kml" && (
+          <div className="mt-5">
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              File KML
+            </label>
 
-                {polygonPoints.length > 3 && (
-                  <button
-                    type="button"
-                    onClick={() => removePoint(index)}
-                    className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white transition-all duration-200 hover:bg-red-700 active:scale-95"
-                  >
-                    Hapus
-                  </button>
-                )}
-              </div>
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#0F5139]/20 rounded-xl cursor-pointer hover:bg-gray-50 transition">
+              <span className="text-sm text-[#0F5139]">
+                {kmlFileName || "Klik untuk pilih file KML"}
+              </span>
+
+              <span className="text-xs text-gray-400 mt-1">
+                Hanya file .kml
+              </span>
+
+              <input
+                type="file"
+                accept=".kml"
+                onChange={handleKmlUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+        )}
+
+        {inputMode === "manual" && (
+          <>
+            <div className="mt-5">
+              <h2 className="text-lg font-semibold text-[#0F5139] mb-4">
+                Titik Lokasi
+              </h2>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
@@ -384,10 +453,8 @@ export default function LokasiForm({
                     type="number"
                     step="any"
                     placeholder="-6.12345"
-                    value={point.lat}
-                    onChange={(e) =>
-                      updatePoint(index, "lat", e.target.value)
-                    }
+                    value={latitude}
+                    onChange={(e) => setLatitude(e.target.value)}
                     className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
                   />
                 </div>
@@ -401,22 +468,21 @@ export default function LokasiForm({
                     type="number"
                     step="any"
                     placeholder="106.12345"
-                    value={point.lng}
-                    onChange={(e) =>
-                      updatePoint(index, "lng", e.target.value)
-                    }
+                    value={longitude}
+                    onChange={(e) => setLongitude(e.target.value)}
                     className="w-full rounded-xl border p-3 outline-none transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10"
                   />
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
 
-        <p className="mt-3 text-sm text-gray-500">
-          Minimal 3 titik polygon.
-        </p>
+              <p className="mt-3 text-sm text-gray-500">
+                Masukkan titik koordinat utama lokasi penanaman.
+              </p>
+            </div>
+          </>
+        )}
       </div>
+    </div>
 
       <div className="mt-10 flex justify-end gap-4">
           <button

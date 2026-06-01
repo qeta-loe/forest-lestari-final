@@ -86,21 +86,6 @@ export default function LokasiList({ lokasiPenanaman, onEdit, onDelete }: Props)
             key={item.id}
             className="overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-md"
           >
-            <div className="flex h-52 w-full items-center justify-center bg-[#0F5139]/10">
-              <div className="text-center">
-                <p className="text-sm text-gray-500">
-                  Polygon Area
-                </p>
-
-                <p className="mt-2 text-2xl font-bold text-[#0F5139]">
-                  {item.polygon_coordinates?.length || 0}
-                </p>
-
-                <p className="text-xs text-gray-500">
-                  titik polygon
-                </p>
-              </div>
-            </div>
 
             <div className="p-5">
               <div className="mb-3 flex items-start justify-between gap-3">

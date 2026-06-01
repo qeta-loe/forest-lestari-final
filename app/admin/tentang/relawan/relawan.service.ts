@@ -2,11 +2,11 @@ import { supabase } from "@/lib/supabase"
 
 export type Relawan = {
   id: number
-  nama: string
-  status: string
-  divisi: string | null
-  nomor_kontak: string | null
-  tahun_bergabung: number
+  nama_kegiatan: string
+  jumlah_relawan: number
+  tanggal_mulai: string
+  tanggal_selesai: string
+  is_draft: boolean
   created_at?: string
 }
 
@@ -14,7 +14,7 @@ export const fetchRelawan = async (): Promise<Relawan[]> => {
   const { data, error } = await supabase
     .from("relawan")
     .select("*")
-    .order("tahun_bergabung", { ascending: false })
+    .order("tanggal_mulai", { ascending: false })
 
   if (error) throw new Error(error.message)
   return (data || []) as Relawan[]

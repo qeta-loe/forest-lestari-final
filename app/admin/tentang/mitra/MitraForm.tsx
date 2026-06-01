@@ -80,10 +80,10 @@ export default function MitraForm({ editingMitra, onSuccess, onCancelEdit }: Pro
               className={inputClass}
             />
           </div>
-        </div>
 
+        </div>
             <label className={labelClass}>
-              Logo Mitra
+              Logo Mitra {editingMitra ? "(kosongkan jika tidak diganti)" : ""}
             </label>
 
             {editingMitra?.logo_url && !logo && (
@@ -109,7 +109,7 @@ export default function MitraForm({ editingMitra, onSuccess, onCancelEdit }: Pro
                   PNG, JPG, SVG, atau WEBP
                 </p>
 
-                <p className="mt-3 text-sm font-medium text-[#0F5139]">
+                <p className="mt-1 text-sm font-medium text-[#0F5139]">
                   {logo ? logo.name : "Klik untuk memilih logo"}
                 </p>
               </div>

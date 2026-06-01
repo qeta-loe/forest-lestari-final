@@ -10,11 +10,9 @@ type Props = {
 }
 
 export default function RelawanList({ relawanList, onRefresh, onEdit }: Props) {
-  const [filterStatus, setFilterStatus] = useState<"semua" | "aktif" | "alumni">("semua")
-  const [filterTahun, setFilterTahun] = useState("")
 
   const handleDelete = async (r: Relawan) => {
-    if (!confirm(`Hapus relawan "${r.nama}"?`)) return
+    if (!confirm(`Hapus kegiatan "${r.nama_kegiatan}"?`)) return
     try {
       await deleteRelawan(r.id)
       onRefresh()
@@ -23,95 +21,120 @@ export default function RelawanList({ relawanList, onRefresh, onEdit }: Props) {
     }
   }
 
-  const filtered = relawanList.filter((r) => {
-    const statusOk = filterStatus === "semua" || r.status === filterStatus
-    const tahunOk = !filterTahun || r.tahun_bergabung === Number(filterTahun)
-    return statusOk && tahunOk
+  const [filterStatus, setFilterStatus] = useState<"semua" | "published" | "draft">("semua")
+
+  const filtered = relawanList.filter((item) => {
+    if (filterStatus === "draft") {
+      return item.is_draft
+    }
+
+    if (filterStatus === "published") {
+      return !item.is_draft
+    }
+
+    return true
   })
 
-  const totalAktif = relawanList.filter((r) => r.status === "aktif").length
-  const totalAlumni = relawanList.filter((r) => r.status === "alumni").length
+  const totalRelawan = relawanList.reduce(
+    (sum, item) => sum + item.jumlah_relawan,
+    0
+  )
 
   return (
     <div>
-      <h1 className="text-xl font-semibold text-[#0F5139] mb-6">Daftar Relawan</h1>
+      <h1 className="text-xl font-semibold text-[#0F5139] mb-6">
+        Daftar Kegiatan Relawan
+      </h1>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="rounded-xl bg-white border p-4">
-          <p className="text-xs text-gray-500">Total Relawan</p>
-          <p className="text-3xl font-bold text-[#0F5139]">{relawanList.length}</p>
+          <p className="text-xs text-gray-500">
+            Total Kegiatan
+          </p>
+
+          <p className="text-3xl font-bold text-[#0F5139]">
+            {relawanList.length}
+          </p>
         </div>
+
         <div className="rounded-xl bg-white border p-4">
-          <p className="text-xs text-gray-500">Aktif</p>
-          <p className="text-3xl font-bold text-emerald-600">{totalAktif}</p>
-        </div>
-        <div className="rounded-xl bg-white border p-4">
-          <p className="text-xs text-gray-500">Alumni</p>
-          <p className="text-3xl font-bold text-gray-400">{totalAlumni}</p>
+          <p className="text-xs text-gray-500">
+            Total Relawan
+          </p>
+
+          <p className="text-3xl font-bold text-[#0F5139]">
+            {totalRelawan}
+          </p>
         </div>
       </div>
 
-      {/* Filter */}
-      <div className="flex gap-3 mb-4 flex-wrap">
-        {(["semua", "aktif", "alumni"] as const).map((s) => (
+      <div className="flex gap-3 mb-5">
+        {(["semua", "published", "draft"] as const).map((status) => (
           <button
-            key={s}
-            onClick={() => setFilterStatus(s)}
-            className={`px-4 py-1.5 rounded-full text-sm capitalize transition ${
-              filterStatus === s
+            key={status}
+            onClick={() => setFilterStatus(status)}
+            className={`rounded-full px-4 py-2 text-sm transition ${
+              filterStatus === status
                 ? "bg-[#0F5139] text-white"
-                : "bg-white border text-[#0F5139] hover:bg-gray-50"
+                : "border bg-white text-[#0F5139]"
             }`}
           >
-            {s}
+            {status === "semua"
+              ? "Semua"
+              : status === "published"
+              ? "Published"
+              : "Draft"}
           </button>
         ))}
-
-        <input
-          type="number"
-          placeholder="Filter tahun"
-          value={filterTahun}
-          onChange={(e) => setFilterTahun(e.target.value)}
-          className="rounded-full border border-[#0F5139]/20 px-4 py-1.5 text-sm text-[#0F5139] outline-none w-32"
-        />
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-gray-500">Tidak ada relawan ditemukan.</p>
+        <p className="text-gray-500">Belum ada relawan yang terdaftar.</p>
       ) : (
         <div className="rounded-xl border bg-white overflow-hidden shadow-sm">
           <table className="w-full text-sm">
             <thead className="bg-[#0F5139] text-white">
               <tr>
-                <th className="text-left px-4 py-3 font-medium">Nama</th>
-                <th className="text-left px-4 py-3 font-medium">Divisi</th>
-                <th className="text-center px-4 py-3 font-medium">Status</th>
-                <th className="text-center px-4 py-3 font-medium">Tahun Bergabung</th>
-                <th className="text-left px-4 py-3 font-medium">Kontak</th>
-                <th className="text-center px-4 py-3 font-medium">Aksi</th>
+                <th className="text-left px-4 py-3 font-medium">
+                  Nama Kegiatan
+                </th>
+
+                <th className="text-center px-4 py-3 font-medium">
+                  Jumlah Relawan
+                </th>
+
+                <th className="text-center px-4 py-3 font-medium">
+                  Tanggal Mulai
+                </th>
+
+                <th className="text-center px-4 py-3 font-medium">
+                  Tanggal Selesai
+                </th>
+
+                <th className="text-center px-4 py-3 font-medium">
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50 transition">
-                  <td className="px-4 py-3 font-medium text-[#0F5139]">{item.nama}</td>
-                  <td className="px-4 py-3 text-gray-500">{item.divisi || "—"}</td>
+                  <td className="px-4 py-3 font-medium text-[#0F5139]">
+                    {item.nama_kegiatan}
+                  </td>
+
                   <td className="px-4 py-3 text-center">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                      item.status === "aktif"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}>
-                      {item.status}
-                    </span>
+                    {item.jumlah_relawan}
                   </td>
+
                   <td className="px-4 py-3 text-center text-gray-600">
-                    {item.tahun_bergabung}
+                    {item.tanggal_mulai}
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {item.nomor_kontak || "—"}
+
+                  <td className="px-4 py-3 text-center text-gray-600">
+                    {item.tanggal_selesai}
                   </td>
+
                   <td className="px-4 py-3">
                     <div className="flex justify-center gap-2">
                       <button
@@ -120,6 +143,7 @@ export default function RelawanList({ relawanList, onRefresh, onEdit }: Props) {
                       >
                         Edit
                       </button>
+
                       <button
                         onClick={() => handleDelete(item)}
                         className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700"

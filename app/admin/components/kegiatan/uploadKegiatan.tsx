@@ -45,6 +45,7 @@ export default function KegiatanForm({
   ])
 
   const [thumbnail, setThumbnail] = useState<File | null>(null)
+  const [showKategori, setShowKategori] = useState(false)
 
   const resetForm = () => {
     setNamaKegiatan("")
@@ -221,22 +222,124 @@ export default function KegiatanForm({
           </div>
 
           <div>
+            <div>
+              <label className="mb-2 block font-medium text-[#0F5139]">
+                Kategori
+              </label>
+
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowKategori(!showKategori)}
+                  className="flex w-full items-center justify-between rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
+                >
+                  <span>
+                    {kategori || "Pilih kategori"}
+                  </span>
+
+                  <svg
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                      showKategori ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {showKategori && (
+                  <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border bg-white shadow-lg">
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setKategori("Penanaman")
+                        setShowKategori(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      Penanaman
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setKategori("Survei")
+                        setShowKategori(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      Survei
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setKategori("Bersih Lingkungan")
+                        setShowKategori(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      Bersih Lingkungan
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setKategori("Edukasi")
+                        setShowKategori(false)
+                      }}
+                      className="w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+                    >
+                      Edukasi
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div>
             <label className="mb-2 block font-medium text-[#0F5139]">
-              Kategori
+              Tanggal Mulai
             </label>
-            <select
-              value={kategori}
-              onChange={(e) =>
-                setKategori(e.target.value as Kegiatan["kategori"])
-              }
-              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
-            >
-              <option value="">Pilih kategori</option>
-              <option value="Penanaman">Penanaman</option>
-              <option value="Survei">Survei</option>
-              <option value="Bersih Lingkungan">Bersih Lingkungan</option>
-              <option value="Edukasi">Edukasi</option>
-            </select>
+            <input
+              type="date"
+              value={tanggalMulai}
+              onChange={(e) => setTanggalMulai(e.target.value)}
+              className="w-full rounded-xl border p-3"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Jam Mulai
+            </label>
+            <input
+              type="time"
+              value={jamMulai}
+              onChange={(e) => setJamMulai(e.target.value)}
+              className="w-full rounded-xl border p-3"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block font-medium text-[#0F5139]">
+              Jam Selesai
+            </label>
+            <input
+              type="time"
+              value={jamSelesai}
+              onChange={(e) => setJamSelesai(e.target.value)}
+              className="w-full rounded-xl border p-3"
+            />
           </div>
 
           <div className="md:col-span-2">
@@ -274,44 +377,6 @@ export default function KegiatanForm({
               placeholder="Provinsi"
               value={provinsi}
               onChange={(e) => setProvinsi(e.target.value)}
-              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">
-              Tanggal Mulai
-            </label>
-            <input
-              type="date"
-              value={tanggalMulai}
-              onChange={(e) => setTanggalMulai(e.target.value)}
-              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">
-              Jam Mulai
-            </label>
-            <input
-              type="time"
-              placeholder="Jam mulai"
-              value={jamMulai}
-              onChange={(e) => setJamMulai(e.target.value)}
-              className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block font-medium text-[#0F5139]">
-              Jam Selesai
-            </label>
-            <input
-              type="time"
-              placeholder="Jam selesai"
-              value={jamSelesai}
-              onChange={(e) => setJamSelesai(e.target.value)}
               className="w-full rounded-xl border p-3 transition duration-200 focus:border-[#0F5139] focus:ring-2 focus:ring-[#0F5139]/10 outline-none"
             />
           </div>
@@ -438,7 +503,11 @@ export default function KegiatanForm({
           <label className="flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed transition-all duration-200 hover:bg-[#F5F5F5]">
             <p className="font-semibold">Upload Thumbnail</p>
 
-            <p className="mt-3 text-sm">
+            <p className="mt-1 text-sm text-gray-500">
+                  PNG, JPG, JPEG
+                </p>
+
+            <p className="mt-1 text-sm">
               {thumbnail
                 ? thumbnail.name
                 : editingKegiatan?.thumbnail_url
