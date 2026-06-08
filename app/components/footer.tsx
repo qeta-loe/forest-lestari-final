@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
-export default function Footer() {
+function FooterContent() {
   const [open, setOpen] = useState(false)
   const [loadingLogin, setLoadingLogin] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
@@ -127,5 +127,13 @@ export default function Footer() {
         </div>
       )}
     </footer>
+  )
+}
+
+export default function Footer() {
+  return (
+    <Suspense fallback={null}>
+      <FooterContent />
+    </Suspense>
   )
 }

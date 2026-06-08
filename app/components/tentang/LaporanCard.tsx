@@ -7,7 +7,7 @@ type Laporan = {
   deskripsi: string | null
   tanggal_publikasi: string | null
   file_url?: string | null
-  created_at: string | null
+  created_at?: string | null
 }
 
 type Stats = {
@@ -17,6 +17,10 @@ type Stats = {
   totalLokasi?: number
   totalRelawan?: number
   totalProgram?: number
+
+  pohon_ditanam?: number
+  relawan_aktif?: number
+  program_berjalan?: number
 }
 
 type Props = {
@@ -25,7 +29,7 @@ type Props = {
   isLatest?: boolean
 }
 
-function formatBulanTahun(value: string | null) {
+function formatBulanTahun(value?: string | null) {
   if (!value) return "Tanggal tidak tersedia"
 
   const date = new Date(value)
@@ -41,9 +45,14 @@ function formatBulanTahun(value: string | null) {
 export default function LaporanCard({ laporan, stats, isLatest }: Props) {
   const tanggal = laporan.tanggal_publikasi || laporan.created_at
 
-  const totalPohon = stats?.totalPohon ?? stats?.totalBibit ?? 0
-  const totalRelawan = stats?.totalRelawan ?? 0
-  const totalProgram = stats?.totalProgram ?? stats?.totalKegiatan ?? 0
+  const totalPohon =
+  stats?.totalPohon ?? stats?.totalBibit ?? stats?.pohon_ditanam ?? 0
+
+const totalRelawan =
+  stats?.totalRelawan ?? stats?.relawan_aktif ?? 0
+
+const totalProgram =
+  stats?.totalProgram ?? stats?.totalKegiatan ?? stats?.program_berjalan ?? 0
 
   return (
     <div className="overflow-hidden rounded-3xl bg-emerald-900/50 shadow-sm">
