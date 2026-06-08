@@ -22,23 +22,24 @@ export const parseKMLFile = async (
 
     if (!geometry) return
 
-    if (geometry.type === "Point") {
-      const [lng, lat] = geometry.coordinates
-      result.push({ lat, lng })
-    }
-
     if (geometry.type === "Polygon") {
       const ring = geometry.coordinates[0]
 
       ring.forEach(([lng, lat]: number[]) => {
-        result.push({ lat, lng })
+        result.push({
+          lat,
+          lng,
+        })
       })
     }
 
     if (geometry.type === "MultiPolygon") {
       geometry.coordinates.forEach((polygon: any) => {
         polygon[0].forEach(([lng, lat]: number[]) => {
-          result.push({ lat, lng })
+          result.push({
+            lat,
+            lng,
+          })
         })
       })
     }

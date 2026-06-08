@@ -275,46 +275,45 @@ export default function BerandaPage() {
     mitra_instansi: 0,
   })
   const [loadingStats, setLoadingStats] = useState(true)
-  const [totalKegiatan, setTotalKegiatan] = useState(0)
-  const [totalDas, setTotalDas] = useState(0)
-  const [totalMitra, setTotalMitra] = useState(0)
 
   const fetchStats = async () => {
-  setLoadingStats(true)
+    setLoadingStats(true)
 
-  const [kegiatanRes, dasRes, mitraRes] = await Promise.all([
-    supabase
-      .from("kegiatan")
-      .select("id", { count: "exact", head: true })
-      .eq("is_draft", false),
+    const [kegiatanRes, dasRes, mitraRes] = await Promise.all([
+      supabase
+        .from("kegiatan")
+        .select("id", { count: "exact", head: true })
+        .eq("is_draft", false),
 
-    supabase
-      .from("das")
-      .select("id", { count: "exact", head: true }),
+      supabase
+        .from("das")
+        .select("id", { count: "exact", head: true }),
 
-    supabase
-      .from("mitra")
-      .select("id", { count: "exact", head: true }),
-  ])
+      supabase
+        .from("mitra")
+        .select("id", { count: "exact", head: true }),
+    ])
 
-  if (kegiatanRes.error) {
-    console.error("FETCH TOTAL KEGIATAN ERROR:", kegiatanRes.error.message)
+    if (kegiatanRes.error) {
+      console.error("FETCH TOTAL KEGIATAN ERROR:", kegiatanRes.error.message)
+    }
+
+    if (dasRes.error) {
+      console.error("FETCH TOTAL DAS ERROR:", dasRes.error.message)
+    }
+
+    if (mitraRes.error) {
+      console.error("FETCH TOTAL MITRA ERROR:", mitraRes.error.message)
+    }
+
+    setBerandaStats({
+      kegiatan_selesai: kegiatanRes.count || 0,
+      das_terdokumentasi: dasRes.count || 0,
+      mitra_instansi: mitraRes.count || 0,
+    })
+
+    setLoadingStats(false)
   }
-
-  if (dasRes.error) {
-    console.error("FETCH TOTAL DAS ERROR:", dasRes.error.message)
-  }
-
-  if (mitraRes.error) {
-    console.error("FETCH TOTAL MITRA ERROR:", mitraRes.error.message)
-  }
-
-  setTotalKegiatan(kegiatanRes.count || 0)
-  setTotalDas(dasRes.count || 0)
-  setTotalMitra(mitraRes.count || 0)
-
-  setLoadingStats(false)
-}
 
   const fetchLatestArticles = async () => {
     setLoadingArticles(true)
@@ -399,18 +398,18 @@ export default function BerandaPage() {
 
               <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
                 <Link
-  href="/kegiatan"
-  className="inline-flex h-14 items-center justify-center rounded-full bg-emerald-900 px-7 text-base font-bold text-stone-50 transition hover:bg-emerald-950 active:scale-95 sm:text-lg"
->
-  Lihat Kegiatan
-</Link>
+                  href="/kegiatan"
+                  className="inline-flex h-14 items-center justify-center rounded-full bg-emerald-900 px-7 text-base font-bold text-stone-50 transition hover:bg-emerald-950 active:scale-95 sm:text-lg"
+                >
+                  Lihat Kegiatan
+                </Link>
 
-<Link
-  href="/database"
-  className="inline-flex h-14 items-center justify-center rounded-full border border-emerald-950 bg-stone-50 px-7 text-base font-bold text-emerald-900 transition hover:bg-emerald-50 active:scale-95 sm:text-lg"
->
-  Database Lingkungan
-</Link>
+                <Link
+                  href="/database"
+                  className="inline-flex h-14 items-center justify-center rounded-full border border-emerald-950 bg-stone-50 px-7 text-base font-bold text-emerald-900 transition hover:bg-emerald-50 active:scale-95 sm:text-lg"
+                >
+                  Database Lingkungan
+                </Link>
               </div>
             </div>
 
