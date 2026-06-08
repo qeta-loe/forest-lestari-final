@@ -89,7 +89,7 @@ export const deleteSection = async (id: number): Promise<void> => {
     .eq("section_id", id)
 
   const fotoPaths = (anggota || [])
-    .map((a) => a.foto_url?.split("/anggota/")[1])
+    .map((a) => a.foto_url?.split("/anggota_organisasi/")[1])
     .filter(Boolean) as string[]
 
   if (fotoPaths.length > 0) {
@@ -117,8 +117,6 @@ export const reorderSections = async (
   }
 }
 
-// ─── Anggota ────────────────────────────────────────────────
-
 export const createAnggota = async (
   section_id: number,
   nama: string,
@@ -134,7 +132,7 @@ export const createAnggota = async (
 
   if (uploadError) throw new Error(uploadError.message)
 
-  const foto_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/anggota/${fileName}`
+  const foto_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/anggota_organisasi/${fileName}`
 
   const { error } = await supabase.from("anggota_organisasi").insert([{
     section_id, nama, jabatan, urutan, linkedin_url, foto_url,
@@ -163,7 +161,7 @@ export const updateAnggota = async (
       .upload(fileName, foto)
 
     if (uploadError) throw new Error(uploadError.message)
-    foto_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/anggota/${fileName}`
+    foto_url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/anggota_organisasi/${fileName}`
   }
 
   const { error } = await supabase
@@ -179,7 +177,7 @@ export const deleteAnggota = async (
   foto_url: string | null
 ): Promise<void> => {
   if (foto_url) {
-    const path = foto_url.split("/anggota/")[1]
+    const path = foto_url.split("/anggota_organisasi/")[1]
     if (path) await supabase.storage.from("anggota_organisasi").remove([path])
   }
 

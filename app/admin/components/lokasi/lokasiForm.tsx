@@ -34,6 +34,9 @@ export default function LokasiForm({
   const [inputMode, setInputMode] = useState<"manual" | "kml" | "">("")
   const [showInputMode, setShowInputMode] = useState(false)
   const [kmlFileName, setKmlFileName] = useState("")
+  const [polygonCoordinates, setPolygonCoordinates] = useState<
+    { lat: number; lng: number }[]
+  >([])
 
   const handleKmlUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -42,27 +45,23 @@ export default function LokasiForm({
 
     if (!file) return
 
-    setKmlFileName(file.name)
+    try {
+      setKmlFileName(file.name)
 
-    const text = await file.text()
+      const coordinates = await parseKMLFile(file)
 
-    const match = text.match(
-      /<coordinates>([\s\S]*?)<\/coordinates>/
-    )
+      if (coordinates.length === 0) {
+        alert("Polygon tidak ditemukan")
+        return
+      }
 
-    if (!match) {
-      alert("Koordinat tidak ditemukan dalam file KML")
-      return
+      setPolygonCoordinates(coordinates)
+
+      setLatitude(String(coordinates[0].lat))
+      setLongitude(String(coordinates[0].lng))
+    } catch {
+      alert("Gagal membaca file KML")
     }
-
-    const firstCoordinate = match[1]
-      .trim()
-      .split(/\s+/)[0]
-
-    const [lng, lat] = firstCoordinate.split(",")
-
-    setLatitude(lat)
-    setLongitude(lng)
   }
 
   const resetForm = () => {
@@ -79,6 +78,7 @@ export default function LokasiForm({
 
     setInputMode("")
     setKmlFileName("")
+    setPolygonCoordinates([])
 
     setDeskripsi("")
     setIsDraft(false)
@@ -100,7 +100,7 @@ export default function LokasiForm({
       setJumlahBibit(String(editingLokasi.jumlah_bibit || ""))
       setTanggalTanam(editingLokasi.tanggal_tanam || "")
       setIsDraft(editingLokasi.is_draft || false)
-
+      setPolygonCoordinates(editingLokasi.polygon_coordinates || [])
     } else {
       resetForm()
     }
@@ -139,7 +139,9 @@ export default function LokasiForm({
         luas_area: Number(luasArea),
         jumlah_bibit: Number(jumlahBibit),
         tanggal_tanam: tanggalTanam,
+        deskripsi_lokasi: deskripsi,
         is_draft: draft,
+        polygon_coordinates: polygonCoordinates,
       }
 
       if (editingLokasi) {
@@ -433,6 +435,12 @@ export default function LokasiForm({
                 className="hidden"
               />
             </label>
+            {polygonCoordinates.length > 0 && (
+              <div className="mt-3 rounded-lg bg-green-50 p-3 text-sm text-green-700">
+                 Polygon berhasil dibaca (
+                {polygonCoordinates.length} titik koordinat)
+              </div>
+            )}
           </div>
         )}
 

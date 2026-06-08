@@ -48,7 +48,6 @@ export default async function TentangKamiPage() {
 
   return (
     <main className="min-h-screen bg-[#F7F6EF] text-[#113522]">
-      {/* HERO */}
       <section className="relative h-[500px] overflow-hidden lg:h-[620px]">
         <img
           
@@ -139,8 +138,6 @@ export default async function TentangKamiPage() {
   </div>
 
   <div className="mt-10 grid gap-8 lg:grid-cols-[1.65fr_1fr]">
-    {/* CARD RIWAYAT DARI SUPABASE */}
- {/* CARD RIWAYAT DARI SUPABASE */}
 {tonggakPreview.length > 0 ? (
   tonggakPreview.map((item: any) => {
     const imageSrc = getTonggakImage(item)

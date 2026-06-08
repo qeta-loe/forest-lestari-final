@@ -12,6 +12,11 @@ export type LokasiPenanaman = {
   luas_area: number
   jumlah_bibit: number
   tanggal_tanam: string
+  polygon_coordinates: {
+    lat: number
+    lng: number
+  }[] | null
+  deskripsi_lokasi: string | null
   is_draft: boolean
   created_at: string
 }
@@ -36,7 +41,13 @@ export const uploadLokasiPenanaman = async (data: {
   luas_area: number
   jumlah_bibit: number
   tanggal_tanam: string
+  status_lokasi: string
+  deskripsi_lokasi: string
   is_draft: boolean
+  polygon_coordinates: {
+    lat: number
+    lng: number
+  }[] | null
 }): Promise<void> => {
   const { error } = await supabase
     .from("lokasi_penanaman")
@@ -51,7 +62,10 @@ export const uploadLokasiPenanaman = async (data: {
         luas_area: data.luas_area,
         jumlah_bibit: data.jumlah_bibit,
         tanggal_tanam: data.tanggal_tanam,
+        status_lokasi: data.status_lokasi,
+        deskripsi_lokasi: data.deskripsi_lokasi || null,
         is_draft: data.is_draft,
+        polygon_coordinates: data.polygon_coordinates,
       },
     ])
 
@@ -72,7 +86,13 @@ export const updateLokasiPenanaman = async (
     luas_area: number
     jumlah_bibit: number
     tanggal_tanam: string
+    status_lokasi: string
+    deskripsi_lokasi: string
     is_draft: boolean
+    polygon_coordinates: {
+      lat: number
+      lng: number
+    }[] | null
   }
 ): Promise<void> => {
   const { error } = await supabase
@@ -86,8 +106,11 @@ export const updateLokasiPenanaman = async (
       longitude: data.longitude,
       luas_area: data.luas_area,
       jumlah_bibit: data.jumlah_bibit,
+      status_lokasi: data.status_lokasi,
       tanggal_tanam: data.tanggal_tanam,
+      deskripsi_lokasi: data.deskripsi_lokasi || null,
       is_draft: data.is_draft,
+      polygon_coordinates: data.polygon_coordinates,
     })
     .eq("id", id)
 

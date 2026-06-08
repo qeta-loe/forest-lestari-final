@@ -30,8 +30,6 @@ import {
   reorderAnggota,
 } from "./organisasi.service"
 
-// ─── Sortable Section Card ───────────────────────────────────
-
 function SortableSectionCard({
   section,
   onRefresh,
@@ -184,10 +182,8 @@ function SortableSectionCard({
       style={style}
       className="rounded-2xl border border-[#0F5139]/20 bg-white shadow-sm mb-4"
     >
-      {/* Section Header */}
       <div className="flex items-center justify-between p-4 border-b border-[#0F5139]/10">
         <div className="flex items-center gap-3">
-          {/* Drag handle */}
           <button
             {...attributes}
             {...listeners}
@@ -241,7 +237,6 @@ function SortableSectionCard({
         </div>
       </div>
 
-      {/* Anggota List */}
       <div className="p-4">
         <DndContext
           sensors={sensors}
@@ -271,7 +266,6 @@ function SortableSectionCard({
           </SortableContext>
         </DndContext>
 
-        {/* Form tambah/edit anggota */}
         {showAddAnggota ? (
           <div className="rounded-xl border border-[#0F5139]/10 bg-[#F8FAF8] p-4 space-y-3">
             <p className="text-sm font-semibold text-[#0F5139]">
@@ -430,8 +424,6 @@ function SortableAnggotaRow({
   )
 }
 
-// ─── Main Component ──────────────────────────────────────────
-
 export default function OrganisasiManager() {
   const [sections, setSections] = useState<SectionWithAnggota[]>([])
   const [loading, setLoading] = useState(true)
@@ -566,7 +558,6 @@ export default function OrganisasiManager() {
         </div>
       )}
 
-      {/* Drag-reorder sections */}
       {sections.length === 0 ? (
         <p className="text-gray-400 text-sm">Belum ada section organisasi.</p>
       ) : (
