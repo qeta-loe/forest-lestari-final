@@ -17,32 +17,75 @@ export const parseKMLFile = async (
 
   const result: LatLngPoint[] = []
 
-  geojson.features.forEach((feature: any) => {
-    const geometry = feature.geometry
+  const addPoint = (coord: number[]) => {
+    const lng = coord[0]
+    const lat = coord[1]
 
+    if (
+      typeof lat === "number" &&
+      typeof lng === "number" &&
+      !isNaN(lat) &&
+      !isNaN(lng)
+    ) {
+      result.push({
+        lat,
+        lng,
+      })
+    }
+  }
+
+  const parseGeometry = (geometry: any) => {
     if (!geometry) return
+
+    if (geometry.type === "Point") {
+      addPoint(geometry.coordinates)
+    }
+
+    if (geometry.type === "MultiPoint") {
+      geometry.coordinates.forEach((coord: number[]) => {
+        addPoint(coord)
+      })
+    }
+
+    if (geometry.type === "LineString") {
+      geometry.coordinates.forEach((coord: number[]) => {
+        addPoint(coord)
+      })
+    }
+
+    if (geometry.type === "MultiLineString") {
+      geometry.coordinates.forEach((line: number[][]) => {
+        line.forEach((coord: number[]) => {
+          addPoint(coord)
+        })
+      })
+    }
 
     if (geometry.type === "Polygon") {
       const ring = geometry.coordinates[0]
 
-      ring.forEach(([lng, lat]: number[]) => {
-        result.push({
-          lat,
-          lng,
-        })
+      ring.forEach((coord: number[]) => {
+        addPoint(coord)
       })
     }
 
     if (geometry.type === "MultiPolygon") {
-      geometry.coordinates.forEach((polygon: any) => {
-        polygon[0].forEach(([lng, lat]: number[]) => {
-          result.push({
-            lat,
-            lng,
-          })
+      geometry.coordinates.forEach((polygon: number[][][]) => {
+        polygon[0].forEach((coord: number[]) => {
+          addPoint(coord)
         })
       })
     }
+
+    if (geometry.type === "GeometryCollection") {
+      geometry.geometries.forEach((item: any) => {
+        parseGeometry(item)
+      })
+    }
+  }
+
+  geojson.features.forEach((feature: any) => {
+    parseGeometry(feature.geometry)
   })
 
   return result
