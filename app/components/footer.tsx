@@ -59,10 +59,12 @@ function FooterContent() {
 
           <div className="flex items-center gap-8 text-[#31513E] font-medium">
             <a
-              href="#hubungi"
+              href="https://www.instagram.com/forest.lestari"
+              target="_blank"
+              rel="noopener noreferrer"
               className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition"
             >
-              Hubungi Kami
+              @forest.lestari
             </a>
 
             <a
