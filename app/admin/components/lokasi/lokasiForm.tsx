@@ -45,13 +45,28 @@ export default function LokasiForm({
 
     if (!file) return
 
+    if (!file.name.toLowerCase().endsWith(".kml")) {
+      alert("File harus berformat .kml")
+      e.target.value = ""
+      setKmlFileName("")
+      setPolygonCoordinates([])
+      setLatitude("")
+      setLongitude("")
+      return
+    }
+
     try {
       setKmlFileName(file.name)
 
       const coordinates = await parseKMLFile(file)
 
       if (coordinates.length === 0) {
-        alert("Polygon tidak ditemukan")
+        alert("Koordinat tidak ditemukan di file KML")
+        setKmlFileName("")
+        setPolygonCoordinates([])
+        setLatitude("")
+        setLongitude("")
+        e.target.value = ""
         return
       }
 
@@ -61,6 +76,11 @@ export default function LokasiForm({
       setLongitude(String(coordinates[0].lng))
     } catch {
       alert("Gagal membaca file KML")
+      setKmlFileName("")
+      setPolygonCoordinates([])
+      setLatitude("")
+      setLongitude("")
+      e.target.value = ""
     }
   }
 
@@ -112,12 +132,19 @@ export default function LokasiForm({
 
   const handleSubmit = async (draft: boolean) => {
     setIsDraft(draft)
+
+    const finalLatitude =
+      latitude || (polygonCoordinates.length > 0 ? String(polygonCoordinates[0].lat) : "")
+
+    const finalLongitude =
+      longitude || (polygonCoordinates.length > 0 ? String(polygonCoordinates[0].lng) : "")
+
     if (
       !namaLokasi ||
       !provinsi ||
       !kabupatenKota ||
-      !latitude ||
-      !longitude ||
+      !finalLatitude ||
+      !finalLongitude ||
       !luasArea ||
       !jumlahBibit ||
       !tanggalTanam
@@ -134,8 +161,8 @@ export default function LokasiForm({
         provinsi,
         kabupaten_kota: kabupatenKota,
         alamat,
-        latitude: Number(latitude),
-        longitude: Number(longitude),
+        latitude: Number(finalLatitude),
+        longitude: Number(finalLongitude),
         luas_area: Number(luasArea),
         jumlah_bibit: Number(jumlahBibit),
         tanggal_tanam: tanggalTanam,
@@ -437,7 +464,7 @@ export default function LokasiForm({
             </label>
             {polygonCoordinates.length > 0 && (
               <div className="mt-3 rounded-lg bg-green-50 p-3 text-sm text-green-700">
-                 Polygon berhasil dibaca (
+                 Koordinat berhasil dibaca (
                 {polygonCoordinates.length} titik koordinat)
               </div>
             )}
