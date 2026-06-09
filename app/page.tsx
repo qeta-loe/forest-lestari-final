@@ -289,7 +289,8 @@ export default function BerandaPage() {
 
       supabase
         .from("das")
-        .select("id", { count: "exact", head: true }),
+        .select("id", { count: "exact", head: true })
+        .eq("is_draft", false),
 
       supabase
         .from("mitra")
