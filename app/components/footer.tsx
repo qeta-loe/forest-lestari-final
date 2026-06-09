@@ -67,12 +67,7 @@ function FooterContent() {
               @forest.lestari
             </a>
 
-            <a
-              href="#kerjasama"
-              className="px-3 py-3 rounded-md hover:text-white hover:bg-[#0F5139] transition"
-            >
-              Kerjasama
-            </a>
+            
 
             <button
               onClick={() => {
