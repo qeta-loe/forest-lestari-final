@@ -77,40 +77,40 @@ export default function LaporanForm({ editingLaporan, onSuccess, onCancel }: Pro
           </h1>
         </div>
 
-      <div className="space-y-5">
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          <div className="md:col-span-2">
-            <label className={labelClass}>Judul Laporan</label>
-            <input
-              type="text"
-              placeholder="Contoh: Laporan Tahunan - Rekap Dampak dan Program 2024"
-              value={judul}
-              onChange={(e) => setJudul(e.target.value)}
-              className={inputClass}
-            />
-          </div>
+        <div className="space-y-5">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <label className={labelClass}>Judul Laporan</label>
+              <input
+                type="text"
+                placeholder="Contoh: Laporan Tahunan - Rekap Dampak dan Program 2024"
+                value={judul}
+                onChange={(e) => setJudul(e.target.value)}
+                className={inputClass}
+              />
+            </div>
 
-          <div>
-            <label className={labelClass}>Tahun</label>
-            <input
-              type="number"
-              placeholder="Contoh: 2024"
-              value={tahun}
-              onChange={(e) => setTahun(e.target.value)}
-              className={inputClass}
-            />
-          </div>
+            <div>
+              <label className={labelClass}>Tahun</label>
+              <input
+                type="number"
+                placeholder="Contoh: 2024"
+                value={tahun}
+                onChange={(e) => setTahun(e.target.value)}
+                className={inputClass}
+              />
+            </div>
 
-          <div>
-            <label className={labelClass}>Tanggal Publikasi</label>
-            <input
-              type="date"
-              value={tanggalPublikasi}
-              onChange={(e) => setTanggalPublikasi(e.target.value)}
-              className={inputClass}
-            />
+            <div>
+              <label className={labelClass}>Tanggal Publikasi</label>
+              <input
+                type="date"
+                value={tanggalPublikasi}
+                onChange={(e) => setTanggalPublikasi(e.target.value)}
+                className={inputClass}
+              />
+            </div>
           </div>
-        </div>
 
           <div>
             <label className={labelClass}>Deskripsi</label>
@@ -157,6 +157,24 @@ export default function LaporanForm({ editingLaporan, onSuccess, onCancel }: Pro
                   {file ? file.name : "Klik untuk memilih file PDF"}
                 </p>
               </div>
+
+              <input
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const selectedFile = e.target.files?.[0] || null
+
+                  if (selectedFile && !selectedFile.name.toLowerCase().endsWith(".pdf")) {
+                    alert("Ekstensi file harus .pdf")
+                    e.target.value = ""
+                    setFile(null)
+                    return
+                  }
+
+                  setFile(selectedFile)
+                }}
+              />
             </label>
           </div>
 
@@ -196,9 +214,9 @@ export default function LaporanForm({ editingLaporan, onSuccess, onCancel }: Pro
                 Batal
               </button>
             )}
-        </div>
-      </div>  
-    </div>
+          </div>
+        </div>  
+      </div>
     </div>
   )
 }
