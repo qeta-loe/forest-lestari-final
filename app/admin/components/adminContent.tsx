@@ -10,6 +10,7 @@ import { Mitra } from "../tentang/mitra/mitra.service"
 import { LaporanTahunan } from "../tentang/laporan/laporan.service"
 import { Relawan } from "../tentang/relawan/relawan.service"
 import { Program } from "../tentang/program/program.service"
+import { KontenHalaman } from "@/lib/konten.service"
 
 
 import KegiatanUpload from "./kegiatan/uploadKegiatan"
@@ -33,6 +34,9 @@ import RelawanForm from "../tentang/relawan/RelawanForm"
 import RelawanList from "../tentang/relawan/RelawanList"
 import ProgramForm from "../tentang/program/ProgramForm"
 import ProgramList from "../tentang/program/ProgramList"
+import KontenForm from "../konten/KontenForm"
+import KontenList from "../konten/KontenList"
+import KontenManager from "../konten/KontenManager"
 
 type MenuKey =
   | "upload" | "list"
@@ -48,6 +52,7 @@ type MenuKey =
   | "laporan" | "laporanList"
   | "relawan" | "relawanList"
   | "program" | "programList"
+  | "konten" | "kontenList"
 
 type Props = {
   adminEmail: string
@@ -112,6 +117,9 @@ type Props = {
   onCancelEditLaporan: () => void
   onCancelEditRelawan: () => void
   onCancelEditProgram: () => void
+
+  kontenList: KontenHalaman[]
+  onRefreshKonten: () => void
 }
 
 export default function AdminContent({
@@ -171,6 +179,8 @@ export default function AdminContent({
   onCancelEditLaporan, 
   onCancelEditRelawan, 
   onCancelEditProgram,
+  kontenList,
+  onRefreshKonten,
 }: Props) {
   return (
      <div className="flex-1">
@@ -357,6 +367,13 @@ export default function AdminContent({
           programList={programList}
           onRefresh={onRefreshProgram}
           onEdit={(p) => { onEditProgram(p); setMenu("program") }}
+        />
+      )}
+
+      {(menu === "konten" || menu === "kontenList") && (
+        <KontenManager
+          kontenList={kontenList}
+          onRefresh={onRefreshKonten}
         />
       )}
     </div>

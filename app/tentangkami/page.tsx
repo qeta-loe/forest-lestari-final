@@ -3,6 +3,7 @@ import { getOrganisasi, getTonggak, getGlobalStats } from "@/lib/queries"
 import OrganisasiSection from "@/components/tentang/OrganisasiSection"
 import TonggakTimeline from "@/components/tentang/TonggakTimeline"
 import StatsBar from "@/components/tentang/StatsBar"
+import { fetchKontenByHalaman } from "@/lib/konten.service"
 
 export const dynamic = "force-dynamic"
 
@@ -37,10 +38,11 @@ function getTonggakImage(item: any) {
 }
 
 export default async function TentangKamiPage() {
-  const [sections, tonggakAll, stats] = await Promise.all([
+  const [sections, tonggakAll, stats, konten] = await Promise.all([
     getOrganisasi(),
     getTonggak(),
     getGlobalStats(),
+    fetchKontenByHalaman("tentang_kami"),
   ])
 
   // ambil tonggak terbaru untuk preview di halaman utama
@@ -50,7 +52,7 @@ export default async function TentangKamiPage() {
     <main className="min-h-screen bg-[#F7F6EF] text-[#113522]">
       <section className="relative h-[500px] overflow-hidden lg:h-[620px]">
         <img
-          
+          src={konten?.hero_image_url || "/images/hutan.jpg"}
           alt="hero tentang kami"
           className="absolute inset-0 h-full w-full object-cover"
         />
@@ -60,18 +62,16 @@ export default async function TentangKamiPage() {
           <div className="max-w-3xl">
             <div className="inline-flex rounded-full bg-white/20 px-4 py-2 backdrop-blur-sm">
               <p className="text-xs font-semibold tracking-[0.2em] text-white">
-                PROFIL KOMUNITAS
+                {konten?.badge_text || "PROFIL KOMUNITAS"}
               </p>
             </div>
 
             <h1 className="mt-6 font-['Newsreader'] text-4xl leading-tight text-white sm:text-5xl lg:text-6xl">
-              Menjaga Warisan, Melindungi Masa Depan
+              {konten?.judul || "Menjaga Warisan, Melindungi Masa Depan"}
             </h1>
 
             <p className="mt-6 text-sm leading-7 text-white/90 sm:text-base lg:max-w-2xl">
-              Forest Lestari lahir pada tanggal 13 September 2024 yang bermula
-              dari gerakan mahasiswa yang gelisah terhadap keanekaragaman hayati
-              Indonesia yang semakin terancam.
+              {konten?.deskripsi || "Forest Lestari lahir pada tanggal 13 September 2024 yang bermula dari gerakan mahasiswa yang gelisah terhadap keanekaragaman hayati Indonesia yang semakin terancam."}
             </p>
           </div>
         </div>
@@ -86,17 +86,14 @@ export default async function TentangKamiPage() {
 
             <div className="mt-6 rounded-[24px] border border-black/10 bg-white p-6 sm:p-8">
               <p className="leading-8 text-zinc-700">
-                Memberikan dampak pada rehabilitasi lingkungan melalui edukasi,
-                diskusi, dan konservasi terhadap kelestarian satwa dan fauna serta
-                berupaya mengurangi dampak kerusakan lingkungan yang terjadi, baik
-                di Indonesia maupun di dunia.
+                {konten?.tujuan_strategis || "Memberikan dampak pada rehabilitasi lingkungan melalui edukasi, diskusi, dan konservasi terhadap kelestarian satwa dan fauna serta berupaya mengurangi dampak kerusakan lingkungan yang terjadi, baik di Indonesia maupun di dunia."}
               </p>
             </div>
           </div>
 
           <div className="aspect-[4/3] overflow-hidden rounded-[32px] bg-zinc-300 lg:aspect-auto lg:h-[420px]">
           <img
-            src="/images/hutan2.jpg"
+            src={konten?.tujuan_image_url || "/images/hutan2.jpg"}
             alt="tujuan strategis"
             className="h-full w-full object-cover"
           />

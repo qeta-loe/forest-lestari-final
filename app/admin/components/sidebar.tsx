@@ -24,6 +24,8 @@ type MenuKey =
   | "relawanList"
   | "program"
   | "programList"
+  | "konten"
+  | "kontenList"
 
 type Props = {
   menu: MenuKey
@@ -71,6 +73,10 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
     "program",
     "programList",
   ].includes(menu)
+
+  const isKontenActive =
+    menu === "konten" ||
+    menu === "kontenList"
 
   const mainMenuClass = (active: boolean) =>
     `w-full text-left px-4 py-2 rounded-md mb-2 transition-all duration-150 cursor-pointer active:scale-95 ${
@@ -313,6 +319,30 @@ export default function AdminSidebar({ menu, setMenu, onLogout, setEditingKegiat
             </div>
           )
         })}
+
+        <button
+          onClick={() => setMenu("kontenList")}
+          className={`${mainMenuClass(isKontenActive)} flex items-center gap-2`}
+        >
+          <span
+            className={`transition-transform duration-200 ${
+              isKontenActive ? "rotate-90" : ""
+            }`}
+          >
+            ▶
+          </span>
+
+          <span>Kelola Konten Halaman</span>
+        </button>
+
+        {isKontenActive && (
+          <button
+            onClick={() => setMenu("kontenList")}
+            className={subMenuClass(menu === "kontenList")}
+          >
+            Daftar Konten
+          </button>
+        )}
         <button
           onClick={onLogout}
           className="mt-6 w-full rounded-md bg-red-600 px-4 py-2 text-left text-white transition hover:bg-red-700 active:scale-95"

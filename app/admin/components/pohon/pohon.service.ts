@@ -25,7 +25,7 @@ export type PohonInput = {
   nama_umum: string
   nama_ilmiah: string
   jumlah: number
-  lokasi_penanaman_id: number | null
+  lokasi_penanaman_id: number
   das_id: number | null
   is_draft: boolean
 }
@@ -105,6 +105,9 @@ export const fetchPohon = async (): Promise<PohonWithRelasi[]> => {
 }
 
 export const createPohon = async (input: PohonInput & { is_draft: boolean }): Promise<void> => {
+  if (!input.lokasi_penanaman_id) {
+    throw new Error("Lokasi penanaman wajib dipilih.")
+  }
   const { error } = await supabase.from("pohon").insert([
     {
       nama_umum: input.nama_umum,
@@ -126,6 +129,9 @@ export const updatePohon = async (
   id: number,
   input: PohonInput & { is_draft: boolean }
 ): Promise<void> => {
+   if (!input.lokasi_penanaman_id) {
+    throw new Error("Lokasi penanaman wajib dipilih.")
+  }
   const { error } = await supabase
     .from("pohon")
     .update({

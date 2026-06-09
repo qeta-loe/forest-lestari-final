@@ -18,6 +18,7 @@ import { fetchMitra, Mitra } from "./tentang/mitra/mitra.service"
 import { fetchLaporan, LaporanTahunan } from "./tentang/laporan/laporan.service"
 import { fetchRelawan, Relawan } from "./tentang/relawan/relawan.service"
 import { fetchProgram, Program } from "./tentang/program/program.service"
+import { fetchKontenHalaman, KontenHalaman } from "@/lib/konten.service"
 
 type MenuKey =
   | "upload"
@@ -43,6 +44,8 @@ type MenuKey =
   | "relawanList"
   | "program"
   | "programList"
+  | "konten"
+  | "kontenList"
 
 export default function AdminPage() {
   const router = useRouter()
@@ -76,6 +79,8 @@ export default function AdminPage() {
   const [editingLaporan, setEditingLaporan] = useState<LaporanTahunan | null>(null)
   const [editingRelawan, setEditingRelawan] = useState<Relawan | null>(null)
   const [editingProgram, setEditingProgram] = useState<Program | null>(null)
+
+  const [kontenList, setKontenList] = useState<KontenHalaman[]>([])
 
   const loadKegiatan = async () => {
     try {
@@ -217,7 +222,14 @@ export default function AdminPage() {
       alert(message)
     }
   }
+  
+  const loadKonten = async () => {
+    const data = await fetchKontenHalaman()
 
+    console.log("KONTEN:", data)
+
+    setKontenList(data)
+  }
   useEffect(() => {
     const checkAuth = async () => {
       const { data: sessionData, error: sessionError } =
@@ -251,6 +263,7 @@ export default function AdminPage() {
         return
       }
 
+      setAdminEmail(userEmail)
       setCheckingAuth(false)
 
       await Promise.all([
@@ -264,6 +277,7 @@ export default function AdminPage() {
         loadLaporan(),
         loadRelawan(),
         loadProgram(),
+        loadKonten(),
       ])
     }
 
@@ -397,6 +411,8 @@ export default function AdminPage() {
           onCancelEditLaporan={() => setEditingLaporan(null)}
           onCancelEditRelawan={() => setEditingRelawan(null)}
           onCancelEditProgram={() => setEditingProgram(null)}
+          kontenList={kontenList}
+          onRefreshKonten={loadKonten}
         />
       </div>
     </div>

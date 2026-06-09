@@ -318,6 +318,21 @@ function SortableSectionCard({
                   onChange={(e) => setFormFoto(e.target.files?.[0] || null)}
                   className="text-sm text-[#0F5139]"
                 />
+
+                <p className="mt-1 text-xs text-gray-500">
+                  Disarankan menggunakan foto rasio 4:3
+                  (contoh 1200 × 900 px atau 800 × 600 px).
+                  Foto dengan rasio berbeda tetap dapat diunggah,
+                  namun sebagian gambar mungkin terpotong pada halaman publik.
+                </p>
+
+                <div className="mt-3">
+                  <p className="mb-2 text-xs font-medium text-[#0F5139]">
+                    Preview rasio tampilan publik
+                  </p>
+
+                  <div className="aspect-[4/3] w-32 overflow-hidden rounded-lg border border-dashed border-gray-300 bg-gray-100" />
+                </div>
               </div>
             </div>
 
