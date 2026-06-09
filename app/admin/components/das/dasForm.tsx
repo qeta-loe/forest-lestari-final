@@ -44,6 +44,10 @@ export default function DasForm({ editingDas, onSuccess, onCancelEdit }: Props) 
   const [kmlFile, setKmlFile] = useState<File | null>(null)
   const [showInputMode, setShowInputMode] = useState(false)
 
+  const toNumberString = (value: string) => {
+  return value.trim() === "" ? "0" : value.trim()
+}
+
   const tutupanPreview = hitungTutupan(Number(luasTutupanHa) || 0, Number(luasHa) || 0)
   const kondisiPreview =
     jenisTanah && kemiringanMax
@@ -137,11 +141,11 @@ export default function DasForm({ editingDas, onSuccess, onCancelEdit }: Props) 
 
     const input: DasInput = {
       nama_das: namaDas,
-      koordinat_hulu: koordinatHulu,
-      koordinat_muara: koordinatMuara,
+      koordinat_hulu: toNumberString(koordinatHulu),
+      koordinat_muara: toNumberString(koordinatMuara),
       luas_ha: Number(luasHa),
       luas_tutupan_ha: Number(luasTutupanHa),
-      panjang_sungai_km: panjangSungaiKm,
+      panjang_sungai_km: toNumberString(panjangSungaiKm),
       jenis_tanah: jenisTanah,
       kemiringan_min: Number(kemiringanMin),
       kemiringan_max: Number(kemiringanMax),
@@ -183,11 +187,11 @@ export default function DasForm({ editingDas, onSuccess, onCancelEdit }: Props) 
 
     const input: DasInput = {
       nama_das: namaDas,
-      koordinat_hulu: koordinatHulu,
-      koordinat_muara: koordinatMuara,
+      koordinat_hulu: toNumberString(koordinatHulu),
+      koordinat_muara: toNumberString(koordinatMuara),
       luas_ha: Number(luasHa),
       luas_tutupan_ha: Number(luasTutupanHa),
-      panjang_sungai_km: panjangSungaiKm,
+      panjang_sungai_km: toNumberString(panjangSungaiKm),
       jenis_tanah: jenisTanah,
       kemiringan_min: Number(kemiringanMin),
       kemiringan_max: Number(kemiringanMax),
