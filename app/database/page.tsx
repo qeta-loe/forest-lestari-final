@@ -294,6 +294,7 @@ export default function DatabasePage() {
         count: "exact",
         head: true,
       })
+      .eq("is_draft", false)
 
     if (error) {
       console.error(error.message)
