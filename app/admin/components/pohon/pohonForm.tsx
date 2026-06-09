@@ -57,13 +57,13 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
 
   const handleSubmit = async (isDraft: boolean) => {
     if (!namaUmum || !jumlah) return alert("Nama umum dan jumlah wajib diisi")
-    if (!lokasiId && !dasId) return alert("Pilih minimal satu relasi: Lokasi Penanaman atau DAS")
+    if (!lokasiId) return alert("Lokasi penanaman wajib dipilih")
 
     const input: PohonInput & { is_draft: boolean } = {
       nama_umum: namaUmum,
       nama_ilmiah: namaIlmiah,
       jumlah: Number(jumlah),
-      lokasi_penanaman_id: lokasiId ? Number(lokasiId) : null,
+      lokasi_penanaman_id: Number(lokasiId),
       das_id: dasId ? Number(dasId) : null,
       is_draft: isDraft,
     }
@@ -86,12 +86,13 @@ export default function PohonForm({ editingPohon, onSuccess, onCancelEdit }: Pro
 
   const handleSaveDraft = async () => {
     if (!namaUmum || !jumlah) return alert("Nama umum dan jumlah wajib diisi")
+    if (!lokasiId) return alert("Lokasi penanaman wajib dipilih")
 
     const input: PohonInput = {
       nama_umum: namaUmum,
       nama_ilmiah: namaIlmiah,
       jumlah: Number(jumlah),
-      lokasi_penanaman_id: lokasiId ? Number(lokasiId) : null,
+      lokasi_penanaman_id: Number(lokasiId),
       das_id: dasId ? Number(dasId) : null,
       is_draft: true,
     }
