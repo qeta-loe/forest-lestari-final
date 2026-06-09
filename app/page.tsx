@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { setOptions, importLibrary } from "@googlemaps/js-api-loader"
 import { supabase } from "@/lib/supabase"
+import { fetchKontenByHalaman, fetchKontenHalaman, KontenHalaman } from "@/lib/konten.service"
 
 type Artikel = {
   id: number
@@ -266,6 +267,7 @@ function PetaLokasiPenanaman() {
 export default function BerandaPage() {
   const [articles, setArticles] = useState<Artikel[]>([])
   const [loadingArticles, setLoadingArticles] = useState(true)
+  const [konten, setKonten] = useState<KontenHalaman | null>(null)
 
   const [latestKegiatan, setLatestKegiatan] = useState<KegiatanTerbaru[]>([])
   const [loadingKegiatan, setLoadingKegiatan] = useState(true)
@@ -359,9 +361,16 @@ export default function BerandaPage() {
   }
 
   useEffect(() => {
+    const loadKonten = async () => {
+      const data =
+        await fetchKontenByHalaman("beranda")
+
+      setKonten(data)
+    }
     fetchLatestArticles()
     fetchLatestKegiatan()
     fetchStats()
+    loadKonten()
   }, [])
 
   const formatDate = (date?: string | null) => {
@@ -383,16 +392,18 @@ export default function BerandaPage() {
             <div className="flex flex-col items-start gap-6">
               <div className="max-w-3xl space-y-3 sm:space-y-4">
                 <div className="w-fit rounded-full bg-yellow-800/50 px-4 py-2 text-xs font-semibold tracking-wide text-orange-50 sm:text-sm">
-                  KOMUNITAS LINGKUNGAN BOGOR
+                  {konten?.badge_text ||
+                    "KOMUNITAS LINGKUNGAN BOGOR"}
                 </div>
 
                 <h1 className="font-['Newsreader'] text-4xl font-normal leading-tight text-emerald-950 sm:text-5xl lg:text-6xl">
-                  Bersama Menjaga Kelestarian Hutan & Alam Indonesia
+                  {konten?.judul ||
+                    "Bersama Menjaga Kelestarian Hutan & Alam Indonesia"}
                 </h1>
 
                 <p className="max-w-2xl text-base leading-7 text-zinc-700 sm:text-lg">
-                  Platform dokumentasi dan informasi kegiatan pelestarian
-                  lingkungan komunitas Forest Lestari.
+                  {konten?.deskripsi ||
+                    "Platform dokumentasi dan informasi kegiatan pelestarian lingkungan komunitas Forest Lestari."}
                 </p>
               </div>
 
@@ -416,10 +427,13 @@ export default function BerandaPage() {
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl sm:aspect-[5/3] lg:aspect-square">
               <img
                 className="h-full w-full object-cover"
-                src="/images/hutan.jpg"
+                src={
+                  konten?.hero_image_url ||
+                  "/images/hutan.jpg"
+                }
                 alt="Dokumentasi kegiatan lingkungan"
               />
-            </div>
+                          </div>
           </section>
         </div>
 
